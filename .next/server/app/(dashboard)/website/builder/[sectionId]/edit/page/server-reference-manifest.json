@@ -1,0 +1,35 @@
+{
+  "node": {
+    "407766db7a21ce356e8373ae24ba54e8304a29ad63": {
+      "workers": {
+        "app/(dashboard)/website/builder/[sectionId]/edit/page": {
+          "moduleId": 86537,
+          "async": false,
+          "exportedName": "getSectionById",
+          "filename": "src/lib/actions/sections.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/website/builder/[sectionId]/edit/page": "action-browser"
+      },
+      "exportedName": "getSectionById",
+      "filename": "src/lib/actions/sections.ts"
+    },
+    "60ad15dae7806a98724a7c28dcb98bea1e81174752": {
+      "workers": {
+        "app/(dashboard)/website/builder/[sectionId]/edit/page": {
+          "moduleId": 86537,
+          "async": false,
+          "exportedName": "updateSection",
+          "filename": "src/lib/actions/sections.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/website/builder/[sectionId]/edit/page": "action-browser"
+      },
+      "exportedName": "updateSection",
+      "filename": "src/lib/actions/sections.ts"
+    }
+  },
+  "edge": {}
+}

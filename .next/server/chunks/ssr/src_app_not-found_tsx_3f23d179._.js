@@ -1,0 +1,3 @@
+module.exports=[3363,a=>{"use strict";var b=a.i(7997);function c(){return(0,b.jsx)("div",{className:"flex min-h-screen items-center justify-center bg-slate-50",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("h1",{className:"mb-4 text-7xl font-display font-bold text-emerald-600",children:"404"}),(0,b.jsx)("p",{className:"mb-8 text-xl text-slate-600",children:"Halaman tidak ditemukan"}),(0,b.jsx)("a",{href:"/",className:"px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors",children:"Kembali ke Beranda"})]})})}a.s(["default",()=>c])}];
+
+//# sourceMappingURL=src_app_not-found_tsx_3f23d179._.js.map

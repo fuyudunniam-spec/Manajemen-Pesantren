@@ -1,0 +1,3 @@
+{
+  "/(dashboard)/website/builder/[sectionId]/edit/page": "app/(dashboard)/website/builder/[sectionId]/edit/page.js"
+}

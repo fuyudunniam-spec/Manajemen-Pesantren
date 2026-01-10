@@ -1,0 +1,50 @@
+{
+  "node": {
+    "401dc94dd5dc51e271ddeff3f44d3d738533493154": {
+      "workers": {
+        "app/(dashboard)/website/pages/[id]/edit/page": {
+          "moduleId": 10489,
+          "async": false,
+          "exportedName": "getPageById",
+          "filename": "src/lib/actions/pages.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/website/pages/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "getPageById",
+      "filename": "src/lib/actions/pages.ts"
+    },
+    "4075e9d5cee05d3c49b224a67708f3beb900904deb": {
+      "workers": {
+        "app/(dashboard)/website/pages/[id]/edit/page": {
+          "moduleId": 10489,
+          "async": false,
+          "exportedName": "createPage",
+          "filename": "src/lib/actions/pages.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/website/pages/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "createPage",
+      "filename": "src/lib/actions/pages.ts"
+    },
+    "6036857a822aee89d791ca2621eacd0daed3be04c2": {
+      "workers": {
+        "app/(dashboard)/website/pages/[id]/edit/page": {
+          "moduleId": 10489,
+          "async": false,
+          "exportedName": "updatePage",
+          "filename": "src/lib/actions/pages.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/website/pages/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "updatePage",
+      "filename": "src/lib/actions/pages.ts"
+    }
+  },
+  "edge": {}
+}

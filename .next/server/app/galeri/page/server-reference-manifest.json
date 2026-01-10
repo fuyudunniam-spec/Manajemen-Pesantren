@@ -1,0 +1,20 @@
+{
+  "node": {
+    "002c3c1ba4b3794b9f598d4bc16943f4eb8e725167": {
+      "workers": {
+        "app/galeri/page": {
+          "moduleId": 80856,
+          "async": false,
+          "exportedName": "getTheme",
+          "filename": "src/lib/actions/theme.ts"
+        }
+      },
+      "layer": {
+        "app/galeri/page": "action-browser"
+      },
+      "exportedName": "getTheme",
+      "filename": "src/lib/actions/theme.ts"
+    }
+  },
+  "edge": {}
+}

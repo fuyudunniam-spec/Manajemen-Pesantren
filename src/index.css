@@ -1,0 +1,253 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* e-Maktab Design System - Pesantren Modern Theme */
+
+@layer base {
+  :root {
+    /* Primary - Emerald Green (Islamic heritage) */
+    --primary: 158 64% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Warm Gold */
+    --secondary: 43 74% 49%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Background - Warm cream tones */
+    --background: 40 33% 98%;
+    --foreground: 220 25% 15%;
+
+    /* Card - Soft white */
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 15%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 15%;
+
+    /* Muted - Warm gray */
+    --muted: 40 20% 94%;
+    --muted-foreground: 220 15% 45%;
+
+    /* Accent - Light emerald */
+    --accent: 158 45% 92%;
+    --accent-foreground: 158 64% 25%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border & Input */
+    --border: 40 20% 88%;
+    --input: 40 20% 88%;
+    --ring: 158 64% 32%;
+
+    --radius: 0.625rem;
+
+    /* Sidebar - Deep emerald */
+    --sidebar-background: 158 64% 18%;
+    --sidebar-foreground: 158 20% 90%;
+    --sidebar-primary: 43 74% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 158 50% 25%;
+    --sidebar-accent-foreground: 158 20% 95%;
+    --sidebar-border: 158 40% 25%;
+    --sidebar-ring: 43 74% 55%;
+
+    /* Custom gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(158 64% 32%) 0%, hsl(158 64% 22%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(43 74% 55%) 0%, hsl(35 80% 45%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 33% 97%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -2px hsl(158 64% 20% / 0.08);
+    --shadow-card: 0 8px 30px -4px hsl(158 64% 20% / 0.12);
+    --shadow-elevated: 0 20px 50px -10px hsl(158 64% 20% / 0.15);
+
+    /* Typography */
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  .dark {
+    --background: 220 25% 8%;
+    --foreground: 40 20% 95%;
+
+    --card: 220 25% 12%;
+    --card-foreground: 40 20% 95%;
+
+    --popover: 220 25% 12%;
+    --popover-foreground: 40 20% 95%;
+
+    --primary: 158 55% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 43 74% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 20% 18%;
+    --muted-foreground: 220 15% 65%;
+
+    --accent: 158 40% 18%;
+    --accent-foreground: 158 55% 75%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 158 55% 45%;
+
+    --sidebar-background: 220 25% 6%;
+    --sidebar-foreground: 158 20% 90%;
+    --sidebar-primary: 43 74% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 15%;
+    --sidebar-accent-foreground: 158 20% 90%;
+    --sidebar-border: 220 20% 15%;
+    --sidebar-ring: 43 74% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+
+  /* Hero Section Styles */
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+
+  .gold-gradient {
+    background: var(--gradient-gold);
+  }
+
+  .card-gradient {
+    background: var(--gradient-card);
+  }
+
+  /* Decorative Islamic Pattern Overlay */
+  .pattern-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Glass Effect */
+  .glass {
+    @apply backdrop-blur-md bg-white/80 border border-white/20;
+  }
+
+  /* Text Styles */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Animated underline */
+  .link-underline {
+    @apply relative;
+  }
+
+  .link-underline::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-300;
+  }
+
+  .link-underline:hover::after {
+    @apply w-full;
+  }
+
+  /* Status Badges */
+  .badge-success {
+    @apply bg-emerald-100 text-emerald-700 border-emerald-200;
+  }
+
+  .badge-warning {
+    @apply bg-amber-100 text-amber-700 border-amber-200;
+  }
+
+  .badge-danger {
+    @apply bg-red-100 text-red-700 border-red-200;
+  }
+
+  .badge-info {
+    @apply bg-blue-100 text-blue-700 border-blue-200;
+  }
+
+  /* Sidebar Coming Soon */
+  .coming-soon {
+    @apply opacity-60 cursor-not-allowed pointer-events-none;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  .animate-slide-down {
+    animation: slideDown 0.4s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

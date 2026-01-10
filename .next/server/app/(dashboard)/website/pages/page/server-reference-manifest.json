@@ -1,0 +1,50 @@
+{
+  "node": {
+    "00e2e17d7378f7582589ea5115b78c7ca91850f3bf": {
+      "workers": {
+        "app/(dashboard)/website/pages/page": {
+          "moduleId": 79897,
+          "async": false,
+          "exportedName": "getPages",
+          "filename": "src/lib/actions/pages.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/website/pages/page": "action-browser"
+      },
+      "exportedName": "getPages",
+      "filename": "src/lib/actions/pages.ts"
+    },
+    "40d940180ad922c2459014a980ac811947531fed06": {
+      "workers": {
+        "app/(dashboard)/website/pages/page": {
+          "moduleId": 79897,
+          "async": false,
+          "exportedName": "deletePage",
+          "filename": "src/lib/actions/pages.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/website/pages/page": "action-browser"
+      },
+      "exportedName": "deletePage",
+      "filename": "src/lib/actions/pages.ts"
+    },
+    "6070c9efd6670b31c6b0926c392c2d16a3c10bd22d": {
+      "workers": {
+        "app/(dashboard)/website/pages/page": {
+          "moduleId": 79897,
+          "async": false,
+          "exportedName": "togglePublish",
+          "filename": "src/lib/actions/pages.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/website/pages/page": "action-browser"
+      },
+      "exportedName": "togglePublish",
+      "filename": "src/lib/actions/pages.ts"
+    }
+  },
+  "edge": {}
+}
