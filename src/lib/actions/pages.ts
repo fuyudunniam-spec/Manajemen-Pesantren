@@ -17,7 +17,7 @@ export interface PageData {
 }
 
 export async function getPages() {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from('website_pages')
@@ -32,7 +32,7 @@ export async function getPages() {
 }
 
 export async function getPageBySlug(slug: string, preview = false) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     let query = supabase
         .from('website_pages')
@@ -54,7 +54,7 @@ export async function getPageBySlug(slug: string, preview = false) {
 }
 
 export async function getPageById(id: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from('website_pages')
@@ -70,7 +70,7 @@ export async function getPageById(id: string) {
 }
 
 export async function createPage(page: PageData) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -97,7 +97,7 @@ export async function createPage(page: PageData) {
 }
 
 export async function updatePage(id: string, page: Partial<PageData>) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -127,7 +127,7 @@ export async function updatePage(id: string, page: Partial<PageData>) {
 }
 
 export async function deletePage(id: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -150,7 +150,7 @@ export async function deletePage(id: string) {
 }
 
 export async function togglePublish(id: string, currentStatus: boolean) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 

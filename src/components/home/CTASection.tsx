@@ -14,7 +14,7 @@ interface CTAContent {
 }
 
 export function CTASection() {
-  const { data, loading } = useSection<CTAContent>('cta');
+  const { data } = useSection<CTAContent>('cta');
 
   const title = data?.title || "Pendaftaran Santri Baru";
   const subtitle = data?.subtitle || "Mari bergabung menjadi bagian dari keluarga besar Pesantren Albisri. Kuota terbatas!";
@@ -22,7 +22,6 @@ export function CTASection() {
   const registrationPeriod = data?.content?.registration_period || "Gelombang 1: Jan - Mar 2024";
   const academicYear = data?.content?.academic_year || "2024/2025";
 
-  if (loading) return null;
 
   return (
     <section className="py-24 relative overflow-hidden bg-emerald-900">

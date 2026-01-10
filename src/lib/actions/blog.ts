@@ -43,7 +43,7 @@ export async function getBlogPosts(filters?: {
     limit?: number;
     offset?: number;
 }) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     let query = supabase
         .from("blog_posts")
@@ -89,7 +89,7 @@ export async function getBlogPosts(filters?: {
 }
 
 export async function getBlogPost(slug: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from("blog_posts")
@@ -114,7 +114,7 @@ export async function getBlogPost(slug: string) {
 }
 
 export async function getBlogPostById(id: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from("blog_posts")
@@ -139,7 +139,7 @@ export async function getBlogPostById(id: string) {
 }
 
 export async function createBlogPost(formData: FormData) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
@@ -185,7 +185,7 @@ export async function createBlogPost(formData: FormData) {
 }
 
 export async function updateBlogPost(id: string, formData: FormData) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
@@ -238,7 +238,7 @@ export async function updateBlogPost(id: string, formData: FormData) {
 }
 
 export async function deleteBlogPost(id: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { error } = await supabase
         .from("blog_posts")
@@ -255,7 +255,7 @@ export async function deleteBlogPost(id: string) {
 }
 
 export async function togglePublishStatus(id: string, isPublished: boolean) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();

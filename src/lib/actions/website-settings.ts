@@ -19,7 +19,7 @@ export interface WebsiteSettings {
 }
 
 export async function getWebsiteSettings() {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from('website_settings')
@@ -40,7 +40,7 @@ export async function getWebsiteSettings() {
 }
 
 export async function updateWebsiteSettings(settings: Partial<WebsiteSettings>) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 

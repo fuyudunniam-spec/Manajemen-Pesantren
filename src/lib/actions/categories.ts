@@ -18,7 +18,7 @@ export interface BlogCategory {
 }
 
 export async function getCategories(includeInactive = false) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     let query = supabase
         .from("blog_categories")
@@ -40,7 +40,7 @@ export async function getCategories(includeInactive = false) {
 }
 
 export async function getCategory(slug: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from("blog_categories")
@@ -57,7 +57,7 @@ export async function getCategory(slug: string) {
 }
 
 export async function createCategory(formData: FormData) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const name = formData.get("name") as string;
     const slug = formData.get("slug") as string;
@@ -91,7 +91,7 @@ export async function createCategory(formData: FormData) {
 }
 
 export async function updateCategory(id: string, formData: FormData) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const name = formData.get("name") as string;
     const slug = formData.get("slug") as string;
@@ -128,7 +128,7 @@ export async function updateCategory(id: string, formData: FormData) {
 }
 
 export async function deleteCategory(id: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Check if category has posts
     const { count } = await supabase
@@ -155,7 +155,7 @@ export async function deleteCategory(id: string) {
 }
 
 export async function toggleCategoryStatus(id: string, isActive: boolean) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { error } = await supabase
         .from("blog_categories")

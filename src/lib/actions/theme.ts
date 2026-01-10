@@ -16,7 +16,7 @@ export interface ThemeSettings {
 }
 
 export async function getTheme(): Promise<ThemeSettings | null> {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from('website_themes')
@@ -33,7 +33,7 @@ export async function getTheme(): Promise<ThemeSettings | null> {
 }
 
 export async function updateTheme(theme: Partial<ThemeSettings>) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 

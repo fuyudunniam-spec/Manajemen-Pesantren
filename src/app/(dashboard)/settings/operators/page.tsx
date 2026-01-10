@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Settings, ShieldCheck, CheckSquare, Square } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 // Central Module Registry
 export const MODULE_REGISTRY = [
@@ -24,7 +25,7 @@ export default function OperatorSettingsPage() {
     const supabase = createClient()
 
     useEffect(() => {
-        async function fetchData() {
+        const fetchData = async () => {
             // Get all users with Operator role
             const { data: users } = await supabase
                 .from('profiles')
@@ -39,7 +40,7 @@ export default function OperatorSettingsPage() {
 
     useEffect(() => {
         if (selectedOperator) {
-            async function fetchUserPermissions() {
+            const fetchUserPermissions = async () => {
                 const { data } = await supabase
                     .from('user_permissions')
                     .select('permissions(slug)')
@@ -190,6 +191,3 @@ export default function OperatorSettingsPage() {
     )
 }
 
-function cn(...inputs: any[]) {
-    return inputs.filter(Boolean).join(' ')
-}

@@ -35,25 +35,52 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    // Define public routes that don't require authentication
+    const publicRoutes = [
+        '/',
+        '/login',
+        '/auth',
+        '/berita',
+        '/profil',
+        '/kontak',
+        '/galeri',
+        '/program',
+        '/psb',
+        '/donasi',
+        '/dukungan',
+        '/access-denied'
+    ]
+
+    // Check if current path is a public route or starts with a public route
+    const isPublicRoute = publicRoutes.some(route =>
+        request.nextUrl.pathname === route ||
+        request.nextUrl.pathname.startsWith(route + '/')
+    )
+
+    // Only redirect to login if:
+    // 1. User is not authenticated
+    // 2. Route is not public
+    // 3. Route is not an API route or static file
     if (
         !user &&
-        !request.nextUrl.pathname.startsWith('/login') &&
-        !request.nextUrl.pathname.startsWith('/auth')
+        !isPublicRoute &&
+        !request.nextUrl.pathname.startsWith('/api') &&
+        !request.nextUrl.pathname.startsWith('/_next')
     ) {
-        // no user, potentially respond by redirecting the user to the login page
+        // Redirect to login page
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)
     }
 
-    // Permission Logic
+    // Permission Logic for authenticated users
     if (user) {
         // Module slug extraction
         const pathParts = request.nextUrl.pathname.split('/').filter(Boolean)
         const moduleSlug = pathParts[0]
 
         // Core modules that are always allowed if logged in
-        const coreModules = ['dashboard', 'profile']
+        const coreModules = ['dashboard', 'profile', 'users', 'website']
 
         if (moduleSlug && !coreModules.includes(moduleSlug)) {
             // Check roles and permissions

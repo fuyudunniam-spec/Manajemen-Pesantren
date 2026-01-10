@@ -16,7 +16,7 @@ export interface SectionData {
 }
 
 export async function getSections(page?: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     let query = supabase
         .from('website_sections')
@@ -37,7 +37,7 @@ export async function getSections(page?: string) {
 }
 
 export async function getSectionById(id: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from('website_sections')
@@ -53,7 +53,7 @@ export async function getSectionById(id: string) {
 }
 
 export async function updateSection(id: string, section: Partial<SectionData>) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -81,7 +81,7 @@ export async function updateSection(id: string, section: Partial<SectionData>) {
 }
 
 export async function createSection(section: SectionData) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -107,7 +107,7 @@ export async function createSection(section: SectionData) {
 }
 
 export async function deleteSection(id: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { error } = await supabase
         .from('website_sections')
@@ -125,7 +125,7 @@ export async function deleteSection(id: string) {
 }
 
 export async function duplicateSection(id: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -169,7 +169,7 @@ export async function duplicateSection(id: string) {
 }
 
 export async function toggleSectionVisibility(id: string, currentStatus: boolean) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -197,7 +197,7 @@ export async function toggleSectionVisibility(id: string, currentStatus: boolean
 }
 
 export async function reorderSections(sections: { id: string; order_index: number }[]) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 

@@ -19,7 +19,7 @@ export interface StaticPage {
 }
 
 export async function getStaticPage(slug: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from("static_pages")
@@ -37,7 +37,7 @@ export async function getStaticPage(slug: string) {
 }
 
 export async function getStaticPageForEdit(slug: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from("static_pages")
@@ -54,7 +54,7 @@ export async function getStaticPageForEdit(slug: string) {
 }
 
 export async function updateStaticPage(slug: string, formData: FormData) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();

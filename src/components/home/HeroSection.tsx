@@ -14,22 +14,15 @@ interface HeroContent {
 }
 
 export function HeroSection() {
-  const { data, loading } = useSection<HeroContent>('hero');
+  const { data } = useSection<HeroContent>('hero');
 
-  // Default fallback values
+  // Use fallback values - always render content regardless of loading/error state
   const title = data?.title || "Membentuk Generasi Qurani yang Berakhlak Mulia";
   const subtitle = data?.subtitle || "Pondok Pesantren kami berkomitmen mencetak santri yang menguasai ilmu agama, berakhlak karimah, dan siap menghadapi tantangan zaman.";
   const badge = data?.content?.badge || "Pendaftaran Santri Baru Dibuka!";
   const ctaPrimary = data?.content?.cta_primary || "Daftar Sekarang";
   const ctaSecondary = data?.content?.cta_secondary || "Pelajari Lebih Lanjut";
 
-  if (loading) {
-    return (
-      <section className="relative min-h-[90vh] flex items-center justify-center bg-emerald-950">
-        <Loader2 className="w-8 h-8 animate-spin text-gold-400" />
-      </section>
-    );
-  }
 
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-emerald-950">

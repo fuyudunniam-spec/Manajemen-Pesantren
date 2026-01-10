@@ -43,19 +43,12 @@ const defaultFeatures = [
 ];
 
 export function FeaturesSection() {
-  const { data, loading } = useSection<FeaturesContent>('features');
+  const { data } = useSection<FeaturesContent>('features');
 
   const title = data?.title || "Mengapa Memilih Pondok Pesantren Kami?";
   const subtitle = data?.subtitle || "Kami menyediakan pendidikan holistik yang memadukan nilai-nilai Islam dengan pengetahuan modern untuk mencetak generasi unggul.";
   const features = data?.content?.items || defaultFeatures;
 
-  if (loading) {
-    return (
-      <section className="py-20 md:py-28 bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </section>
-    );
-  }
 
   return (
     <section className="py-20 md:py-28 bg-background">
