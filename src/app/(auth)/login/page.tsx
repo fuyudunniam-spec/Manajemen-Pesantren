@@ -100,13 +100,7 @@ export default function LoginPage() {
                     transition={{ duration: 0.5 }}
                     className="w-full max-w-md"
                 >
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-8"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Kembali ke Website
-                    </Link>
+
 
                     {/* Mobile Logo */}
                     <div className="lg:hidden flex items-center gap-3 mb-8">
@@ -217,9 +211,9 @@ export default function LoginPage() {
 
                     <p className="text-center text-sm text-white/50 mt-6">
                         Belum memiliki akun?{" "}
-                        <Link href="/kontak" className="text-amber-400 hover:text-amber-300 hover:underline">
+                        <span className="text-amber-400">
                             Hubungi administrator
-                        </Link>
+                        </span>
                     </p>
                 </motion.div>
             </div>

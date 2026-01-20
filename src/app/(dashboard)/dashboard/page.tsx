@@ -11,7 +11,6 @@ import {
     UserPlus,
     BarChart3,
     Settings,
-    Globe,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -19,13 +18,6 @@ export default function DashboardPage() {
     const router = useRouter();
 
     const modules = [
-        {
-            title: "Manajemen Website",
-            description: "Kelola konten halaman website",
-            icon: Globe,
-            color: "from-blue-500 to-blue-600",
-            path: "/dashboard/website",
-        },
         {
             title: "Penerimaan Santri Baru",
             description: "Kelola pendaftaran santri baru",

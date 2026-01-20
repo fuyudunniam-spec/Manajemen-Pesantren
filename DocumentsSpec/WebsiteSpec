@@ -1,0 +1,115 @@
+Product Requirement Document (PRD): Al-Bisri Digital Ecosystem
+
+Versi: 1.2
+
+Status: Draft (Updated - Partnership, Testimonials, & Achievements Added)
+
+Target Utama: Pesantren Anak Yatim Al-Bisri
+
+Teknologi Utama: Astro, Sanity CMS, Next.js, Tailwind CSS
+
+1. Pendahuluan & Ringkasan Executif
+
+Al-Bisri Digital Ecosystem adalah platform terpadu yang menggabungkan transparansi filantropi Islam dengan manajemen pendidikan pesantren modern. Proyek ini bertujuan untuk membangun kepercayaan donatur melalui data yang akurat (Aplikasi Manajemen) dan penyajian informasi yang puitis serta profesional (Landing Page).
+
+2. Objektif Produk
+
+Meningkatkan Kepercayaan: Menampilkan transparansi penggunaan dana donasi melalui "Impact Fund".
+
+Efisiensi Operasional: Digitalisasi data santri, kurikulum, dan keuangan menggunakan aplikasi internal.
+
+Branding Professional: Membangun citra pesantren yang modern, elegan, dan sinematik (Tanwen-inspired).
+
+Social Proof: Memperkuat kredibilitas melalui testimoni, daftar mitra, dan rekam jejak prestasi.
+
+3. Profil Pengguna (User Personas)
+
+Donatur/Filantrop: Individu/Lembaga yang ingin menyalurkan dana dan melihat dampak nyata secara transparan.
+
+Wali Santri: Orang tua atau wali yang ingin mendaftarkan anak atau memantau perkembangan santri.
+
+Admin/Pengurus: Staf pesantren yang mengelola data harian, konten website, dan laporan keuangan.
+
+4. Cakupan Produk (Product Scope)
+
+A. Landing Page (Astro + Sanity) - Sisi Publik
+
+Fokus pada kecepatan (SEO), estetika, dan konten dinamis.
+
+Hero Section: Pesan visual sinematik mengenai visi masa depan yatim.
+
+About & Philosophy: Penjelasan mengenai metode "Adab sebelum Ilmu".
+
+Program Studi: Detail kurikulum (Tahfidz, Madrasah Diniyah, Entrepreneur).
+
+Blog & Artikel (Sanity-driven): Publikasi pemikiran, berita kegiatan, dan literasi filantropi.
+
+Impact Fund Hub: Dashboard publik sederhana yang menampilkan statistik dampak donasi.
+
+Kemitraan (Partnership): Etalase logo institusi, perusahaan, dan komunitas yang berkolaborasi dengan Al-Bisri.
+
+Testimoni (Social Proof): Kesaksian kurasi dari donatur, tokoh masyarakat, dan wali santri mengenai manfaat program.
+
+Prestasi & Galeri: Dokumentasi capaian santri di berbagai bidang serta momen-momen ikonik pengabdian.
+
+AI Assistant (Khadim Al-Bisri): [DITUNDA - Masuk ke Fase Pengembangan Lanjutan]
+
+B. Portal App (Next.js) - Sisi Manajemen Internal
+
+Fokus pada fungsionalitas, otentikasi, dan manipulasi data.
+
+Dashboard Admin: Ringkasan statistik pesantren.
+
+Manajemen Santri: Database profil, kesehatan, dan perkembangan hafalan.
+
+Modul Keuangan: Pencatatan arus kas, zakat, wakaf, dan sedekah.
+
+Laporan Filantropi: Generate laporan otomatis untuk diunggah ke Sanity/Landing Page.
+
+5. Spesifikasi Teknis & Arsitektur
+
+Frontend Website: Astro (Static Site Generation - SSG) untuk skor Google PageSpeed yang sempurna.
+
+Content Management: Sanity CMS (Headless) untuk mengelola teks, gambar, dan kampanye Impact Fund.
+
+Web Application: Next.js (Server Side Rendering - SSR) untuk portal manajemen santri.
+
+Styling: Tailwind CSS dengan komponen kustom ala Shadcn UI.
+
+6. Panduan Visual (Visual Identity)
+
+Karakter: Sinematik, Minimalis, Puitis, Profesional.
+
+Warna Utama: -   #2D3A18 (Deep Forest Green) - Ketenangan & Kedalaman.
+
+#B8860B (Warm Gold) - Kemuliaan & Cahaya.
+
+#FDFBF7 (Ivory Cream) - Kesucian & Kehangatan.
+
+Tipografi: -   Heading: Playfair Display (Serif)
+
+Body: Plus Jakarta Sans (Sans-serif)
+
+7. Persyaratan Non-Fungsional
+
+Performa: Load time halaman utama < 1.5 detik.
+
+Keamanan: Enkripsi data pada portal manajemen (Next.js) dan proteksi database.
+
+Responsif: Tampilan optimal di perangkat mobile.
+
+SEO: Optimasi meta tag otomatis melalui Astro.
+
+8. Rencana Implementasi (Roadmap)
+
+Fase 1: Desain UI/UX & Pembuatan Landing Page Statis (Astro).
+
+Fase 2: Konfigurasi Sanity CMS & Integrasi Konten Dinamis (Blog, Testimoni, Mitra).
+
+Fase 3: Pengembangan Portal Manajemen Internal (Next.js).
+
+Fase 4: Migrasi Data & Uji Coba Penggunaan Internal.
+
+Fase 5 (Masa Depan): Integrasi Fitur AI (Asisten Virtual).
+
+Dokumen ini bersifat dinamis dan diperbarui untuk memprioritaskan stabilitas sistem inti.

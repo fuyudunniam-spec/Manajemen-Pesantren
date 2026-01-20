@@ -1,6 +1,4 @@
-import {
-    Home,
-    Globe,
+Home,
     UserPlus,
     Users,
     DollarSign,
@@ -8,13 +6,8 @@ import {
     Package,
     ShoppingCart,
     Settings,
-    FileText,
     CreditCard,
     FolderTree,
-    Newspaper,
-    Layers,
-    Palette,
-    LayoutGrid,
     type LucideIcon,
 } from 'lucide-react';
 
@@ -41,59 +34,7 @@ export const modulesConfig: ModuleItem[] = [
         divider: true,
     },
 
-    // Manajemen Website
-    {
-        id: 'website',
-        title: 'Manajemen Website',
-        icon: Globe,
-        status: 'active',
-        permission: 'module.website',
-        children: [
-            {
-                id: 'website-page-builder',
-                title: 'Page Builder',
-                icon: LayoutGrid,
-                path: '/dashboard/website/builder',
-                status: 'active',
-            },
-            {
-                id: 'website-sections',
-                title: 'Editor Konten',
-                icon: Layers,
-                path: '/dashboard/website/sections',
-                status: 'active',
-            },
-            {
-                id: 'website-pages',
-                title: 'Halaman Statis',
-                icon: FileText,
-                path: '/dashboard/website/pages',
-                status: 'active',
-            },
-            {
-                id: 'website-blog',
-                title: 'Blog & Artikel',
-                icon: Newspaper,
-                path: '/dashboard/website/blog',
-                status: 'active',
-            },
-            {
-                id: 'website-theme',
-                title: 'Kustomisasi Tema',
-                icon: Palette,
-                path: '/dashboard/website/theme',
-                status: 'active',
-            },
-            {
-                id: 'website-settings',
-                title: 'Pengaturan Website',
-                icon: Settings,
-                path: '/dashboard/website/settings',
-                status: 'active',
-            },
-        ],
-        divider: true,
-    },
+
 
     // Pendaftaran (PSB)
     {

@@ -24,7 +24,7 @@ export default function UserPermissionModal({ user, onClose, onSuccess }: any) {
 
     useEffect(() => {
         if (user) {
-            async function fetchUserPermissions() {
+            const fetchUserPermissions = async () => {
                 setLoading(true)
                 const { data } = await supabase
                     .from('user_permissions')
@@ -32,6 +32,7 @@ export default function UserPermissionModal({ user, onClose, onSuccess }: any) {
                     .eq('user_id', user.id)
 
                 if (data) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     setPermissions(data.map((p: any) => p.permissions.slug))
                 } else {
                     setPermissions([])
@@ -40,7 +41,7 @@ export default function UserPermissionModal({ user, onClose, onSuccess }: any) {
             }
             fetchUserPermissions()
         }
-    }, [user])
+    }, [user, supabase])
 
     const togglePermission = (slug: string) => {
         setPermissions(prev =>

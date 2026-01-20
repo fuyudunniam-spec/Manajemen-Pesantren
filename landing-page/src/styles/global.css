@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 40 33% 98%;
+        /* #FDFBF7 converted to HSL-ish */
+        --foreground: 82 41% 16%;
+        /* #2D3A18 */
+    }
+}

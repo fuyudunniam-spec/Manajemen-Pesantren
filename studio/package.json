@@ -1,0 +1,24 @@
+{
+    "name": "al-bisri-studio",
+    "private": true,
+    "version": "1.0.0",
+    "main": "package.json",
+    "license": "UNLICENSED",
+    "scripts": {
+        "dev": "sanity dev",
+        "start": "sanity start",
+        "build": "sanity build",
+        "deploy": "sanity deploy",
+        "type-check": "tsc --noEmit"
+    },
+    "dependencies": {
+        "sanity": "^3.68.1",
+        "@sanity/vision": "^3.68.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "styled-components": "^6.1.15"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}

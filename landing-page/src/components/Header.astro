@@ -1,0 +1,156 @@
+---
+import { sanityClient } from '../lib/sanity';
+
+const query = `*[_type == "siteSettings"][0] {
+  mainNavigation[] {
+    title,
+    link,
+    isDropdown,
+    isButton,
+    dropdownItems[] {
+      title,
+      link
+    }
+  },
+  "logo": logo.asset->url
+}`;
+
+const settings = await sanityClient.fetch(query);
+
+// Fallback navigation if nothing is in Sanity yet
+const defaultNav = [
+  { title: "Beranda", link: "/" },
+  { 
+    title: "Artikel dan Berita", 
+    isDropdown: true,
+    dropdownItems: [
+        { title: "Warta Pesantren", link: "/berita" },
+        { title: "Opini", link: "/opini" }
+    ]
+  },
+  { title: "Profil", link: "#about" },
+  { title: "Layanan Digital", link: "#impact-fund" },
+  { title: "PSB", link: "/psb" },
+  { title: "Zakat & Infaq", link: "#donate", isButton: true }
+];
+
+const navigation = settings?.mainNavigation || defaultNav;
+---
+
+<header class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100" id="main-header">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-20">
+      <!-- Logo -->
+      <div class="flex-shrink-0 flex items-center">
+        <a href="/" class="flex items-center gap-2">
+            {settings?.logo ? (
+                <img src={settings.logo} alt="Logo" class="h-12 w-auto object-contain" />
+            ) : (
+                <span class="font-serif text-2xl font-bold text-primary">Al-Bisri</span>
+            )}
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center space-x-8">
+        {navigation.map((item: any) => (
+          item.isButton ? (
+             <a 
+              href={item.link} 
+              class="bg-secondary hover:bg-secondary/90 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
+            >
+              {item.title}
+            </a>
+          ) : item.isDropdown ? (
+            <div class="relative group">
+              <button class="text-primary/80 hover:text-primary font-medium flex items-center gap-1 py-4">
+                {item.title}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-180 transition-transform"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="absolute left-0 mt-0 w-48 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 border border-gray-100 overflow-hidden">
+                <div class="py-2">
+                  {item.dropdownItems?.map((subItem: any) => (
+                    <a href={subItem.link} class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+                      {subItem.title}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <a href={item.link} class="text-primary/80 hover:text-primary font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-secondary after:transition-all after:duration-300">
+              {item.title}
+            </a>
+          )
+        ))}
+      </nav>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden flex items-center">
+        <button id="mobile-menu-btn" class="text-primary p-2">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-drawer" class="fixed inset-y-0 right-0 z-50 w-64 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+    <div class="p-6">
+        <div class="flex justify-between items-center mb-8">
+            <span class="font-serif text-xl font-bold text-primary">Menu</span>
+            <button id="close-drawer" class="text-gray-500 hover:text-primary">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <nav class="flex flex-col space-y-4">
+            {navigation.map((item: any) => (
+                item.isDropdown ? (
+                    <div>
+                        <div class="font-medium text-primary mb-2">{item.title}</div>
+                        <div class="pl-4 border-l-2 border-gray-100 space-y-2">
+                            {item.dropdownItems?.map((subItem: any) => (
+                                <a href={subItem.link} class="block text-sm text-gray-600 hover:text-primary py-1">{subItem.title}</a>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                     <a href={item.link} class={`block font-medium ${item.isButton ? 'bg-secondary text-white px-4 py-2 rounded-full text-center mt-4' : 'text-primary'}`}>
+                        {item.title}
+                    </a>
+                )
+            ))}
+        </nav>
+    </div>
+  </div>
+  
+  <!-- Overlay -->
+  <div id="drawer-overlay" class="fixed inset-0 bg-black/50 z-40 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
+</header>
+
+<script>
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const closeBtn = document.getElementById('close-drawer');
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+
+    function toggleDrawer() {
+        const isClosed = drawer?.classList.contains('translate-x-full');
+        if (isClosed) {
+            drawer?.classList.remove('translate-x-full');
+            overlay?.classList.remove('hidden');
+            // small delay to allow display:block to apply before opacity transition
+            setTimeout(() => overlay?.classList.remove('opacity-0'), 10);
+        } else {
+            drawer?.classList.add('translate-x-full');
+            overlay?.classList.add('opacity-0');
+            setTimeout(() => overlay?.classList.add('hidden'), 300);
+        }
+    }
+
+    menuBtn?.addEventListener('click', toggleDrawer);
+    closeBtn?.addEventListener('click', toggleDrawer);
+    overlay?.addEventListener('click', toggleDrawer);
+</script>

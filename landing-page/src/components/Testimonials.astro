@@ -1,0 +1,120 @@
+---
+interface Testimonial {
+  _id: string;
+  name: string;
+  role: string;
+  quote: string;
+  rating: number;
+  image?: string;
+}
+
+interface Props {
+  testimonials?: Testimonial[];
+  title?: string;
+  subtitle?: string;
+}
+
+const { 
+  testimonials = [],
+  title = "Suara Mereka",
+  subtitle = "Kesaksian dari para donatur dan wali santri yang telah menjadi bagian dari keluarga besar Al-Bisri."
+} = Astro.props;
+---
+
+<section id="testimonials" class="py-24 px-6 bg-[#FAFAFA] overflow-hidden">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 relative z-10">
+      <div class="space-y-4 max-w-2xl">
+        <h2 class="font-serif text-4xl md:text-5xl font-bold text-primary">{title}</h2>
+        <p class="text-lg text-gray-600 leading-relaxed">{subtitle}</p>
+      </div>
+      
+      <!-- Navigation Buttons -->
+      <div class="flex gap-3">
+        <button id="prev-btn" class="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-primary hover:bg-secondary hover:text-white hover:border-secondary transition-all shadow-sm">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button id="next-btn" class="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-primary hover:bg-secondary hover:text-white hover:border-secondary transition-all shadow-sm">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Carousel Container -->
+    <div 
+        id="testimonials-scroll"
+        class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8 -mx-6 px-6 scrollbar-hide scroll-smooth"
+        style="scrollbar-width: none; -ms-overflow-style: none;"
+    >
+      {testimonials.length > 0 ? (
+        testimonials.map((t) => (
+          <div class="min-w-[85vw] md:min-w-[400px] lg:min-w-[450px] snap-center">
+            <div class="h-full p-8 bg-white rounded-3xl border border-gray-100 hover:border-secondary/30 transition-all duration-300 shadow-sm hover:shadow-xl group relative">
+              <!-- Quote Icon -->
+              <span class="absolute top-8 right-8 text-9xl leading-none text-primary/5 font-serif select-none pointer-events-none">"</span>
+              
+              <div class="flex gap-1 text-secondary mb-6 relative z-10">
+                {Array.from({ length: t.rating || 5 }).map(() => (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                ))}
+              </div>
+              
+              <blockquote class="text-gray-600 text-lg mb-8 leading-relaxed italic relative z-10 min-h-[80px]">
+                "{t.quote}"
+              </blockquote>
+              
+              <div class="flex items-center gap-4 pt-6 border-t border-gray-50 relative z-10">
+                {t.image ? (
+                  <img src={t.image} alt={t.name} class="w-14 h-14 rounded-full object-cover ring-2 ring-white shadow-md" />
+                ) : (
+                  <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-xl">
+                    {t.name.charAt(0)}
+                  </div>
+                )}
+                <div>
+                  <h4 class="font-bold text-primary text-lg">{t.name}</h4>
+                  <p class="text-xs text-secondary font-bold uppercase tracking-widest">{t.role}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      ) : (
+        <!-- Fallback placeholders -->
+        {[1, 2, 3].map((i) => (
+          <div class="min-w-[85vw] md:min-w-[400px] snap-center">
+             <div class="h-full p-8 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                <div class="animate-pulse space-y-4">
+                    <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                    <div class="h-20 bg-gray-200 rounded"></div>
+                    <div class="flex items-center gap-4 pt-4">
+                        <div class="h-12 w-12 bg-gray-200 rounded-full"></div>
+                        <div class="space-y-2">
+                             <div class="h-4 bg-gray-200 rounded w-20"></div>
+                             <div class="h-3 bg-gray-200 rounded w-16"></div>
+                        </div>
+                    </div>
+                </div>
+             </div>
+          </div>
+        ))}
+      )}
+    </div>
+  </div>
+</section>
+
+<script>
+    const scrollContainer = document.getElementById('testimonials-scroll');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    if (scrollContainer && prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => {
+            scrollContainer.scrollBy({ left: -400, behavior: 'smooth' });
+        });
+
+        nextBtn.addEventListener('click', () => {
+            scrollContainer.scrollBy({ left: 400, behavior: 'smooth' });
+        });
+    }
+</script>

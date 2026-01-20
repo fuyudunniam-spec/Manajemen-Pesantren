@@ -31,42 +31,33 @@ interface SettingsContextType {
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
 
-export function SettingsProvider({ children }: { children: ReactNode }) {
-    const [settings, setSettings] = useState<WebsiteSettings>(defaultSettings);
-    const [loading, setLoading] = useState(true);
+export function SettingsProvider({
+    children,
+    initialSettings
+}: {
+    children: ReactNode;
+    initialSettings?: WebsiteSettings;
+}) {
+    const [settings, setSettings] = useState<WebsiteSettings>(initialSettings || defaultSettings);
+    const [loading, setLoading] = useState(!initialSettings);
 
     const fetchSettings = async () => {
+        setLoading(true);
         try {
-            const { data, error } = await supabase
-                .from('website_settings')
-                .select('key, value');
-
-            if (error) throw error;
-
-            const settingsMap: Record<string, string> = {};
-            data?.forEach((item) => {
-                settingsMap[item.key] = item.value || '';
-            });
-
-            setSettings({
-                site_title: settingsMap.site_title || defaultSettings.site_title,
-                site_tagline: settingsMap.site_tagline || defaultSettings.site_tagline,
-                site_description: settingsMap.site_description || defaultSettings.site_description,
-                site_logo: settingsMap.site_logo || defaultSettings.site_logo,
-                site_logo_small: settingsMap.site_logo_small || defaultSettings.site_logo_small,
-                footer_text: settingsMap.footer_text || defaultSettings.footer_text,
-            });
+            // Static settings for dashboard focusing on internal management
+            setSettings(defaultSettings);
         } catch (error) {
             console.error('Error fetching settings:', error);
-            // Keep default settings on error
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchSettings();
-    }, []);
+        if (!initialSettings) {
+            fetchSettings();
+        }
+    }, [initialSettings]);
 
     return (
         <SettingsContext.Provider value={{ settings, loading, refetch: fetchSettings }}>
@@ -85,40 +76,5 @@ export function useSettings() {
 
 // Standalone hook for components outside provider (fetches independently)
 export function useSettingsStandalone() {
-    const [settings, setSettings] = useState<WebsiteSettings>(defaultSettings);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function fetch() {
-            try {
-                const { data, error } = await supabase
-                    .from('website_settings')
-                    .select('key, value');
-
-                if (error) throw error;
-
-                const settingsMap: Record<string, string> = {};
-                data?.forEach((item) => {
-                    settingsMap[item.key] = item.value || '';
-                });
-
-                setSettings({
-                    site_title: settingsMap.site_title || defaultSettings.site_title,
-                    site_tagline: settingsMap.site_tagline || defaultSettings.site_tagline,
-                    site_description: settingsMap.site_description || defaultSettings.site_description,
-                    site_logo: settingsMap.site_logo || defaultSettings.site_logo,
-                    site_logo_small: settingsMap.site_logo_small || defaultSettings.site_logo_small,
-                    footer_text: settingsMap.footer_text || defaultSettings.footer_text,
-                });
-            } catch (error) {
-                console.error('Error fetching settings:', error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetch();
-    }, []);
-
-    return { settings, loading };
+    return { settings: defaultSettings, loading: false };
 }

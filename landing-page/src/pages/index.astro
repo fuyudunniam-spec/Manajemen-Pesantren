@@ -1,0 +1,103 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import ImpactFund from '../components/ImpactFund.astro';
+import Partnerships from '../components/Partnerships.astro';
+import Testimonials from '../components/Testimonials.astro';
+import ZakatCalculator from '../components/ZakatCalculator';
+import DonationInfo from '../components/DonationInfo.astro';
+import PsbCta from '../components/PsbCta.astro';
+import { getPageBySlug, getAllPartners, getAllTestimonials } from '../lib/sanity';
+
+const pageData = await getPageBySlug('/');
+const partners = await getAllPartners();
+const testimonials = await getAllTestimonials();
+
+const heroSection = pageData?.sections?.find((s: any) => s._type === 'hero');
+const aboutSection = pageData?.sections?.find((s: any) => s._type === 'aboutSection');
+---
+
+<Layout title="Al-Bisri Digital Ecosystem | Pesantren Yatim Modern">
+	<main>
+		{pageData?.sections?.map((section: any) => {
+			switch (section._type) {
+				case 'hero':
+					return (
+						<Hero 
+							title={section.title} 
+							subtitle={section.subtitle}
+							ctaText={section.ctaText}
+							ctaLink={section.ctaLink}
+							secondaryCtaText={section.secondaryCtaText}
+							secondaryCtaLink={section.secondaryCtaLink}
+							backgroundImage={section.backgroundImage}
+							heroImage={section.heroImage}
+							layout={section.layout}
+						/>
+					);
+				case 'aboutSection':
+					return (
+						<About 
+							title={section.title}
+							content={section.content}
+							stats={section.stats}
+							image={section.image}
+						/>
+					);
+				case 'impactFundSection':
+					return (
+						<>
+							<ImpactFund 
+								title={section.title}
+								description={section.description}
+								auditReportLink={section.auditReportLink}
+								allocationStats={section.allocationStats}
+								scholarshipStats={section.scholarshipStats}
+								umkmStats={section.umkmStats}
+								economicGraph={section.economicGraph}
+							/>
+							<ZakatCalculator client:visible />
+						</>
+					);
+				case 'partnershipsSection':
+					return <Partnerships partners={partners} partnersTitle={section.title} />;
+				case 'testimonialsSection':
+					return <Testimonials testimonials={testimonials} title={section.title} subtitle={section.subtitle} />;
+				default:
+					return null;
+			}
+		})}
+
+		{!pageData && (
+			<>
+				<Hero />
+				<About />
+				<ImpactFund />
+				<PsbCta />
+				<ZakatCalculator client:visible />
+				<DonationInfo />
+				<Partnerships partners={partners} />
+				<Testimonials testimonials={testimonials} />
+			</>
+		)}
+		
+		<!-- Blog Section (Static for now) -->
+		<section class="py-20 bg-white">
+			<div class="max-w-7xl mx-auto px-4 text-center">
+				<h2 class="text-4xl font-serif font-bold text-[#2D3A18] mb-4">
+					Blog & Artikel
+				</h2>
+				<p class="text-lg text-[#2D3A18]/70 mb-8 max-w-2xl mx-auto">
+					Pemikiran, berita kegiatan, dan literasi filantropi
+				</p>
+				<a 
+					href="/blog" 
+					class="inline-block px-8 py-3 bg-[#B8860B] text-white rounded-full font-medium hover:bg-[#2D3A18] transition-colors"
+				>
+					Lihat Semua Artikel →
+				</a>
+			</div>
+		</section>
+	</main>
+</Layout>
