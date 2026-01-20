@@ -83,7 +83,18 @@ const navigation = settings?.mainNavigation || defaultNav;
             </a>
           )
         ))}
+        
+        <!-- Pintu Masuk Dashboard Admin -->
+        <div class="h-6 w-px bg-gray-200 mx-2 hidden lg:block"></div>
+        <a 
+          href="/login" 
+          class="text-primary/60 hover:text-primary text-sm font-medium hidden lg:flex items-center gap-1 group transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-0.5 transition-transform"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Admin
+        </a>
       </nav>
+
 
       <!-- Mobile Menu Button -->
       <div class="md:hidden flex items-center">
@@ -122,7 +133,15 @@ const navigation = settings?.mainNavigation || defaultNav;
                     </a>
                 )
             ))}
+            
+            <div class="pt-4 mt-4 border-t border-gray-100">
+                <a href="/login" class="flex items-center gap-2 text-sm text-primary/60 hover:text-primary py-2 px-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    Dashboard e-Maktab
+                </a>
+            </div>
         </nav>
+
     </div>
   </div>
   

@@ -15,6 +15,8 @@ import {
     LogOut,
     Menu,
     ChevronLeft,
+    Globe,
+    Edit3,
 } from "lucide-react"
 
 const MENU_ITEMS = [
@@ -106,6 +108,38 @@ export default function Sidebar({ user, profile, permissions }: any) {
                         </Link>
                     )
                 })}
+
+                {/* Section Website */}
+                <div className="pt-4 mt-4 border-t border-slate-100/60">
+                    {!isCollapsed && (
+                        <p className="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Website</p>
+                    )}
+                    <Link
+                        href="http://localhost:4321"
+                        target="_blank"
+                        className={cn(
+                            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all group",
+                            isCollapsed ? "justify-center" : ""
+                        )}
+                        title={isCollapsed ? "Lihat Website" : undefined}
+                    >
+                        <Globe className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-emerald-500" />
+                        {!isCollapsed && <span>Lihat Website</span>}
+                    </Link>
+                    <Link
+                        href="http://localhost:3333"
+                        target="_blank"
+                        className={cn(
+                            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-all group",
+                            isCollapsed ? "justify-center" : ""
+                        )}
+                        title={isCollapsed ? "Edit Konten" : undefined}
+                    >
+                        <Edit3 className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-amber-500" />
+                        {!isCollapsed && <span>Edit Konten (CMS)</span>}
+                    </Link>
+
+                </div>
             </nav>
 
             <div className="p-4 mt-auto border-t border-slate-100">

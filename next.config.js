@@ -21,6 +21,21 @@ const nextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
+    async rewrites() {
+        return [
+            // Studio CMS (Sanity)
+            {
+                source: '/studio/:path*',
+                destination: 'http://localhost:3333/studio/:path*',
+            },
+            // Website Publik (Astro) - Kita biarkan root tetap Dashboard 
+            // Tapi kita bisa buat /web untuk melihat landing page di lokal
+            {
+                source: '/web/:path*',
+                destination: 'http://localhost:4321/:path*',
+            }
+        ]
+    },
 }
 
 export default nextConfig
