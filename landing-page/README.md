@@ -1,4 +1,4 @@
-# Astro Starter Kit: Minimal
+# Al-Bisri Landing Page
 
 ```sh
 npm create astro@latest -- --template minimal
