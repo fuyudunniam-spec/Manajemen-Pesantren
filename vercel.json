@@ -1,0 +1,21 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "landing-page/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "landing-page/dist"
+            }
+        }
+    ],
+    "routes": [
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/landing-page/dist/$1"
+        }
+    ]
+}
