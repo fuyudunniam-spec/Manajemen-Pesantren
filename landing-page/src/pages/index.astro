@@ -1,176 +1,39 @@
 ---
-// Landing Page - Complete HTML Conversion with Components
-import Navigation from '../components/Navigation.astro';
-import Footer from '../components/Footer.astro';
+import Layout from '../layouts/Layout.astro';
+import { client, queries, urlFor } from '../lib/sanity';
+
+// Fetch latest blog posts from Sanity
+let latestPosts: any[] = [];
+try {
+    latestPosts = await client.fetch(`*[_type == "blogPost" && isPublished == true] | order(publishedAt desc)[0...3] {
+        _id, title, slug, excerpt, featuredImage, publishedAt, readingTime,
+        category->{ name, slug, color },
+        author->{ name, avatar }
+    }`);
+} catch (error) {
+    console.error('Failed to fetch latest posts:', error);
+}
+
+// Format date helper
+function formatDate(dateString: string) {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    });
+}
+
+// Color mapping for categories
+const colorClasses: Record<string, string> = {
+    royal: 'bg-royal-100 text-royal-900',
+    gold: 'bg-gold-100 text-gold-800',
+    red: 'bg-red-600 text-white',
+    blue: 'bg-blue-100 text-blue-800',
+    stone: 'bg-stone-100 text-stone-600',
+};
 ---
 
-<!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al-Bisri | Royal Education Foundation</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        royal: { 50: '#f0fdf4', 100: '#dcfce7', 800: '#166534', 900: '#14532d', 950: '#052e16' },
-                        gold: { 100: '#fef9c3', 400: '#d4af37', 500: '#b4941f', 600: '#8c7318' },
-                        paper: '#FAFAF9',
-                    },
-                    fontFamily: {
-                        sans: ['Cormorant Garamond', 'serif'],
-                        display: ['Cinzel', 'serif'],
-                    },
-                    borderRadius: { '4xl': '2.5rem', '5xl': '3rem' }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        body {
-            background-color: #FAFAF9;
-            color: #1c1917;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.15rem;
-            overflow-x: hidden;
-        }
-
-        h1,
-        h2,
-        h3,
-        .font-display {
-            font-family: 'Cinzel', serif;
-        }
-
-        .royal-pattern {
-            background-color: #FAFAF9;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23166534' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2V6h4V4h-4zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-
-        .glass-panel-dark {
-            background: rgba(20, 83, 45, 0.95);
-            color: white;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 20px 40px -10px rgba(20, 83, 45, 0.3);
-        }
-
-        .btn-glow:hover {
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .fade-up {
-            animation: fadeUp 1s ease-out forwards;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .delay-100 {
-            animation-delay: 0.1s;
-        }
-
-        .delay-200 {
-            animation-delay: 0.2s;
-        }
-
-        .delay-300 {
-            animation-delay: 0.3s;
-        }
-
-        @keyframes fadeUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .chart-container {
-            position: relative;
-            width: 100%;
-            height: 250px;
-        }
-
-        @keyframes marquee {
-            0% {
-                transform: translateX(0%);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-        .animate-marquee {
-            animation: marquee 40s linear infinite;
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        /* Sparkle Animation */
-        .sparkle {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 0 15px 4px rgba(255, 255, 255, 0.8);
-            opacity: 0;
-            animation: sparkleAnim 4s infinite;
-        }
-
-        @keyframes sparkleAnim {
-            0% {
-                transform: scale(0);
-                opacity: 0;
-            }
-
-            50% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(0);
-                opacity: 0;
-            }
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
-        }
-    </style>
-</head>
-
-<body class="antialiased royal-pattern">
-
-    <!-- Navigation Component -->
-    <Navigation />
-
+<Layout title="Al-Bisri | Royal Education Foundation">
     <!-- 2. HERO SECTION -->
     <section class="relative min-h-[90vh] flex items-center pt-10 pb-20 overflow-hidden">
         <div class="absolute inset-0 z-0 pointer-events-none">
@@ -207,7 +70,7 @@ import Footer from '../components/Footer.astro';
                     yatim & dhuafa tumbuh menjadi pemimpin yang mandiri dan bermartabat.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-6 items-start">
-                    <button onclick="window.location.href='/donasi'"
+                    <a href="/donasi"
                         class="group relative px-10 py-4 bg-royal-900 text-white shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full btn-glow overflow-hidden">
                         <div
                             class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
@@ -216,12 +79,12 @@ import Footer from '../components/Footer.astro';
                             class="relative font-display font-bold uppercase tracking-widest text-sm flex items-center gap-3">
                             Investasi Wakaf <i data-lucide="arrow-right" class="w-4 h-4 text-gold-400"></i>
                         </span>
-                    </button>
-                    <button onclick="window.location.href='/psb'"
+                    </a>
+                    <a href="/psb"
                         class="group px-8 py-4 bg-white border border-stone-200 text-royal-900 font-bold uppercase tracking-widest text-sm rounded-full hover:border-gold-400 hover:text-gold-600 transition shadow-sm flex items-center gap-2">
                         <i data-lucide="user-plus"
                             class="w-4 h-4 text-royal-900 group-hover:text-gold-600 transition"></i> Daftar Reguler
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -247,6 +110,7 @@ import Footer from '../components/Footer.astro';
                                 Yatim</p>
                         </div>
                     </div>
+                    <!-- Badge: Jumlah Penerima Manfaat -->
                     <div
                         class="absolute -top-4 -left-4 bg-white/90 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-xl border border-white flex items-center gap-3 animate-float z-40">
                         <div
@@ -262,7 +126,6 @@ import Footer from '../components/Footer.astro';
         </div>
     </section>
 
-    
     <!-- 3. ABOUT US -->
     <section id="about" class="py-24 relative bg-white overflow-hidden">
         <div class="max-w-7xl mx-auto px-6">
@@ -443,10 +306,10 @@ import Footer from '../components/Footer.astro';
                         Kami membuka akses materi pembelajaran Bahasa Arab standar Timur Tengah secara digital.
                         Dikembangkan oleh tim ahli Pesantren Mahasiswa An-Nur.
                     </p>
-                    <button onclick="window.location.href='/akademi'"
-                        class="group px-10 py-4 bg-royal-900 text-white rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold uppercase tracking-widest text-sm flex items-center gap-3">
+                    <a href="/akademi"
+                        class="group px-10 py-4 bg-royal-900 text-white rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold uppercase tracking-widest text-sm flex items-center gap-3 inline-flex">
                         Akses Gratis <i data-lucide="monitor-play" class="w-4 h-4 text-gold-400"></i>
-                    </button>
+                    </a>
                 </div>
                 <div class="relative">
                     <div class="absolute inset-0 bg-gold-400/20 rounded-[3rem] rotate-6 scale-95 blur-xl"></div>
@@ -475,10 +338,10 @@ import Footer from '../components/Footer.astro';
                         bagi pendidikan anak yatim.</p>
                 </div>
                 <div>
-                    <button onclick="window.location.href='/transparansi'"
+                    <a href="/transparansi"
                         class="px-8 py-3 border border-white/20 text-white text-sm hover:bg-white hover:text-royal-900 transition flex items-center gap-2 uppercase tracking-wider rounded-full font-bold">
                         <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Detail Transparansi
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -594,55 +457,93 @@ import Footer from '../components/Footer.astro';
         </div>
     </section>
 
-    <!-- 9. LATEST POST (Slider) -->
+    <!-- 9. LATEST POST (Dynamic from Sanity) -->
     <section id="news" class="py-24 bg-stone-50 border-t border-stone-200">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-end mb-12">
                 <div>
                     <h2 class="text-3xl font-display text-royal-900">Kabar Pesantren</h2>
                 </div>
-                <a href="/berita" class="text-sm font-bold text-gold-600 hover:text-royal-900 transition flex items-center gap-1 rounded-full px-4 py-2 border border-stone-200 bg-white hover:border-royal-900">
+                <a href="/berita"
+                    class="text-sm font-bold text-gold-600 hover:text-royal-900 transition flex items-center gap-1 rounded-full px-4 py-2 border border-stone-200 bg-white hover:border-royal-900">
                     Lihat Semua <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </a>
             </div>
-            <div id="news-slider" class="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 md:grid md:grid-cols-3 md:gap-8 md:pb-0 no-scrollbar">
-                <a href="/berita/example-post" class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500 block">
-                    <div class="h-56 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                    </div>
-                    <div class="p-8">
-                        <span class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-2 block">Prestasi</span>
-                        <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">Santri Al-Bisri Juara 1 MHQ Nasional</h3>
-                        <p class="text-stone-500 text-sm mb-4 line-clamp-2">Ananda Fatih berhasil menyisihkan 300 peserta dari seluruh Indonesia...</p>
-                        <span class="text-xs text-stone-400 font-bold uppercase">20 Okt 2024</span>
-                    </div>
-                </a>
-                <a href="/berita/example-post" class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500 block">
-                    <div class="h-56 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1625246333195-58197bd47d26?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                    </div>
-                    <div class="p-8">
-                        <span class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-2 block">Wakaf Produktif</span>
-                        <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">Panen Raya Padi Organik</h3>
-                        <p class="text-stone-500 text-sm mb-4 line-clamp-2">Hasil panen meningkat 20% berkat penerapan teknologi irigasi tetes...</p>
-                        <span class="text-xs text-stone-400 font-bold uppercase">18 Okt 2024</span>
-                    </div>
-                </a>
-                <a href="/berita/example-post" class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500 block">
-                    <div class="h-56 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                    </div>
-                    <div class="p-8">
-                        <span class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-2 block">Kunjungan</span>
-                        <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">Studi Banding Kemenag</h3>
-                        <p class="text-stone-500 text-sm mb-4 line-clamp-2">Kunjungan untuk meninjau kurikulum kewirausahaan santri...</p>
-                        <span class="text-xs text-stone-400 font-bold uppercase">15 Okt 2024</span>
-                    </div>
-                </a>
+            <div id="news-slider"
+                class="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 md:grid md:grid-cols-3 md:gap-8 md:pb-0 no-scrollbar">
+                {latestPosts.length > 0 ? (
+                    latestPosts.map((post: any) => (
+                        <a href={`/berita/${post.slug?.current}`}
+                            class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500 block">
+                            <div class="h-56 overflow-hidden">
+                                {post.featuredImage ? (
+                                    <img src={urlFor(post.featuredImage).width(800).height(400).url()}
+                                        alt={post.featuredImage.alt || post.title}
+                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                                ) : (
+                                    <div class="w-full h-full bg-gradient-to-br from-royal-800 to-royal-950 flex items-center justify-center">
+                                        <i data-lucide="newspaper" class="w-16 h-16 text-royal-600"></i>
+                                    </div>
+                                )}
+                            </div>
+                            <div class="p-8">
+                                <span class={`text-xs font-bold uppercase tracking-wider mb-2 block ${post.category?.color === 'gold' ? 'text-gold-600' : 'text-royal-600'}`}>
+                                    {post.category?.name || 'Berita'}
+                                </span>
+                                <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">
+                                    {post.title}
+                                </h3>
+                                <p class="text-stone-500 text-sm mb-4 line-clamp-2">{post.excerpt}</p>
+                                <span class="text-xs text-stone-400 font-bold uppercase">{formatDate(post.publishedAt)}</span>
+                            </div>
+                        </a>
+                    ))
+                ) : (
+                    <>
+                        <div class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500">
+                            <div class="h-56 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                            </div>
+                            <div class="p-8">
+                                <span class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-2 block">Prestasi</span>
+                                <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">
+                                    Santri Al-Bisri Juara 1 MHQ Nasional</h3>
+                                <p class="text-stone-500 text-sm mb-4 line-clamp-2">Ananda Fatih berhasil menyisihkan 300 peserta dari seluruh Indonesia...</p>
+                                <span class="text-xs text-stone-400 font-bold uppercase">20 Okt 2024</span>
+                            </div>
+                        </div>
+                        <div class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500">
+                            <div class="h-56 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1625246333195-58197bd47d26?q=80&w=800&auto=format&fit=crop"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                            </div>
+                            <div class="p-8">
+                                <span class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-2 block">Wakaf Produktif</span>
+                                <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">
+                                    Panen Raya Padi Organik</h3>
+                                <p class="text-stone-500 text-sm mb-4 line-clamp-2">Hasil panen meningkat 20% berkat penerapan teknologi irigasi tetes...</p>
+                                <span class="text-xs text-stone-400 font-bold uppercase">18 Okt 2024</span>
+                            </div>
+                        </div>
+                        <div class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500">
+                            <div class="h-56 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                            </div>
+                            <div class="p-8">
+                                <span class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-2 block">Kunjungan</span>
+                                <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">
+                                    Studi Banding Kemenag</h3>
+                                <p class="text-stone-500 text-sm mb-4 line-clamp-2">Kunjungan untuk meninjau kurikulum kewirausahaan santri...</p>
+                                <span class="text-xs text-stone-400 font-bold uppercase">15 Okt 2024</span>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     </section>
-
 
     <!-- 10. CTA DONASI -->
     <section id="donasi" class="py-24 bg-white relative">
@@ -668,7 +569,7 @@ import Footer from '../components/Footer.astro';
                                         class="absolute left-6 top-1/2 -translate-y-1/2 text-royal-900 font-bold">Rp</span><input
                                         type="number" id="calcInput"
                                         class="w-full bg-white border border-stone-200 rounded-full py-4 pl-14 text-royal-900 font-bold focus:border-royal-900 focus:outline-none transition shadow-sm"
-                                        placeholder="0" oninput="calculateZakat()"></div>
+                                        placeholder="0"></div>
                             </div>
                             <div
                                 class="bg-royal-900 text-white p-6 rounded-[2rem] flex justify-between items-center shadow-lg">
@@ -710,80 +611,173 @@ import Footer from '../components/Footer.astro';
             </div>
         </div>
     </section>
+</Layout>
 
-    
-    <!-- Footer Component -->
-    <Footer />
+<style>
+    .glass-panel-dark {
+        background: rgba(20, 83, 45, 0.95);
+        color: white;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 20px 40px -10px rgba(20, 83, 45, 0.3);
+    }
 
-    <script is:inline>
-        // Wait for CDN libraries to load before initializing
-        function waitForLucide(callback) {
-            if (typeof lucide !== 'undefined') {
+    .btn-glow:hover {
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .fade-up {
+        animation: fadeUp 1s ease-out forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+
+    @keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 250px;
+    }
+
+    @keyframes marquee {
+        0% { transform: translateX(0%); }
+        100% { transform: translateX(-100%); }
+    }
+
+    .animate-marquee {
+        animation: marquee 40s linear infinite;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+</style>
+
+<script is:inline>
+    // Wait for Lucide library to be available
+    function waitForLucide(callback, maxRetries = 20) {
+        let retries = 0;
+        function check() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
                 callback();
-            } else {
-                setTimeout(() => waitForLucide(callback), 100);
+            } else if (retries < maxRetries) {
+                retries++;
+                setTimeout(check, 100);
             }
         }
-        
-        function waitForChart(callback) {
+        check();
+    }
+
+    // Wait for Chart.js library to be available
+    function waitForChart(callback, maxRetries = 20) {
+        let retries = 0;
+        function check() {
             if (typeof Chart !== 'undefined') {
                 callback();
-            } else {
-                setTimeout(() => waitForChart(callback), 100);
+            } else if (retries < maxRetries) {
+                retries++;
+                setTimeout(check, 100);
             }
         }
-        
+        check();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
         // Initialize Lucide icons
-        waitForLucide(() => {
+        waitForLucide(function() {
             lucide.createIcons();
         });
-        
-        function calculateZakat() {
-            const val = document.getElementById('calcInput').value;
-            const res = val * 0.025;
-            document.getElementById('calcResult').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(res);
+
+        // Initialize Chart.js
+        waitForChart(function() {
+            const ctx = document.getElementById('impactChart');
+            if (ctx) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Beasiswa Yatim', 'Wakaf Produktif', 'Infrastruktur'],
+                        datasets: [{
+                            data: [50, 30, 20],
+                            backgroundColor: ['#d4af37', '#166534', '#a8a29e'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '75%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    color: '#e5e5e5',
+                                    font: { family: 'Cinzel', size: 10 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Zakat Calculator
+        const calcInput = document.getElementById('calcInput');
+        if (calcInput) {
+            calcInput.addEventListener('input', function() {
+                const val = this.value || 0;
+                const res = val * 0.025;
+                document.getElementById('calcResult').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(res);
+            });
+        }
+
+        // Auto-scroll sliders
+        function setupAutoScroll(elementId) {
+            const slider = document.getElementById(elementId);
+            if (!slider) return;
+            let slideTimer;
+            const scrollStep = () => {
+                if (window.getComputedStyle(slider).display === 'grid') return;
+                const cardWidth = slider.firstElementChild.offsetWidth + 24;
+                const maxScroll = slider.scrollWidth - slider.clientWidth;
+                if (slider.scrollLeft >= maxScroll) {
+                    slider.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    slider.scrollBy({ left: cardWidth, behavior: 'smooth' });
+                }
+            };
+            const startAutoScroll = () => { slideTimer = setInterval(scrollStep, 4000); };
+            const stopAutoScroll = () => { clearInterval(slideTimer); };
+            startAutoScroll();
+            slider.addEventListener('touchstart', stopAutoScroll);
+            slider.addEventListener('touchend', startAutoScroll);
+            slider.addEventListener('mouseenter', stopAutoScroll);
+            slider.addEventListener('mouseleave', startAutoScroll);
         }
         
-        // Chart.js and auto-scroll initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            waitForChart(() => {
-                try {
-                    const ctx = document.getElementById('impactChart')?.getContext('2d');
-                    if (ctx) {
-                        new Chart(ctx, {
-                            type: 'doughnut',
-                            data: { labels: ['Beasiswa Yatim', 'Wakaf Produktif', 'Infrastruktur'], datasets: [{ data: [50, 30, 20], backgroundColor: ['#d4af37', '#166534', '#a8a29e'], borderWidth: 0, hoverOffset: 4 }] },
-                            options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, color: '#e5e5e5', font: { family: 'Cinzel', size: 10 } } } } }
-                        });
-                    }
-                } catch (error) {
-                    console.error('Chart.js error:', error);
-                }
-            });
-            
-            // Auto-scroll setup
-            function setupAutoScroll(elementId) {
-                const slider = document.getElementById(elementId);
-                if (!slider) return;
-                let slideTimer;
-                const scrollStep = () => {
-                    if (window.getComputedStyle(slider).display === 'grid') return;
-                    const cardWidth = slider.firstElementChild.offsetWidth + 24;
-                    const maxScroll = slider.scrollWidth - slider.clientWidth;
-                    if (slider.scrollLeft >= maxScroll) { slider.scrollTo({ left: 0, behavior: 'smooth' }); } else { slider.scrollBy({ left: cardWidth, behavior: 'smooth' }); }
-                };
-                const startAutoScroll = () => { slideTimer = setInterval(scrollStep, 4000); };
-                const stopAutoScroll = () => { clearInterval(slideTimer); };
-                startAutoScroll();
-                slider.addEventListener('touchstart', stopAutoScroll);
-                slider.addEventListener('touchend', startAutoScroll);
-                slider.addEventListener('mouseenter', stopAutoScroll);
-                slider.addEventListener('mouseleave', startAutoScroll);
-            }
-            setupAutoScroll('testimonial-slider');
-            setupAutoScroll('news-slider');
-        });
-    </script>
-</body>
-
-</html>
+        setupAutoScroll('testimonial-slider');
+        setupAutoScroll('news-slider');
+    });
+</script>

@@ -11,6 +11,11 @@ import psbConfig from './psbConfig';
 import curriculum from './curriculum';
 import academyClass from './academyClass';
 
+// Blog System
+import author from './author';
+import blogCategory from './blogCategory';
+import blogPost from './blogPost';
+
 export const schemaTypes = [
     // Site Configuration
     siteSettings,
@@ -20,6 +25,11 @@ export const schemaTypes = [
     aboutPage,
     donationPage,
     psbConfig,
+
+    // Blog System
+    author,
+    blogCategory,
+    blogPost,
 
     // Document Schemas (Multiple instances)
     donationProgram,

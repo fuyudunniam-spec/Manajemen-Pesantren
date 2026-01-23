@@ -1,114 +1,131 @@
 import { createClient } from '@sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
-export const sanityClient = createClient({
-  projectId: 'yamgwplz',
-  dataset: 'production',
-  useCdn: true, // set to `false` to bypass the edge cache
-  apiVersion: '2024-01-01', // use current date (YYYY-MM-DD) to target the latest API version
+// Sanity client configuration
+export const client = createClient({
+    projectId: 'yamgwplz',
+    dataset: 'production',
+    useCdn: true, // Set to false for fresh data during development
+    apiVersion: '2024-01-23',
 });
 
-// Helper function to fetch all blog posts
-export async function getAllBlogPosts() {
-  const query = `*[_type == "blogPost"] | order(publishedAt desc) {
-    _id,
-    title,
-    slug,
-    publishedAt,
-    excerpt,
-    "author": author->name,
-    "mainImage": mainImage.asset->url,
-    "categories": categories[]->title
-  }`;
+// Image URL builder helper
+const builder = imageUrlBuilder(client);
 
-  return await sanityClient.fetch(query);
+export function urlFor(source: SanityImageSource) {
+    return builder.image(source);
 }
 
-// Helper function to fetch a single blog post by slug
-export async function getBlogPostBySlug(slug: string) {
-  const query = `*[_type == "blogPost" && slug.current == $slug][0] {
-    _id,
-    title,
-    slug,
-    publishedAt,
-    excerpt,
-    body,
-    "author": author->{name, bio, "image": image.asset->url},
-    "mainImage": mainImage.asset->url,
-    "categories": categories[]->title
-  }`;
-
-  return await sanityClient.fetch(query, { slug });
-}
-
-// Helper function to fetch a page by its slug (for Page Builder)
-export async function getPageBySlug(slug: string) {
-  const query = `*[_type == "page" && slug.current == $slug][0] {
-    title,
-    backgroundColor,
-    sections[] {
-      _type,
-      _type == "hero" => {
+// GROQ Queries
+export const queries = {
+    // Site Settings
+    siteSettings: `*[_type == "siteSettings"][0] {
         title,
-        subtitle,
-        ctaText,
-        ctaLink,
-        secondaryCtaText,
-        secondaryCtaLink,
-        layout,
-        "backgroundImage": backgroundImage.asset->url,
-        "heroImage": heroImage.asset->url
-      },
-      _type == "aboutSection" => {
+        logo,
+        mainNavigation[] {
+            title,
+            link,
+            isDropdown,
+            isButton,
+            dropdownItems[] { title, link }
+        },
+        contactInfo { address, email, phone },
+        socialLinks[] { platform, url }
+    }`,
+
+    // Blog Posts (list)
+    blogPosts: `*[_type == "blogPost" && isPublished == true] | order(publishedAt desc) {
+        _id,
         title,
+        slug,
+        excerpt,
+        featuredImage,
+        publishedAt,
+        readingTime,
+        isFeatured,
+        category->{ name, slug, color },
+        author->{ name, avatar }
+    }`,
+
+    // Featured Blog Post
+    featuredPost: `*[_type == "blogPost" && isPublished == true && isFeatured == true][0] {
+        _id,
+        title,
+        slug,
+        excerpt,
+        featuredImage,
+        publishedAt,
+        readingTime,
+        category->{ name, slug, color },
+        author->{ name, avatar, role }
+    }`,
+
+    // Single Blog Post
+    blogPost: (slug: string) => `*[_type == "blogPost" && slug.current == "${slug}"][0] {
+        _id,
+        title,
+        slug,
+        excerpt,
+        featuredImage,
+        publishedAt,
+        readingTime,
         content,
-        stats,
-        "image": image.asset->url
-      },
-      _type == "impactFundSection" => {
-        title,
+        tags,
+        category->{ name, slug, color },
+        author->{ name, slug, avatar, role, bio, socialLinks },
+        relatedPosts[]->{ _id, title, slug, featuredImage, publishedAt, category->{ name } }
+    }`,
+
+    // Blog Categories
+    blogCategories: `*[_type == "blogCategory"] | order(name asc) {
+        _id,
+        name,
+        slug,
         description,
-        auditReportLink,
-        allocationStats,
-        scholarshipStats,
-        umkmStats,
-        "economicGraph": economicGraph.asset->url
-      },
-      _type == "partnershipsSection" => {
-        title
-      },
-      _type == "testimonialsSection" => {
+        color,
+        icon
+    }`,
+
+    // Landing Page
+    landingPage: `*[_type == "landingPage"][0]`,
+
+    // Academy Curricula
+    curricula: `*[_type == "curriculum"] | order(name asc) {
+        _id,
+        name,
+        slug,
+        description,
+        level
+    }`,
+
+    // Academy Class
+    academyClass: (slug: string) => `*[_type == "academyClass" && slug.current == "${slug}"][0] {
+        _id,
         title,
-        subtitle
-      }
-    }
-  }`;
+        slug,
+        level,
+        order,
+        duration,
+        qiraahContent { arabicText, translation, audioUrl },
+        qawaidContent { videoUrl, explanation },
+        tamrinatContent[] { question, questionType, options, correctAnswer, explanation },
+        curriculum->{ name, slug }
+    }`,
 
-  return await sanityClient.fetch(query, { slug: slug === '/' ? 'home' : slug });
-}
+    // Academy Classes by Curriculum
+    academyClassesByCurriculum: (curriculumId: string) => `*[_type == "academyClass" && curriculum._ref == "${curriculumId}"] | order(order asc) {
+        _id,
+        title,
+        slug,
+        level,
+        order,
+        duration,
+        isPublished
+    }`,
+};
 
-// Helper function to fetch all testimonials
-export async function getAllTestimonials() {
-  const query = `*[_type == "testimonial"] | order(_createdAt desc) {
-    _id,
-    name,
-    role,
-    quote,
-    rating,
-    "image": image.asset->url
-  }`;
-
-  return await sanityClient.fetch(query);
-}
-
-// Helper function to fetch all partners
-export async function getAllPartners() {
-  const query = `*[_type == "partner"] | order(order asc) {
-    _id,
-    name,
-    "logo": logo.asset->url,
-    website,
-    type
-  }`;
-
-  return await sanityClient.fetch(query);
+// Fetch helper
+export async function sanityFetch<T>(query: string): Promise<T> {
+    return client.fetch<T>(query);
 }
