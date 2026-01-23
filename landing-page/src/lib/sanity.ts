@@ -44,6 +44,7 @@ export async function getBlogPostBySlug(slug: string) {
 export async function getPageBySlug(slug: string) {
   const query = `*[_type == "page" && slug.current == $slug][0] {
     title,
+    backgroundColor,
     sections[] {
       _type,
       _type == "hero" => {

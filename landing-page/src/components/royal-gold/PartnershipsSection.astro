@@ -1,0 +1,56 @@
+---
+// Partnerships Marquee Section
+const { partnerships } = Astro.props;
+---
+
+{partnerships && partnerships.partners && partnerships.partners.length > 0 && (
+    <section class="py-16 bg-white border-y border-stone-200">
+        <div class="max-w-7xl mx-auto px-6">
+            {partnerships.headline && (
+                <p class="text-center text-sm uppercase tracking-[0.3em] text-stone-500 font-bold mb-8">
+                    {partnerships.headline}
+                </p>
+            )}
+            
+            <!-- Marquee Container -->
+            <div class="relative overflow-hidden">
+                <!-- Gradient Overlays -->
+                <div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-10"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-10"></div>
+                
+                <!-- Marquee Track -->
+                <div class="flex animate-marquee">
+                    <!-- First Set -->
+                    {partnerships.partners.map((partner: any) => (
+                        <div class="flex-shrink-0 px-8 flex items-center justify-center">
+                            {partner.logo?.asset ? (
+                                <img 
+                                    src={`${partner.logo.asset.url}?w=200&h=80&fit=max`}
+                                    alt={partner.logo.alt || partner.name || 'Partner logo'}
+                                    class="h-12 md:h-16 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0"
+                                />
+                            ) : (
+                                <span class="text-stone-400 font-bold text-lg">{partner.name}</span>
+                            )}
+                        </div>
+                    ))}
+                    
+                    <!-- Duplicate for seamless loop -->
+                    {partnerships.partners.map((partner: any) => (
+                        <div class="flex-shrink-0 px-8 flex items-center justify-center">
+                            {partner.logo?.asset ? (
+                                <img 
+                                    src={`${partner.logo.asset.url}?w=200&h=80&fit=max`}
+                                    alt={partner.logo.alt || partner.name || 'Partner logo'}
+                                    class="h-12 md:h-16 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0"
+                                />
+                            ) : (
+                                <span class="text-stone-400 font-bold text-lg">{partner.name}</span>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    </section>
+)}

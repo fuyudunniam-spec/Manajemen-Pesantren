@@ -1,15 +1,19 @@
 ---
+import Navigation from '../components/Navigation.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
 interface Props {
 	title: string;
 	description?: string;
+	activeRoute?: string;
 }
 
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-
-const { title, description = "Al-Bisri Digital Ecosystem" } = Astro.props;
-
-import '../styles/global.css';
+const { 
+	title, 
+	description = "Yayasan Al-Bisri - Memuliakan Yatim, Membangun Peradaban", 
+	activeRoute = '/' 
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -21,16 +25,40 @@ import '../styles/global.css';
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		
-		<!-- Google Fonts -->
+		<!-- Royal Gold Fonts -->
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+		
+		<!-- Royal Gold Theme CSS -->
+		<link rel="stylesheet" href="/styles/royal-gold.css">
+		
+		<!-- Lucide Icons -->
+		<script src="https://unpkg.com/lucide@latest" is:inline></script>
 		
 		<title>{title}</title>
 	</head>
-	<body class="bg-background text-foreground font-sans antialiased selection:bg-secondary selection:text-white">
-		<Header />
+	<body class="antialiased royal-pattern overflow-x-hidden">
+		<Navigation activeRoute={activeRoute} />
 		<slot />
 		<Footer />
+		
+		<script is:inline>
+			// Wait for the page to fully load then initialize Lucide icons
+			function initLucide() {
+				if (typeof lucide !== 'undefined') {
+					lucide.createIcons();
+				} else {
+					// Retry in 100ms if lucide not yet loaded
+					setTimeout(initLucide, 100);
+				}
+			}
+			// Start initialization when DOM is ready
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', initLucide);
+			} else {
+				initLucide();
+			}
+		</script>
 	</body>
 </html>

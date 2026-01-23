@@ -1,0 +1,109 @@
+---
+// Latest News Section
+const { latestNews } = Astro.props;
+---
+
+{latestNews && latestNews.newsItems && latestNews.newsItems.length > 0 && (
+    <section id="news" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Header -->
+            <div class="flex items-end justify-between mb-12 fade-up">
+                <div>
+                    {latestNews.title && (
+                        <h2 class="text-4xl md:text-5xl font-display font-bold text-royal-950">
+                            {latestNews.title}
+                        </h2>
+                    )}
+                </div>
+                
+                {latestNews.ctaText && (
+                    <a 
+                        href={latestNews.ctaLink || '/berita'} 
+                        class="hidden md:flex items-center gap-2 text-royal-900 font-bold uppercase tracking-widest text-sm hover:text-gold-600 transition group"
+                    >
+                        {latestNews.ctaText}
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                )}
+            </div>
+            
+            <!-- News Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {latestNews.newsItems.slice(0, 3).map((news: any, index: number) => (
+                    <article 
+                        class:list={[
+                            "group fade-up",
+                            `delay-${(index % 3) * 100}`
+                        ]}
+                    >
+                        <!-- Image -->
+                        <a href={news.link || '#'} class="block relative mb-4 overflow-hidden rounded-xl">
+                            {news.image?.asset ? (
+                                <img 
+                                    src={`${news.image.asset.url}?w=600&h=400&fit=crop`}
+                                    alt={news.image.alt || news.title}
+                                    class="w-full aspect-video object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                            ) : (
+                                <div class="w-full aspect-video bg-gradient-to-br from-royal-900 to-royal-800 flex items-center justify-center">
+                                    <i data-lucide="newspaper" class="w-16 h-16 text-gold-400"></i>
+                                </div>
+                            )}
+                            
+                            {news.category && (
+                                <span class="absolute top-4 left-4 px-3 py-1 bg-royal-900 text-gold-400 text-[10px] uppercase tracking-wider rounded">
+                                    {news.category}
+                                </span>
+                            )}
+                        </a>
+                        
+                        <!-- Content -->
+                        <div>
+                            <a href={news.link || '#'} class="block mb-2">
+                                <h3 class="text-xl font-bold text-royal-900 line-clamp-2 group-hover:text-gold-600 transition">
+                                    {news.title}
+                                </h3>
+                            </a>
+                            
+                            {news.excerpt && (
+                                <p class="text-stone-600 text-sm line-clamp-3 mb-4">
+                                    {news.excerpt}
+                                </p>
+                            )}
+                            
+                            {news.publishedAt && (
+                                <div class="flex items-center gap-2 text-xs text-stone-500">
+                                    <i data-lucide="calendar" class="w-3 h-3"></i>
+                                    <time>{new Date(news.publishedAt).toLocaleDateString('id-ID', { 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric' 
+                                    })}</time>
+                                </div>
+                            )}
+                        </div>
+                    </article>
+                ))}
+            </div>
+            
+            {/* Mobile CTA */}
+            {latestNews.ctaText && (
+                <div class="mt-12 text-center md:hidden">
+                    <a 
+                        href={latestNews.ctaLink || '/berita'} 
+                        class="inline-flex items-center gap-2 px-8 py-3 bg-royal-900 text-white rounded-full font-bold uppercase tracking-widest text-sm hover:bg-royal-800 transition"
+                    >
+                        {latestNews.ctaText}
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            )}
+        </div>
+    </section>
+)}
+
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>

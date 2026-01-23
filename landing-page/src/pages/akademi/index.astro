@@ -1,0 +1,208 @@
+---
+// Academy Landing Page - Course List
+import Navigation from '../../components/Navigation.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Bisri Academy | Belajar Bahasa Arab Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        royal: { 50: '#f0fdf4', 100: '#dcfce7', 800: '#166534', 900: '#14532d', 950: '#052e16' },
+                        gold: { 100: '#fef9c3', 400: '#d4af37', 500: '#b4941f', 600: '#8c7318' },
+                    },
+                    fontFamily: {
+                        sans: ['Cormorant Garamond', 'serif'],
+                        display: ['Cinzel', 'serif'],
+                        arabic: ['Amiri', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FAFAF9; color: #1c1917; font-family: 'Cormorant Garamond', serif; }
+        .royal-pattern { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23166534' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2V6h4V4h-4zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+        .text-arabic { font-family: 'Amiri', serif; }
+    </style>
+</head>
+
+<body class="antialiased royal-pattern">
+    <Navigation />
+
+    <!-- Hero Section -->
+    <section class="relative py-24 bg-royal-900 text-white overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <span class="inline-block py-1 px-3 rounded-full bg-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-wider mb-6 border border-gold-500/30">
+                        Didukung Isyraq Annur Media
+                    </span>
+                    <h1 class="text-4xl md:text-6xl font-display font-bold mb-6 leading-tight">
+                        Belajar <span class="text-gold-400">Bahasa Arab</span> <br>Secara Digital
+                    </h1>
+                    <p class="text-xl text-royal-200 mb-8 leading-relaxed">
+                        Kurikulum standar Timur Tengah dikemas dalam format digital yang mudah diakses. Dibimbing oleh tim ahli dari Pesantren Mahasiswa An-Nur.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="/akademi/al-arabiyyah-level-1" class="group px-8 py-4 bg-gold-500 text-royal-900 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-gold-400 transition shadow-lg flex items-center gap-2">
+                            <i data-lucide="play-circle" class="w-5 h-5"></i> Mulai Belajar Gratis
+                        </a>
+                    </div>
+                </div>
+                <div class="relative hidden md:block">
+                    <div class="absolute inset-0 bg-gold-400/20 rounded-[3rem] rotate-6"></div>
+                    <div class="relative bg-stone-50 p-2 rounded-[2.5rem] shadow-2xl overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=800&auto=format&fit=crop" class="rounded-[2rem] w-full aspect-[4/3] object-cover" alt="Buku Bahasa Arab">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Levels -->
+    <section class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-gold-600 font-bold uppercase tracking-widest text-xs mb-4 block">Jenjang Pembelajaran</span>
+                <h2 class="text-4xl font-display text-royal-900">Pilih Tingkatan Anda</h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Level 1 -->
+                <div class="bg-stone-50 rounded-[2rem] p-8 relative overflow-hidden group hover:shadow-xl transition duration-500 border border-stone-100 hover:border-gold-300">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gold-100 rounded-full blur-2xl opacity-0 group-hover:opacity-50 transition"></div>
+                    <div class="relative z-10">
+                        <span class="inline-block py-1 px-3 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider mb-4">Gratis</span>
+                        <h3 class="font-display text-2xl text-royal-900 mb-2">Level 1: Mubtadi'</h3>
+                        <p class="text-arabic text-xl text-gold-600 mb-4" dir="rtl">المستوى المبتدئ</p>
+                        <p class="text-stone-600 mb-6 leading-relaxed">
+                            Dasar-dasar Bahasa Arab untuk pemula. Belajar hijaiyyah, mufrodat sederhana, dan percakapan dasar.
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-stone-500 mb-6">
+                            <span class="flex items-center gap-1"><i data-lucide="book" class="w-4 h-4"></i> 12 Unit</span>
+                            <span class="w-1 h-1 rounded-full bg-stone-300"></span>
+                            <span class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i> 6 Jam</span>
+                        </div>
+                        <a href="/akademi/al-arabiyyah-level-1" class="inline-flex items-center gap-2 text-royal-900 font-bold uppercase tracking-widest text-sm border-b-2 border-gold-400 pb-1 hover:text-gold-600 transition group">
+                            Mulai Belajar <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Level 2 -->
+                <div class="bg-stone-50 rounded-[2rem] p-8 relative overflow-hidden group hover:shadow-xl transition duration-500 border border-stone-100">
+                    <div class="relative z-10">
+                        <span class="inline-block py-1 px-3 rounded-full bg-gold-100 text-gold-700 text-xs font-bold uppercase tracking-wider mb-4">Premium</span>
+                        <h3 class="font-display text-2xl text-royal-900 mb-2">Level 2: Mutawassit</h3>
+                        <p class="text-arabic text-xl text-gold-600 mb-4" dir="rtl">المستوى المتوسط</p>
+                        <p class="text-stone-600 mb-6 leading-relaxed">
+                            Pendalaman Nahwu & Shorof, kaidah i'rob, dan pembacaan teks Arab klasik.
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-stone-500 mb-6">
+                            <span class="flex items-center gap-1"><i data-lucide="book" class="w-4 h-4"></i> 24 Unit</span>
+                            <span class="w-1 h-1 rounded-full bg-stone-300"></span>
+                            <span class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i> 15 Jam</span>
+                        </div>
+                        <button class="inline-flex items-center gap-2 text-stone-400 font-bold uppercase tracking-widest text-sm cursor-not-allowed">
+                            <i data-lucide="lock" class="w-4 h-4"></i> Segera Hadir
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Level 3 -->
+                <div class="bg-stone-50 rounded-[2rem] p-8 relative overflow-hidden group hover:shadow-xl transition duration-500 border border-stone-100">
+                    <div class="relative z-10">
+                        <span class="inline-block py-1 px-3 rounded-full bg-royal-100 text-royal-800 text-xs font-bold uppercase tracking-wider mb-4">Premium</span>
+                        <h3 class="font-display text-2xl text-royal-900 mb-2">Level 3: Mutaqaddim</h3>
+                        <p class="text-arabic text-xl text-gold-600 mb-4" dir="rtl">المستوى المتقدم</p>
+                        <p class="text-stone-600 mb-6 leading-relaxed">
+                            Balaghah, Insya', dan Mutholaah kitab turats. Persiapan studi ke Timur Tengah.
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-stone-500 mb-6">
+                            <span class="flex items-center gap-1"><i data-lucide="book" class="w-4 h-4"></i> 36 Unit</span>
+                            <span class="w-1 h-1 rounded-full bg-stone-300"></span>
+                            <span class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i> 30 Jam</span>
+                        </div>
+                        <button class="inline-flex items-center gap-2 text-stone-400 font-bold uppercase tracking-widest text-sm cursor-not-allowed">
+                            <i data-lucide="lock" class="w-4 h-4"></i> Segera Hadir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Method Section -->
+    <section class="py-24 bg-stone-50 border-y border-stone-200">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-gold-600 font-bold uppercase tracking-widest text-xs mb-4 block">Metodologi</span>
+                <h2 class="text-4xl font-display text-royal-900">Metode Al-Jazeera</h2>
+                <p class="text-stone-600 mt-4 max-w-2xl mx-auto">Pendekatan pembelajaran komprehensif yang menggabungkan tiga tahapan penting dalam setiap unit.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-[2rem] text-center hover:shadow-lg transition border border-stone-100">
+                    <div class="w-16 h-16 bg-royal-100 rounded-full flex items-center justify-center mx-auto mb-6 text-royal-800">
+                        <i data-lucide="book-open" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="font-display text-xl text-royal-900 mb-3">Qira'ah (قراءة)</h3>
+                    <p class="text-stone-600 leading-relaxed">Membaca teks Arab dengan tajwid yang benar, disertai audio native speaker.</p>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] text-center hover:shadow-lg transition border border-stone-100">
+                    <div class="w-16 h-16 bg-gold-100 rounded-full flex items-center justify-center mx-auto mb-6 text-gold-600">
+                        <i data-lucide="video" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="font-display text-xl text-royal-900 mb-3">Qawaid (قواعد)</h3>
+                    <p class="text-stone-600 leading-relaxed">Video penjelasan kaidah bahasa oleh pengajar berpengalaman.</p>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] text-center hover:shadow-lg transition border border-stone-100">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-700">
+                        <i data-lucide="pen-tool" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="font-display text-xl text-royal-900 mb-3">Tamrinat (تمرينات)</h3>
+                    <p class="text-stone-600 leading-relaxed">Latihan interaktif untuk menguji pemahaman dan memperkuat hafalan.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 bg-royal-900 text-white relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
+        <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <h2 class="text-4xl font-display mb-6">Mulai Perjalanan Bahasa Arabmu</h2>
+            <p class="text-xl text-royal-200 mb-8">Akses gratis untuk Level 1 (Mubtadi'). Tidak perlu mendaftar.</p>
+            <a href="/akademi/al-arabiyyah-level-1" class="inline-flex items-center gap-2 px-10 py-4 bg-gold-500 text-royal-900 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-gold-400 transition shadow-lg">
+                <i data-lucide="play-circle" class="w-5 h-5"></i> Mulai Sekarang
+            </a>
+        </div>
+    </section>
+
+    <Footer />
+    <script is:inline>
+        // Wait for Lucide to load before initializing
+        function waitForLucide(callback) {
+            if (typeof lucide !== 'undefined') {
+                callback();
+            } else {
+                setTimeout(() => waitForLucide(callback), 100);
+            }
+        }
+        waitForLucide(() => lucide.createIcons());
+    </script>
+</body>
+</html>

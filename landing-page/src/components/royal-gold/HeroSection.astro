@@ -1,0 +1,135 @@
+---
+// Hero Section Component for Royal Gold Landing Page
+const { hero } = Astro.props;
+
+// Helper to render rich text title (handles array of blocks from Sanity)
+function renderRichText(blocks: any[]) {
+    if (!blocks || blocks.length === 0) return '';
+    
+    return blocks.map((block: any) => {
+        if (block._type !== 'block') return '';
+        
+        return block.children?.map((child: any) => {
+            let text = child.text || '';
+            
+            // Apply marks
+            if (child.marks?.includes('strong')) {
+                text = `<span class="text-royal-800">${text}</span>`;
+            }
+            if (child.marks?.includes('em')) {
+                text = `<span class="italic text-gold-600 font-serif relative inline-block">${text}</span>`;
+            }
+            
+            return text;
+        }).join('') || '';
+    }).join(' ');
+}
+---
+
+{hero && (
+    <section class="relative min-h-[90vh] flex items-center pt-10 pb-20 overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute inset-0 royal-pattern opacity-50"></div>
+        <div class="absolute top-20 right-10 w-64 h-64 bg-gold-400/10 rounded-full blur-3xl animate-float"></div>
+        <div class="absolute bottom-10 left-10 w-80 h-80 bg-royal-900/5 rounded-full blur-3xl"></div>
+        
+        <!-- Content -->
+        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-24 items-center relative z-10 w-full">
+            <!-- Left: Typography -->
+            <div class="fade-up relative z-20">
+                {hero.badge && (
+                    <div class="inline-flex items-center gap-3 mb-8 px-5 py-2 rounded-full border border-royal-900/10 bg-white/80 backdrop-blur-md shadow-sm w-fit">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-royal-900 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">
+                            {hero.badge}
+                        </span>
+                    </div>
+                )}
+                
+                {hero.title && (
+                    <h1 class="text-5xl md:text-6xl lg:text-7xl font-display font-medium text-royal-950 mb-8 leading-[1.1]">
+                        {renderRichText(hero.title)}
+                    </h1>
+                )}
+                
+                {hero.description && (
+                    <p class="text-xl text-stone-600 mb-10 max-w-lg font-light leading-relaxed">
+                        {hero.description}
+                    </p>
+                )}
+                
+                <div class="flex flex-col sm:flex-row gap-6 items-start">
+                    {hero.ctaPrimary && (
+                        <a 
+                            href={hero.ctaPrimary.link || '#'} 
+                            class="group relative px-10 py-4 bg-royal-900 text-white shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full btn-glow overflow-hidden"
+                        >
+                            <div class="absolute inset-0 bg-gradient-to-r from-gold-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <span class="relative font-display font-bold uppercase tracking-widest text-sm flex items-center gap-3">
+                                {hero.ctaPrimary.text}
+                                <i data-lucide="arrow-right" class="w-4 h-4 text-gold-400"></i>
+                            </span>
+                        </a>
+                    )}
+                    
+                    {hero.ctaSecondary && (
+                        <a 
+                            href={hero.ctaSecondary.link || '#'} 
+                            class="group px-8 py-4 bg-white border border-stone-200 text-royal-900 font-bold uppercase tracking-widest text-sm rounded-full hover:border-gold-400 hover:text-gold-600 transition shadow-sm flex items-center gap-2"
+                        >
+                            <i data-lucide="user-plus" class="w-4 h-4 group-hover:text-gold-600 transition"></i>
+                            {hero.ctaSecondary.text}
+                        </a>
+                    )}
+                </div>
+            </div>
+            
+            <!-- Right: Visual -->
+            <div class="relative fade-up delay-200">
+                <div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl border-8 border-white">
+                    {hero.heroImage?.asset && (
+                        <img 
+                            src={`${hero.heroImage.asset.url}?w=800&h=600&fit=crop`} 
+                            alt={hero.heroImage.alt || 'Hero image'} 
+                            class="w-full h-auto object-cover"
+                        />
+                    )}
+                    
+                    {hero.heroImage?.caption && (
+                        <div class="absolute bottom-6 left-6 right-6 glass-panel-dark p-4 rounded-lg">
+                            {hero.heroImage.caption.quote && (
+                                <p class="text-white font-serif text-lg italic mb-1">
+                                    "{hero.heroImage.caption.quote}"
+                                </p>
+                            )}
+                            {hero.heroImage.caption.subtext && (
+                                <p class="text-gold-400 text-xs uppercase tracking-wider">
+                                    {hero.heroImage.caption.subtext}
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </div>
+                
+                {hero.impactBadge && (
+                    <div class="absolute -top-6 -right-6 glass-panel p-6 rounded-2xl shadow-xl border border-stone-200">
+                        <div class="text-center">
+                            <p class="text-4xl font-display font-bold text-royal-900 mb-1">
+                                {hero.impactBadge.value}
+                            </p>
+                            <p class="text-xs text-stone-600 uppercase tracking-wider">
+                                {hero.impactBadge.label}
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    </section>
+)}
+
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>

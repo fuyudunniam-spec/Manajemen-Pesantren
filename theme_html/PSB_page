@@ -1,8 +1,3 @@
----
-import Navigation from '../components/Navigation.astro';
-import Footer from '../components/Footer.astro';
----
-
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 
@@ -23,7 +18,6 @@ import Footer from '../components/Footer.astro';
                     colors: {
                         royal: { 50: '#f0fdf4', 100: '#dcfce7', 800: '#166534', 900: '#14532d', 950: '#052e16' },
                         gold: { 100: '#fef9c3', 400: '#d4af37', 500: '#b4941f', 600: '#8c7318' },
-                        paper: '#FAFAF9',
                     },
                     fontFamily: {
                         sans: ['Cormorant Garamond', 'serif'],
@@ -34,85 +28,102 @@ import Footer from '../components/Footer.astro';
             }
         }
     </script>
-
     <style>
         body {
             background-color: #FAFAF9;
             color: #1c1917;
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.15rem;
-            overflow-x: hidden;
-        }
-
-        h1,
-        h2,
-        h3,
-        .font-display {
-            font-family: 'Cinzel', serif;
         }
 
         .royal-pattern {
-            background-color: #FAFAF9;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23166534' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2V6h4V4h-4zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23166534' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
 
-        .fade-up {
-            animation: fadeUp 1s ease-out forwards;
-            opacity: 0;
-            transform: translateY(30px);
+        .input-royal {
+            width: 100%;
+            background: white;
+            border: 1px solid #e7e5e4;
+            border-radius: 9999px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            color: #1c1917;
+            transition: all 0.3s;
         }
 
-        .delay-100 {
-            animation-delay: 0.1s;
+        .input-royal:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
         }
 
-        .delay-200 {
-            animation-delay: 0.2s;
+        .radio-card:checked+div {
+            border-color: #14532d;
+            background-color: #f0fdf4;
         }
 
-        .delay-300 {
-            animation-delay: 0.3s;
+        .radio-card:checked+div .check-icon {
+            opacity: 1;
+            transform: scale(1);
         }
 
-        @keyframes fadeUp {
+        .upload-zone {
+            border: 2px dashed #e7e5e4;
+            border-radius: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            background-color: #fafaf9;
+        }
+
+        .upload-zone:hover {
+            border-color: #d4af37;
+            background-color: #fffbeb;
+        }
+
+        .hidden-section {
+            display: none;
+        }
+
+        .fade-in-section {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
         }
     </style>
 </head>
 
 <body class="antialiased royal-pattern">
 
-    <Navigation />
-
-
-
     <!-- NAV -->
-    
+    <nav class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div
+                    class="w-8 h-8 bg-royal-900 text-white rotate-45 flex items-center justify-center rounded-sm shadow-md group-hover:rotate-0 transition-transform">
+                    <span
+                        class="font-display font-bold text-gold-400 text-sm -rotate-45 group-hover:rotate-0 transition-transform">A</span>
+                </div>
+                <div class="flex flex-col">
+                    <span
+                        class="font-display font-bold text-royal-900 tracking-widest text-base leading-none">AL-BISRI</span>
+                    <span class="text-[8px] text-gold-600 uppercase tracking-[0.25em] font-sans font-semibold">Kembali
+                        ke Beranda</span>
+                </div>
+            </a>
+            <div class="flex items-center gap-2 text-stone-500 text-xs font-bold uppercase tracking-wider">
+                <i data-lucide="help-circle" class="w-4 h-4"></i> Helpdesk PSB
+            </div>
+        </div>
+    </nav>
 
     <!-- CONTENT -->
     <main class="py-12 px-6">
@@ -387,21 +398,13 @@ import Footer from '../components/Footer.astro';
         </div>
     </main>
 
-    
+    <footer
+        class="bg-royal-900 text-stone-400 py-8 text-center text-xs uppercase tracking-widest mt-12 border-t border-royal-800">
+        &copy; 2026 Al-Bisri Royal Education
+    </footer>
 
-    <script is:inline>
-        // Wait for Lucide to load before initializing
-        function waitForLucide(callback) {
-            if (typeof lucide !== 'undefined') {
-                callback();
-            } else {
-                setTimeout(() => waitForLucide(callback), 100);
-            }
-        }
-        
-        waitForLucide(() => {
-            lucide.createIcons();
-        });
+    <script>
+        lucide.createIcons();
 
         // Data Biaya (Simulasi)
         const feeData = {
@@ -464,9 +467,6 @@ import Footer from '../components/Footer.astro';
             document.getElementById('transfer-instruction').innerText = data.transfer;
         }
     </script>
-
-
-    <Footer />
 </body>
 
 </html>

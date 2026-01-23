@@ -1,0 +1,156 @@
+---
+// Impact Fund Section with Chart
+const { impactFund } = Astro.props;
+---
+
+{impactFund && (
+    <section id="impact" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Header -->
+            <div class="text-center mb-16 fade-up">
+                {impactFund.badge && (
+                    <span class="inline-block px-4 py-1 bg-royal-900 text-gold-400 text-[10px] uppercase tracking-[0.3em] mb-6 rounded">
+                        {impactFund.badge}
+                    </span>
+                )}
+                
+                {impactFund.title && (
+                    <h2 class="text-4xl md:text-5xl font-display font-bold text-royal-950 mb-4">
+                        {impactFund.title}
+                    </h2>
+                )}
+                
+                {impactFund.description && (
+                    <p class="text-stone-600 max-w-2xl mx-auto">
+                        {impactFund.description}
+                    </p>
+                )}
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-12 items-start">
+                <!-- Left: Chart -->
+                <div class="fade-up glass-panel p-8 rounded-2xl">
+                    <h3 class="text-2xl font-display font-bold text-royal-900 mb-6">Fokus Penyaluran Dana</h3>
+                    
+                    {impactFund.productiveAssets && (
+                        <div class="mb-6 p-4 bg-royal-50 rounded-lg">
+                            <p class="text-sm text-stone-600 uppercase tracking-wider mb-1">Total Aset Produktif</p>
+                            <p class="text-3xl font-display font-bold text-royal-900">{impactFund.productiveAssets}</p>
+                        </div>
+                    )}
+                    
+                    <div class="chart-container">
+                        <canvas id="impactChart"></canvas>
+                    </div>
+                    
+                    {impactFund.transparencyLink && (
+                        <a 
+                            href={impactFund.transparencyLink} 
+                            class="mt-6 inline-flex items-center gap-2 text-royal-900 font-bold text-sm hover:text-gold-600 transition group"
+                        >
+                            Lihat Laporan Lengkap
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    )}
+                </div>
+                
+                <!-- Right: Impact Programs -->
+                <div class="space-y-6 fade-up delay-200">
+                    {impactFund.programs && impactFund.programs.map((program: any) => (
+                        <div class="glass-panel p-6 rounded-xl hover:shadow-lg transition-shadow">
+                            <div class="flex items-start gap-4 mb-4">
+                                {program.icon && (
+                                    <div class="w-12 h-12 rounded-lg bg-royal-900 flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide={program.icon} class="w-6 h-6 text-gold-400"></i>
+                                    </div>
+                                )}
+                                
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-bold text-royal-900 mb-1">{program.title}</h4>
+                                    <p class="text-sm text-stone-600">{program.description}</p>
+                                </div>
+                            </div>
+                            
+                            {typeof program.progress === 'number' && (
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs text-stone-600 uppercase tracking-wider">Progress</span>
+                                        <span class="text-sm font-bold text-royal-900">{program.progress}%</span>
+                                    </div>
+                                    <div class="w-full bg-stone-200 rounded-full h-2 overflow-hidden">
+                                        <div 
+                                            class="h-full bg-gradient-to-r from-royal-900 to-gold-500 rounded-full transition-all duration-1000"
+                                            style={`width: ${program.progress}%`}
+                                        ></div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    </section>
+)}
+
+<script>
+    // CRITICAL FIX: Initialize Chart.js safely with try-catch
+    document.addEventListener('DOMContentLoaded', () => {
+        try {
+            const canvasElement = document.getElementById('impactChart');
+            
+            if (!canvasElement) {
+                console.warn('Impact chart canvas not found, skipping chart initialization');
+                return;
+            }
+            
+            // Check if Chart.js is loaded
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js not loaded, skipping chart initialization');
+                return;
+            }
+            
+            const labels = canvasElement.dataset.labels ? JSON.parse(canvasElement.dataset.labels) : [];
+            const data = canvasElement.dataset.data ? JSON.parse(canvasElement.dataset.data) : [];
+            
+            if (labels.length === 0 || data.length === 0) {
+                console.warn('No chart data available');
+                return;
+            }
+            
+            const ctx = canvasElement.getContext('2d');
+            if (!ctx) {
+                console.warn('Cannot get canvas context');
+                return;
+            }
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#14532d', '#d4af37', '#166534'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error initializing impact chart:', error);
+            // Chart failed but page continues to render
+        }
+    });
+    
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>

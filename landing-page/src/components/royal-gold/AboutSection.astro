@@ -1,0 +1,94 @@
+---
+// About Section Component
+const { about } = Astro.props;
+---
+
+{about && (
+    <section id="about" class="py-24 royal-pattern relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+            <!-- Left: Content -->
+            <div class="fade-up">
+                {about.badge && (
+                    <span class="inline-block px-4 py-1 bg-royal-900 text-gold-400 text-[10px] uppercase tracking-[0.3em] mb-6 rounded">
+                        {about.badge}
+                    </span>
+                )}
+                
+                {about.title && (
+                    <h2 class="text-4xl md:text-5xl font-display font-bold text-royal-950 mb-4">
+                        {about.title}
+                    </h2>
+                )}
+                
+                {about.subtitle && (
+                    <p class="text-2xl font-serif italic text-gold-600 mb-8">
+                        {about.subtitle}
+                    </p>
+                )}
+                
+                {about.paragraphs && about.paragraphs.map((paragraph: string) => (
+                    <p class="text-stone-700 leading-relaxed mb-6">
+                        {paragraph}
+                    </p>
+                ))}
+                
+                {about.highlightedParagraph && (
+                    <div class="pl-6 border-l-4 border-gold-500 my-8 bg-gold-50 p-6 rounded-r-lg">
+                        <p class="text-stone-800 font-medium leading-relaxed italic">
+                            {about.highlightedParagraph}
+                        </p>
+                    </div>
+                )}
+                
+                {about.ctaText && (
+                    <a 
+                        href={about.ctaLink || '#'} 
+                        class="inline-flex items-center gap-2 text-royal-900 font-bold uppercase tracking-widest text-sm hover:text-gold-600 transition group"
+                    >
+                        {about.ctaText}
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                )}
+            </div>
+            
+            <!-- Right: Images Grid -->
+            <div class="relative fade-up delay-200">
+                {about.images && about.images.length > 0 && (
+                    <div class="grid grid-cols-2 gap-4">
+                        {about.images.slice(0, 4).map((image: any, index: number) => (
+                            <div 
+                                class:list={[
+                                    "rounded-lg overflow-hidden shadow-lg",
+                                    index === 0 && "col-span-2"
+                                ]}
+                            >
+                                <img 
+                                    src={`${image.asset.url}?w=600&h=400&fit=crop`}
+                                    alt={image.alt || `About image ${index + 1}`}
+                                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
+                
+                {about.floatingBadge && (
+                    <div class="absolute -bottom-6 -left-6 glass-panel p-6 rounded-xl shadow-xl border border-stone-200">
+                        <p class="text-3xl font-display font-bold text-royal-900 mb-1">
+                            {about.floatingBadge.text}
+                        </p>
+                        <p class="text-xs text-stone-600 uppercase tracking-wider">
+                            {about.floatingBadge.subtext}
+                        </p>
+                    </div>
+                )}
+            </div>
+        </div>
+    </section>
+)}
+
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>

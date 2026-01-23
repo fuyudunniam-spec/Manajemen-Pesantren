@@ -5,8 +5,40 @@
 @layer base {
     :root {
         --background: 40 33% 98%;
-        /* #FDFBF7 converted to HSL-ish */
+        /* #FDFBF7 */
         --foreground: 82 41% 16%;
         /* #2D3A18 */
+        --primary: 82 41% 16%;
+        --secondary: 43 100% 36%;
+        /* #B8860B */
+        --accent: 43 100% 36%;
+    }
+
+    .theme-royal-gold {
+        --background: 45 40% 5%;
+        /* Very Dark */
+        --foreground: 45 30% 95%;
+        /* Ivory */
+        --primary: 43 100% 50%;
+        /* Bright Gold */
+        --secondary: 43 100% 36%;
+        /* Darker Gold */
+        --accent: 43 100% 50%;
+    }
+
+    .theme-modern-dark {
+        --background: 222 47% 11%;
+        --foreground: 210 40% 98%;
+        --primary: 217 91% 60%;
+        --secondary: 210 40% 96%;
+        --accent: 217 91% 60%;
+    }
+
+    .theme-eco-green {
+        --background: 140 30% 98%;
+        --foreground: 140 50% 10%;
+        --primary: 142 70% 25%;
+        --secondary: 142 70% 45%;
+        --accent: 142 70% 25%;
     }
 }
