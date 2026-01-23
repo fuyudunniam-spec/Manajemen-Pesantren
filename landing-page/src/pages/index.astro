@@ -2,6 +2,42 @@
 import Layout from '../layouts/Layout.astro';
 import { client, queries, urlFor } from '../lib/sanity';
 
+// Fetch landingPage document from Sanity
+let landingPage: any = null;
+try {
+    landingPage = await client.fetch(`*[_type == "landingPage"][0] {
+        hero {
+            badge, title, description,
+            ctaPrimary { text, link },
+            ctaSecondary { text, link },
+            heroImage { asset, alt, caption { quote, subtext } },
+            impactBadge { label, value }
+        },
+        about {
+            badge, title, subtitle, paragraphs, highlightedParagraph,
+            ctaText, ctaLink,
+            images[] { asset, alt },
+            floatingBadge { text, subtext }
+        },
+        timeline { badge, title, milestones[] { year, title, description } },
+        partnerships { headline, partners[] { name, logo { asset, alt } } },
+        elearning { badge, title, titleHighlight, description, ctaText, ctaLink, previewImage { asset, alt } },
+        impactFund {
+            badge, title, description, transparencyLink, productiveAssets,
+            chartData { labels, data },
+            programs[] { icon, title, description, progress }
+        },
+        testimonials { badge, title, testimonialsList[] { quote, name, role, avatar { asset, alt } } },
+        donationCTA {
+            title, subtitle,
+            zakatCalculator { title, inputLabel, buttonText },
+            wakafPackages { title, packages[] { name, description, amount } }
+        }
+    }`);
+} catch (error) {
+    console.error('Failed to fetch landing page:', error);
+}
+
 // Fetch latest blog posts from Sanity
 let latestPosts: any[] = [];
 try {
@@ -31,7 +67,18 @@ const colorClasses: Record<string, string> = {
     blue: 'bg-blue-100 text-blue-800',
     stone: 'bg-stone-100 text-stone-600',
 };
+
+// Extract sections with fallbacks
+const hero = landingPage?.hero || {};
+const about = landingPage?.about || {};
+const timeline = landingPage?.timeline || {};
+const partnerships = landingPage?.partnerships || {};
+const elearning = landingPage?.elearning || {};
+const impactFund = landingPage?.impactFund || {};
+const testimonials = landingPage?.testimonials || {};
+const donationCTA = landingPage?.donationCTA || {};
 ---
+
 
 <Layout title="Al-Bisri | Royal Education Foundation">
     <!-- 2. HERO SECTION -->
@@ -52,8 +99,7 @@ const colorClasses: Record<string, string> = {
                     <span class="relative flex h-2 w-2"><span
                             class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-400 opacity-75"></span><span
                             class="relative inline-flex rounded-full h-2 w-2 bg-gold-500"></span></span>
-                    <span class="text-royal-900 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">100%
-                        Lulusan Dhuafa Masuk PTN/Timur Tengah</span>
+                    <span class="text-royal-900 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">{hero.badge || '100% Lulusan Dhuafa Masuk PTN/Timur Tengah'}</span>
                 </div>
                 <h1 class="text-5xl md:text-6xl lg:text-7xl font-display font-medium text-royal-950 mb-8 leading-[1.1]">
                     Memuliakan <span class="text-royal-800">Yatim,</span><br> <span
@@ -66,18 +112,17 @@ const colorClasses: Record<string, string> = {
                     </span>
                 </h1>
                 <p class="text-xl text-stone-600 mb-10 max-w-lg font-light leading-relaxed">
-                    Kami tidak sekadar memberi santunan, tapi memberikan <strong>pendidikan terbaik</strong> agar anak
-                    yatim & dhuafa tumbuh menjadi pemimpin yang mandiri dan bermartabat.
+                    {hero.description || 'Kami tidak sekadar memberi santunan, tapi memberikan pendidikan terbaik agar anak yatim & dhuafa tumbuh menjadi pemimpin yang mandiri dan bermartabat.'}
                 </p>
                 <div class="flex flex-col sm:flex-row gap-6 items-start">
-                    <a href="/donasi"
+                    <a href={hero.ctaPrimary?.link || '/donasi'}
                         class="group relative px-10 py-4 bg-royal-900 text-white shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full btn-glow overflow-hidden">
                         <div
                             class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                         </div>
                         <span
                             class="relative font-display font-bold uppercase tracking-widest text-sm flex items-center gap-3">
-                            Investasi Wakaf <i data-lucide="arrow-right" class="w-4 h-4 text-gold-400"></i>
+                            {hero.ctaPrimary?.text || 'Investasi Wakaf'} <i data-lucide="arrow-right" class="w-4 h-4 text-gold-400"></i>
                         </span>
                     </a>
                     <a href="/psb"
@@ -331,11 +376,9 @@ const colorClasses: Record<string, string> = {
         <div class="max-w-7xl mx-auto px-6 relative z-10">
             <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
                 <div class="max-w-2xl">
-                    <span class="text-gold-400 text-xs font-bold uppercase tracking-widest mb-3 block">Transparansi Dana
-                        Wakaf</span>
-                    <h2 class="text-4xl md:text-5xl font-display text-white mb-4">Laporan Penyaluran</h2>
-                    <p class="text-royal-200 font-light text-lg">Melihat langsung bagaimana donasi Anda menjadi "darah"
-                        bagi pendidikan anak yatim.</p>
+                    <span class="text-gold-400 text-xs font-bold uppercase tracking-widest mb-3 block">{impactFund.badge || 'Transparansi Dana Wakaf'}</span>
+                    <h2 class="text-4xl md:text-5xl font-display text-white mb-4">{impactFund.title || 'Laporan Penyaluran'}</h2>
+                    <p class="text-royal-200 font-light text-lg">{impactFund.description || 'Melihat langsung bagaimana donasi Anda menjadi "darah" bagi pendidikan anak yatim.'}</p>
                 </div>
                 <div>
                     <a href="/transparansi"
@@ -350,10 +393,10 @@ const colorClasses: Record<string, string> = {
                     class="lg:col-span-1 glass-panel-dark p-8 rounded-[2.5rem] border border-white/10 relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/20 rounded-full blur-2xl"></div>
                     <h3 class="text-xl font-display font-bold text-white mb-6 text-center">Fokus Penyaluran</h3>
-                    <div class="chart-container"><canvas id="impactChart"></canvas></div>
+                    <div class="chart-container"><canvas id="impactChart" data-labels={JSON.stringify(impactFund.chartData?.labels || ['Beasiswa Yatim', 'Wakaf Produktif', 'Infrastruktur'])} data-values={JSON.stringify(impactFund.chartData?.data || [50, 30, 20])}></canvas></div>
                     <div class="mt-8 text-center border-t border-white/10 pt-6">
                         <p class="text-[10px] text-royal-300 uppercase tracking-widest mb-1">Aset Produktif</p>
-                        <p class="text-3xl font-display text-gold-400">Rp 12.5 M</p>
+                        <p class="text-3xl font-display text-gold-400">{impactFund.productiveAssets || 'Rp 12.5 M'}</p>
                     </div>
                 </div>
 
@@ -713,12 +756,16 @@ const colorClasses: Record<string, string> = {
         waitForChart(function() {
             const ctx = document.getElementById('impactChart');
             if (ctx) {
+                // Read chart data from data attributes (set by Astro)
+                const chartLabels = ctx.dataset.labels ? JSON.parse(ctx.dataset.labels) : ['Beasiswa Yatim', 'Wakaf Produktif', 'Infrastruktur'];
+                const chartData = ctx.dataset.values ? JSON.parse(ctx.dataset.values) : [50, 30, 20];
+                
                 new Chart(ctx.getContext('2d'), {
                     type: 'doughnut',
                     data: {
-                        labels: ['Beasiswa Yatim', 'Wakaf Produktif', 'Infrastruktur'],
+                        labels: chartLabels,
                         datasets: [{
-                            data: [50, 30, 20],
+                            data: chartData,
                             backgroundColor: ['#d4af37', '#166534', '#a8a29e'],
                             borderWidth: 0,
                             hoverOffset: 4
