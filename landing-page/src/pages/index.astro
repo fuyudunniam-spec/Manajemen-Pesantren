@@ -33,17 +33,7 @@ try {
             zakatCalculator { title, inputLabel, buttonText },
             wakafPackages { title, packages[] { name, description, amount } }
         }
-    }`)
-;
-    
-    // DEBUG: Log what we actually got from Sanity
-    console.log('=== SANITY FETCH DEBUG ===');
-    console.log('landingPage exists:', !!landingPage);
-    console.log('hero exists:', !!landingPage?.hero);
-    console.log('hero.title:', landingPage?.hero?.title);
-    console.log('hero.badge:', landingPage?.hero?.badge);
-    console.log('hero.description:', landingPage?.hero?.description);
-    console.log('========================');
+    }`);
 } catch (error) {
     console.error('Failed to fetch landing page:', error);
 }
@@ -161,10 +151,10 @@ const donationCTA = landingPage?.donationCTA || {};
                             {hero.ctaPrimary?.text || 'Investasi Wakaf'} <i data-lucide="arrow-right" class="w-4 h-4 text-gold-400"></i>
                         </span>
                     </a>
-                    <a href="/psb"
+                    <a href={hero.ctaSecondary?.link || '/psb'}
                         class="group px-8 py-4 bg-white border border-stone-200 text-royal-900 font-bold uppercase tracking-widest text-sm rounded-full hover:border-gold-400 hover:text-gold-600 transition shadow-sm flex items-center gap-2">
                         <i data-lucide="user-plus"
-                            class="w-4 h-4 text-royal-900 group-hover:text-gold-600 transition"></i> Daftar Reguler
+                            class="w-4 h-4 text-royal-900 group-hover:text-gold-600 transition"></i> {hero.ctaSecondary?.text || 'Daftar Reguler'}
                     </a>
                 </div>
             </div>
@@ -229,9 +219,17 @@ const donationCTA = landingPage?.donationCTA || {};
                     <span class="text-gold-600 font-bold uppercase tracking-widest text-xs mb-4 block">{about.badge || 'Filosofi Kemandirian'}</span>
                     <h2 class="text-4xl md:text-5xl font-display text-royal-900 mb-6 leading-tight">{about.title || 'Gotong Royong'} <br>
                         <span class="italic text-stone-400">{about.subtitle || 'Pendidikan Umat'}</span></h2>
-                    <p class="text-stone-600 text-lg leading-relaxed mb-6">
-                        {about.paragraphs?.[0] || 'Al-Bisri menerapkan sistem Subsidi Silang (Cross-Subsidy). Kami membuka layanan asrama dan pendidikan berbayar bagi masyarakat umum.'}
-                    </p>
+                    {about.paragraphs && about.paragraphs.length > 0 ? (
+                        about.paragraphs.map((paragraph: string) => (
+                            <p class="text-stone-600 text-lg leading-relaxed mb-6">
+                                {paragraph}
+                            </p>
+                        ))
+                    ) : (
+                        <p class="text-stone-600 text-lg leading-relaxed mb-6">
+                            Al-Bisri menerapkan sistem Subsidi Silang (Cross-Subsidy). Kami membuka layanan asrama dan pendidikan berbayar bagi masyarakat umum.
+                        </p>
+                    )}
                     <p class="text-stone-600 text-lg leading-relaxed mb-8 border-l-4 border-gold-400 pl-4">
                         {about.highlightedParagraph || 'Keuntungan dari program reguler inilah yang menopang operasional dan menjamin pendidikan GRATIS berkualitas tinggi bagi ratusan santri yatim dan dhuafa.'}
                     </p>
