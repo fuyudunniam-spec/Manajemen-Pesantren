@@ -33,7 +33,17 @@ try {
             zakatCalculator { title, inputLabel, buttonText },
             wakafPackages { title, packages[] { name, description, amount } }
         }
-    }`);
+    }`)
+;
+    
+    // DEBUG: Log what we actually got from Sanity
+    console.log('=== SANITY FETCH DEBUG ===');
+    console.log('landingPage exists:', !!landingPage);
+    console.log('hero exists:', !!landingPage?.hero);
+    console.log('hero.title:', landingPage?.hero?.title);
+    console.log('hero.badge:', landingPage?.hero?.badge);
+    console.log('hero.description:', landingPage?.hero?.description);
+    console.log('========================');
 } catch (error) {
     console.error('Failed to fetch landing page:', error);
 }
