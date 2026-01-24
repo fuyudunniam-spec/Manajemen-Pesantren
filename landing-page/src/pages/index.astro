@@ -184,27 +184,24 @@ const donationCTA = landingPage?.donationCTA || {};
                         class="rounded-[3rem] shadow-2xl w-full h-[500px] object-cover grayscale hover:grayscale-0 transition duration-700">
                     <div class="absolute bottom-8 right-8 bg-white/90 backdrop-blur-md p-6 rounded-[2rem] shadow-xl border border-stone-100 max-w-xs animate-float"
                         style="animation-delay: 1s;">
-                        <p class="font-display text-4xl font-bold text-royal-900 mb-1">Mandiri<span
+                        <p class="font-display text-4xl font-bold text-royal-900 mb-1">{about.floatingBadge?.text || 'Mandiri'}<span
                                 class="text-gold-500 text-2xl">.</span></p>
-                        <p class="text-xs text-stone-500 uppercase tracking-widest font-bold">Visi Ekonomi Pesantren</p>
+                        <p class="text-xs text-stone-500 uppercase tracking-widest font-bold">{about.floatingBadge?.subtext || 'Visi Ekonomi Pesantren'}</p>
                     </div>
                 </div>
                 <div class="order-1 md:order-2">
-                    <span class="text-gold-600 font-bold uppercase tracking-widest text-xs mb-4 block">Filosofi
-                        Kemandirian</span>
-                    <h2 class="text-4xl md:text-5xl font-display text-royal-900 mb-6 leading-tight">Gotong Royong <br>
-                        <span class="italic text-stone-400">Pendidikan Umat</span></h2>
+                    <span class="text-gold-600 font-bold uppercase tracking-widest text-xs mb-4 block">{about.badge || 'Filosofi Kemandirian'}</span>
+                    <h2 class="text-4xl md:text-5xl font-display text-royal-900 mb-6 leading-tight">{about.title || 'Gotong Royong'} <br>
+                        <span class="italic text-stone-400">{about.subtitle || 'Pendidikan Umat'}</span></h2>
                     <p class="text-stone-600 text-lg leading-relaxed mb-6">
-                        Al-Bisri menerapkan sistem <strong>Subsidi Silang (Cross-Subsidy)</strong>. Kami membuka layanan
-                        asrama dan pendidikan berbayar bagi masyarakat umum.
+                        {about.paragraphs?.[0] || 'Al-Bisri menerapkan sistem Subsidi Silang (Cross-Subsidy). Kami membuka layanan asrama dan pendidikan berbayar bagi masyarakat umum.'}
                     </p>
                     <p class="text-stone-600 text-lg leading-relaxed mb-8 border-l-4 border-gold-400 pl-4">
-                        Keuntungan dari program reguler inilah yang menopang operasional dan menjamin <strong>pendidikan
-                            GRATIS berkualitas tinggi</strong> bagi ratusan santri yatim dan dhuafa.
+                        {about.highlightedParagraph || 'Keuntungan dari program reguler inilah yang menopang operasional dan menjamin pendidikan GRATIS berkualitas tinggi bagi ratusan santri yatim dan dhuafa.'}
                     </p>
-                    <a href="/donasi"
+                    <a href={about.ctaLink || '/donasi'}
                         class="inline-flex items-center gap-2 text-royal-900 font-bold uppercase tracking-widest text-sm border-b-2 border-gold-400 pb-1 hover:text-gold-600 transition group">
-                        Dukung Gerakan Ini <i data-lucide="arrow-right"
+                        {about.ctaText || 'Dukung Gerakan Ini'} <i data-lucide="arrow-right"
                             class="w-4 h-4 transform group-hover:translate-x-1 transition-transform"></i>
                     </a>
                 </div>
@@ -219,8 +216,8 @@ const donationCTA = landingPage?.donationCTA || {};
         <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/20 to-transparent"></div>
         <div class="max-w-7xl mx-auto px-6 relative z-10">
             <div class="text-center mb-20">
-                <span class="text-gold-400 font-bold uppercase tracking-[0.2em] text-xs">Milestones</span>
-                <h2 class="text-3xl md:text-4xl font-display text-white mt-3">Jejak Langkah Pengabdian</h2>
+                <span class="text-gold-400 font-bold uppercase tracking-[0.2em] text-xs">{timeline.badge || 'Milestones'}</span>
+                <h2 class="text-3xl md:text-4xl font-display text-white mt-3">{timeline.title || 'Jejak Langkah Pengabdian'}</h2>
             </div>
             <div class="relative">
                 <div
@@ -307,7 +304,7 @@ const donationCTA = landingPage?.donationCTA || {};
     <!-- 5. KEMITRAAN (Marquee) -->
     <section class="py-20 bg-stone-50 border-y border-royal-100 overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 text-center mb-10">
-            <p class="text-royal-800/60 text-xs font-bold uppercase tracking-[0.2em]">Dipercaya Oleh Lembaga & Korporasi
+            <p class="text-royal-800/60 text-xs font-bold uppercase tracking-[0.2em]">{partnerships.headline || 'Dipercaya Oleh Lembaga & Korporasi'}
             </p>
         </div>
         <div class="relative flex overflow-x-hidden group py-4">
@@ -343,17 +340,15 @@ const donationCTA = landingPage?.donationCTA || {};
             <div class="grid md:grid-cols-2 gap-16 items-center">
                 <div>
                     <span
-                        class="inline-block py-1 px-3 rounded-full bg-royal-100 text-royal-800 text-xs font-bold uppercase tracking-wider mb-4 border border-royal-200">Didukung
-                        Isyraq Annur Media</span>
-                    <h2 class="text-4xl md:text-5xl font-display text-royal-900 mb-6">Akses Kurikulum <br> <span
-                            class="italic text-gold-600">Bahasa Arab Digital</span></h2>
+                        class="inline-block py-1 px-3 rounded-full bg-royal-100 text-royal-800 text-xs font-bold uppercase tracking-wider mb-4 border border-royal-200">{elearning.badge || 'Didukung Isyraq Annur Media'}</span>
+                    <h2 class="text-4xl md:text-5xl font-display text-royal-900 mb-6">{elearning.title || 'Akses Kurikulum'} <br> <span
+                            class="italic text-gold-600">{elearning.titleHighlight || 'Bahasa Arab Digital'}</span></h2>
                     <p class="text-stone-600 text-lg mb-8 leading-relaxed">
-                        Kami membuka akses materi pembelajaran Bahasa Arab standar Timur Tengah secara digital.
-                        Dikembangkan oleh tim ahli Pesantren Mahasiswa An-Nur.
+                        {elearning.description || 'Kami membuka akses materi pembelajaran Bahasa Arab standar Timur Tengah secara digital. Dikembangkan oleh tim ahli Pesantren Mahasiswa An-Nur.'}
                     </p>
-                    <a href="/akademi"
+                    <a href={elearning.ctaLink || '/akademi'}
                         class="group px-10 py-4 bg-royal-900 text-white rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold uppercase tracking-widest text-sm flex items-center gap-3 inline-flex">
-                        Akses Gratis <i data-lucide="monitor-play" class="w-4 h-4 text-gold-400"></i>
+                        {elearning.ctaText || 'Akses Gratis'} <i data-lucide="monitor-play" class="w-4 h-4 text-gold-400"></i>
                     </a>
                 </div>
                 <div class="relative">
@@ -442,8 +437,8 @@ const donationCTA = landingPage?.donationCTA || {};
     <section class="py-24 bg-white relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-6">
             <div class="text-center mb-16">
-                <span class="text-gold-600 font-bold uppercase tracking-widest text-xs">Suara Hati</span>
-                <h2 class="text-4xl font-display text-royal-900 mt-2">Kisah Penerima Manfaat</h2>
+                <span class="text-gold-600 font-bold uppercase tracking-widest text-xs">{testimonials.badge || 'Suara Hati'}</span>
+                <h2 class="text-4xl font-display text-royal-900 mt-2">{testimonials.title || 'Kisah Penerima Manfaat'}</h2>
             </div>
 
             <div id="testimonial-slider"
@@ -597,17 +592,16 @@ const donationCTA = landingPage?.donationCTA || {};
                     class="absolute top-0 right-0 w-64 h-64 bg-gold-100 rounded-full blur-3xl opacity-50 translate-x-1/3 -translate-y-1/3">
                 </div>
                 <div class="text-center mb-16 relative z-10">
-                    <h2 class="text-4xl font-display text-royal-900 mb-4">Investasi Akhirat</h2>
-                    <p class="text-stone-500">Pilih jalur kontribusi terbaik Anda.</p>
+                    <h2 class="text-4xl font-display text-royal-900 mb-4">{donationCTA.title || 'Investasi Akhirat'}</h2>
+                    <p class="text-stone-500">{donationCTA.subtitle || 'Sedekah Jariyah Tanpa Henti'}</p>
                 </div>
                 <div class="grid md:grid-cols-2 gap-12 relative z-10">
                     <div>
                         <h3 class="font-bold text-royal-900 mb-6 flex items-center gap-2 text-lg"><i
-                                data-lucide="calculator" class="w-5 h-5 text-gold-500"></i> Hitung Zakat Maal</h3>
+                                data-lucide="calculator" class="w-5 h-5 text-gold-500"></i> {donationCTA.zakatCalculator?.title || 'Hitung Zakat Maal'}</h3>
                         <div class="space-y-6">
                             <div><label
-                                    class="text-xs font-bold text-stone-400 uppercase tracking-wider block mb-2">Total
-                                    Aset (Setahun)</label>
+                                    class="text-xs font-bold text-stone-400 uppercase tracking-wider block mb-2">{donationCTA.zakatCalculator?.inputLabel || 'Total Aset (Setahun)'}</label>
                                 <div class="relative"><span
                                         class="absolute left-6 top-1/2 -translate-y-1/2 text-royal-900 font-bold">Rp</span><input
                                         type="number" id="calcInput"
@@ -619,8 +613,7 @@ const donationCTA = landingPage?.donationCTA || {};
                                 <span class="text-sm font-medium opacity-80">Wajib Zakat (2.5%)</span><span
                                     class="text-2xl font-display text-gold-400" id="calcResult">Rp 0</span></div>
                             <button
-                                class="w-full py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1">Tunaikan
-                                Zakat</button>
+                                class="w-full py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1">{donationCTA.zakatCalculator?.buttonText || 'Tunaikan Zakat'}</button>
                         </div>
                     </div>
                     <div>

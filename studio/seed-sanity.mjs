@@ -237,14 +237,14 @@ const landingPage = {
             {
                 _key: 'testi-2',
                 quote: 'Sistem transparansi wakafnya luar biasa. Saya mendapat laporan berkala tentang perkembangan pohon mangga wakaf saya.',
-                name: 'Hj. Siti Aminah',
-                role: 'Wakif Tetap',
+                name: 'Ustadz Hasan',
+                role: 'Pengajar Kitab Kuning',
             },
             {
                 _key: 'testi-3',
-                quote: 'Lulus dari sini saya punya hafalan 30 Juz dan skill desain grafis. Sekarang saya merintis usaha percetakan sendiri.',
-                name: 'Rudi Santoso',
-                role: 'Santripreneur',
+                quote: 'Anak saya belajar tahfidz sekaligus coding. Kombinasi yang sempurna untuk zaman sekarang!',
+                name: 'Siti Aminah',
+                role: 'Wali Santri',
             },
         ],
     },
@@ -281,7 +281,7 @@ const landingPage = {
     },
     donationCTA: {
         title: 'Investasi Akhirat',
-        subtitle: 'Pilih jalur kontribusi terbaik Anda.',
+        subtitle: 'Sedekah Jariyah Tanpa Henti',
         zakatCalculator: {
             title: 'Hitung Zakat Maal',
             inputLabel: 'Total Aset (Setahun)',

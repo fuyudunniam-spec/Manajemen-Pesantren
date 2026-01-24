@@ -53,7 +53,6 @@ export default defineType({
                     type: 'object',
                     name: 'chapter',
                     fields: [
-                        { name: '_key', title: 'Key', type: 'string', hidden: true },
                         { name: 'title', title: 'Chapter Title', type: 'string' },
                         { name: 'order', title: 'Order', type: 'number' },
                         {
@@ -65,7 +64,6 @@ export default defineType({
                                     type: 'object',
                                     name: 'subchapter',
                                     fields: [
-                                        { name: '_key', title: 'Key', type: 'string', hidden: true },
                                         { name: 'title', title: 'Sub-Chapter Title', type: 'string' },
                                         { name: 'order', title: 'Order', type: 'number' },
                                         {
