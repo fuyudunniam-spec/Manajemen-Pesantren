@@ -11,7 +11,7 @@ export default defineConfig({
         sanity({
             projectId: 'yamgwplz',
             dataset: 'production',
-            useCdn: true,
+            useCdn: false, // Disable CDN for development to get fresh data
             studioUrl: '/studio', // We will set this up later
         }),
     ],

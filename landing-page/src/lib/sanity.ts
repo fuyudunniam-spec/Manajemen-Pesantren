@@ -6,7 +6,7 @@ import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 export const client = createClient({
     projectId: 'yamgwplz',
     dataset: 'production',
-    useCdn: true, // Set to false for fresh data during development
+    useCdn: false, // Disabled for development to get fresh data
     apiVersion: '2024-01-23',
 });
 
