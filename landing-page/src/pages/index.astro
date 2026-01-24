@@ -102,14 +102,40 @@ const donationCTA = landingPage?.donationCTA || {};
                     <span class="text-royal-900 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">{hero.badge || '100% Lulusan Dhuafa Masuk PTN/Timur Tengah'}</span>
                 </div>
                 <h1 class="text-5xl md:text-6xl lg:text-7xl font-display font-medium text-royal-950 mb-8 leading-[1.1]">
-                    Memuliakan <span class="text-royal-800">Yatim,</span><br> <span
-                        class="italic text-gold-600 font-serif relative inline-block">
-                        Membangun Peradaban
-                        <svg class="absolute w-full h-3 -bottom-2 left-0 text-gold-400/50" viewBox="0 0 100 10"
-                            preserveAspectRatio="none">
-                            <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="3" fill="none" />
-                        </svg>
-                    </span>
+                    {hero.title?.[0]?.children?.map((child: any) => {
+                        if (child.marks?.includes('strong')) {
+                            return <span class="text-royal-800">{child.text}</span>;
+                        } else if (child.marks?.includes('em')) {
+                            return (
+                                <span class="italic text-gold-600 font-serif relative inline-block">
+                                    {child.text}
+                                    <svg class="absolute w-full h-3 -bottom-2 left-0 text-gold-400/50" viewBox="0 0 100 10"
+                                        preserveAspectRatio="none">
+                                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="3" fill="none" />
+                                    </svg>
+                                </span>
+                            );
+                        } else {
+                            return child.text;
+                        }
+                    }).reduce((acc: any, curr: any, idx: number) => {
+                        // Add <br> after "Yatim," or similar strong text
+                        if (idx > 0 && hero.title?.[0]?.children?.[idx - 1]?.marks?.includes('strong')) {
+                            return [...acc, <br />, curr];
+                        }
+                        return [...acc, curr];
+                    }, []) || (
+                        <>
+                            Memuliakan <span class="text-royal-800">Yatim,</span><br /> <span
+                                class="italic text-gold-600 font-serif relative inline-block">
+                                Membangun Peradaban
+                                <svg class="absolute w-full h-3 -bottom-2 left-0 text-gold-400/50" viewBox="0 0 100 10"
+                                    preserveAspectRatio="none">
+                                    <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="3" fill="none" />
+                                </svg>
+                            </span>
+                        </>
+                    )}
                 </h1>
                 <p class="text-xl text-stone-600 mb-10 max-w-lg font-light leading-relaxed">
                     {hero.description || 'Kami tidak sekadar memberi santunan, tapi memberikan pendidikan terbaik agar anak yatim & dhuafa tumbuh menjadi pemimpin yang mandiri dan bermartabat.'}
