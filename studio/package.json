@@ -9,9 +9,11 @@
         "start": "sanity start",
         "build": "sanity build",
         "deploy": "sanity deploy",
-        "type-check": "tsc --noEmit"
+        "type-check": "tsc --noEmit",
+        "seed:academy": "tsx scripts/seed-academy.ts"
     },
     "dependencies": {
+        "@sanity/client": "^6.25.1",
         "@sanity/vision": "^3.68.1",
         "dotenv": "^17.2.3",
         "react": "^18.2.0",
@@ -20,6 +22,7 @@
         "styled-components": "^6.1.15"
     },
     "devDependencies": {
+        "tsx": "^4.19.2",
         "typescript": "^5.0.0"
     }
 }

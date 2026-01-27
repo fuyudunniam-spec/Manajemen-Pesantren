@@ -1,0 +1,215 @@
+---
+import AcademyLayout from '../../layouts/AcademyLayout.astro';
+
+export async function getStaticPaths() {
+  const courses = [
+    { slug: "tafsir-al-azhar-modern" },
+    { slug: "bahasa-arab-klasik-nahwu" },
+    { slug: "fiqih-muamalah-ekonomi" },
+    { slug: "ushul-fiqih-dasar" }
+  ];
+  return courses.map((course) => ({
+    params: { slug: course.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+
+// --- STATIC MOCK DATA FINDER ---
+const coursesData = {
+    "tafsir-al-azhar-modern": {
+        title: "Tafsir Al-Azhar: Pendekatan Modern",
+        tagline: "Memahami kedalaman makna Al-Qur'an untuk konteks kehidupan kontemporer.",
+        category: "Tafsir",
+        instructor: "KH. Ahmad Bisri",
+        price: 150000,
+        discountPrice: 99000,
+        modules: [
+            { 
+                title: "Pendahuluan & Metodologi", 
+                lessons: [
+                    { title: "Pengenalan Tafsir Al-Azhar", slug: "pengenalan-tafsir-al-azhar" },
+                    { title: "Biografi Hamka & Karya", slug: "biografi-hamka-karya" },
+                    { title: "Urgensi Tafsir Modern", slug: "urgensi-tafsir-modern" }
+                ] 
+            },
+            { 
+                title: "Surah Al-Fatihah", 
+                lessons: [
+                    { title: "Makna Basmalah", slug: "makna-basmalah" },
+                    { title: "Hakikat Hamdalah", slug: "hakikat-hamdalah" }
+                ] 
+            }
+        ],
+        benefits: ["Sertifikat Digital", "Akses Selamanya", "E-Book Modul", "Grup Diskusi Eksklusif"]
+    },
+};
+
+const course = coursesData[slug] || {
+    title: slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    tagline: "Program studi mendalam untuk mencetak ahli di bidangnya.",
+    category: "Academy",
+    instructor: "Tim Isyraq Academy",
+    price: 150000,
+    modules: [{ 
+        title: "Materi Inti", 
+        lessons: [{ title: "Pendahuluan", slug: "pendahuluan" }] 
+    }],
+    benefits: ["Sertifikat", "Akses Lifetime"]
+};
+
+const hasDiscount = course.discountPrice && course.discountPrice < course.price;
+const finalPrice = hasDiscount ? course.discountPrice : course.price;
+const formatPrice = (p) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
+const waLink = `https://wa.me/6281234567890?text=${encodeURIComponent(`Assalamualaikum, saya ingin mendaftar kelas *${course.title}*`)}`;
+---
+
+<AcademyLayout title={`${course.title} | Isyraq Academy`}>
+    
+    <!-- Course Hero -->
+    <header class="relative bg-emerald-950 pt-40 pb-20 px-6 overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
+        <div class="absolute -right-20 top-0 w-1/3 h-full bg-emerald-800/20 rounded-bl-[10rem]"></div>
+        
+        <div class="max-w-7xl mx-auto relative z-10 grid lg:grid-cols-2 gap-16 items-center">
+            <div class="space-y-6 animate-fade-in">
+                <div class="flex items-center gap-3">
+                    <span class="px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300">
+                        {course.category}
+                    </span>
+                    {hasDiscount && (
+                        <span class="px-3 py-1 bg-red-600 rounded-full text-[9px] font-bold uppercase tracking-widest text-white shadow-lg">
+                            Potongan {Math.round(((course.price - course.discountPrice) / course.price) * 100)}%
+                        </span>
+                    )}
+                </div>
+                
+                <h1 class="text-4xl md:text-6xl font-display font-medium text-white leading-tight">
+                    {course.title}
+                </h1>
+                
+                <p class="text-xl text-emerald-200 font-light leading-relaxed max-w-xl">
+                    {course.tagline}
+                </p>
+
+                <div class="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl w-fit">
+                    <div class="w-12 h-12 bg-emerald-800 rounded-full flex items-center justify-center font-display font-bold text-white text-xl">
+                        {course.instructor.charAt(0)}
+                    </div>
+                    <div>
+                        <p class="text-[9px] text-emerald-400 uppercase tracking-widest font-bold">Instruktur Utama</p>
+                        <p class="text-white font-bold">{course.instructor}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Card -->
+            <div class="relative lg:-mb-32 z-20">
+                <div class="bg-white rounded-[3rem] p-10 shadow-3xl border border-stone-100 flex flex-col gap-6">
+                    <div class="aspect-video bg-emerald-50 rounded-[2rem] flex items-center justify-center relative group cursor-pointer overflow-hidden">
+                         <i data-lucide="play-circle" class="w-20 h-20 text-emerald-900/20 group-hover:scale-110 transition duration-500"></i>
+                         <div class="absolute inset-0 bg-emerald-950 opacity-0 group-hover:opacity-5 transition duration-500"></div>
+                         <span class="absolute bottom-6 bg-emerald-950 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full">
+                            Tonton Preview Gratis
+                         </span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-[10px] text-stone-400 uppercase tracking-widest font-bold">Investasi Ilmu</p>
+                        <div class="flex items-baseline gap-3">
+                            <h3 class="text-4xl font-display font-bold text-emerald-950">{formatPrice(finalPrice)}</h3>
+                            {hasDiscount && <span class="text-lg text-stone-300 line-through font-light">{formatPrice(course.price)}</span>}
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <a href={waLink} target="_blank" class="flex items-center justify-center gap-3 w-full py-5 bg-emerald-900 text-white rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-emerald-800 transition-all shadow-xl shadow-emerald-900/20">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i> Daftar via WhatsApp
+                        </a>
+                        <p class="text-[10px] text-stone-400 text-center uppercase tracking-wider">Akses penuh selamanya • Garansi kepuasan</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 border-t border-stone-50 pt-6">
+                        {course.benefits.slice(0, 4).map(b => (
+                            <div class="flex items-center gap-2 text-[11px] text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> {b}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-24 lg:py-40 grid lg:grid-cols-3 gap-24">
+        <div class="lg:col-span-2 space-y-20">
+            
+            <section class="space-y-8">
+                <h2 class="text-3xl font-display font-bold text-emerald-950">Apa yang Akan <span class="italic text-emerald-600">Anda Pelajari?</span></h2>
+                <div class="prose prose-stone prose-lg max-w-none text-stone-600 font-light leading-relaxed">
+                    <p>Program ini dirancang khusus untuk memberikan pemahaman mendalam tentang {course.category} secara komprehensif. Melalui pendekatan yang sistematis, Anda akan dibimbing untuk memahami setiap konsep dan aplikasinya dalam kehidupan sehari-hari.</p>
+                </div>
+            </section>
+
+            <section class="space-y-10">
+                <h2 class="text-3xl font-display font-bold text-emerald-950">Silabus & <span class="italic text-emerald-600">Kurikulum</span></h2>
+                <div class="space-y-6">
+                    {course.modules.map((mod, idx) => (
+                        <div class="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm">
+                            <div class="px-8 py-6 bg-stone-50 border-b border-stone-100 flex justify-between items-center cursor-pointer hover:bg-white transition duration-300">
+                                <div class="flex items-center gap-4">
+                                    <span class="w-8 h-8 rounded-full bg-emerald-900 text-white flex items-center justify-center font-bold text-xs">{idx + 1}</span>
+                                    <h4 class="font-bold text-emerald-950">{mod.title}</h4>
+                                </div>
+                                <i data-lucide="chevron-down" class="w-5 h-5 text-stone-400"></i>
+                            </div>
+                            <div class="p-4 space-y-1">
+                                {mod.lessons.map(l => (
+                                    <a href={`/courses/${slug}/lessons/${l.slug}`} class="flex items-center justify-between px-4 py-4 rounded-xl hover:bg-emerald-50 transition duration-300 group">
+                                        <div class="flex items-center gap-4">
+                                            <i data-lucide="play-circle" class="w-4 h-4 text-emerald-300 group-hover:text-emerald-600 transition"></i>
+                                            <span class="text-sm font-medium text-stone-700 group-hover:text-emerald-900 transition">{l.title}</span>
+                                        </div>
+                                        <span class="text-[10px] text-stone-400 font-bold uppercase tracking-widest group-hover:text-emerald-600">Pelajari <i data-lucide="arrow-right" class="w-3 h-3 inline"></i></span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Sidebar Info -->
+        <aside class="space-y-12">
+            <div class="p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 space-y-6">
+                <h4 class="font-display text-2xl text-emerald-900">Bergabung Sekarang</h4>
+                <p class="text-emerald-700 text-sm font-light leading-relaxed">
+                    Dapatkan akses eksklusif ke seluruh materi, modul PDF, dan sertifikat resmi dari Isyraq Academy.
+                </p>
+                <a href={waLink} class="flex items-center justify-center gap-2 group text-emerald-900 font-bold text-xs uppercase tracking-widest transition">
+                    Tanya Admin Academy <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+
+            <div class="space-y-6">
+                <h4 class="text-lg font-display font-bold text-emerald-950">Tentang Pengajar</h4>
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-stone-300 font-display font-bold shrink-0 text-2xl">
+                        {course.instructor.charAt(0)}
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-emerald-950">{course.instructor}</h5>
+                        <p class="text-stone-400 text-xs uppercase tracking-widest font-bold">Mudaris Utama</p>
+                    </div>
+                </div>
+                <p class="text-sm text-stone-600 font-light leading-relaxed">
+                    Pengajar dengan jam terbang tinggi dan telah melahirkan ribuan santri yang tersebar di seluruh Indonesia.
+                </p>
+            </div>
+        </aside>
+    </main>
+
+</AcademyLayout>

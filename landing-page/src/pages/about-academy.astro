@@ -1,0 +1,171 @@
+---
+import AcademyLayout from '../layouts/AcademyLayout.astro';
+---
+
+<AcademyLayout title="Tentang Isyraq Academy | Pusat Studi Islam">
+    <!-- Hero Section -->
+    <section class="relative min-h-[60vh] flex items-center bg-emerald-950 overflow-hidden px-6">
+        <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
+        
+        <div class="max-w-7xl mx-auto w-full relative z-10 text-center py-20">
+            <span class="text-emerald-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-4 block">Tentang Kami</span>
+            <h1 class="text-5xl md:text-7xl font-display font-medium text-white leading-[1.1] mb-6">
+                Menghidupkan Tradisi <span class="text-yellow-500 italic">Keilmuan</span>
+            </h1>
+            <p class="text-xl text-emerald-200 max-w-3xl mx-auto font-light">
+                Isyraq Annur Academy adalah platform pendidikan Islam online yang menggabungkan kedalaman tradisi turats klasik dengan metodologi pembelajaran modern.
+            </p>
+        </div>
+    </section>
+
+    <!-- Visi & Misi -->
+    <section class="py-24 bg-white px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-16">
+                <div class="space-y-6">
+                    <div class="inline-block px-4 py-2 bg-emerald-50 rounded-full">
+                        <span class="text-emerald-700 font-bold uppercase tracking-widest text-xs">Visi</span>
+                    </div>
+                    <h2 class="text-4xl font-display text-emerald-950">
+                        Membangun Generasi Muslim yang Berilmu dan Beramal
+                    </h2>
+                    <p class="text-stone-600 leading-relaxed">
+                        Kami percaya bahwa ilmu agama yang benar harus disertai dengan amal yang nyata. Melalui platform ini, kami ingin memfasilitasi umat Muslim di seluruh dunia untuk belajar Islam dengan sanad yang jelas, sambil berkontribusi untuk pendidikan anak yatim dan dhuafa.
+                    </p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="inline-block px-4 py-2 bg-yellow-50 rounded-full">
+                        <span class="text-yellow-700 font-bold uppercase tracking-widest text-xs">Misi</span>
+                    </div>
+                    <ul class="space-y-4">
+                        {[
+                            'Menyediakan pendidikan Islam berkualitas tinggi dengan sanad yang jelas',
+                            'Membuat ilmu agama mudah diakses oleh siapa saja, di mana saja',
+                            'Menerapkan model "profit-for-nonprofit" untuk mendukung pendidikan yatim',
+                            'Membangun komunitas pembelajar yang saling mendukung'
+                        ].map(item => (
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-700"></i>
+                                </div>
+                                <span class="text-stone-700">{item}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profit for Non-Profit Model -->
+    <section class="py-24 bg-stone-50 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-emerald-700 font-bold uppercase tracking-[0.2em] text-[10px] mb-2 block">Model Bisnis Kami</span>
+                <h2 class="text-4xl md:text-5xl font-display text-emerald-950">
+                    Profit for <span class="italic text-yellow-600">Non-Profit</span>
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-3xl border border-stone-200 text-center">
+                    <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="users" class="w-8 h-8 text-emerald-700"></i>
+                    </div>
+                    <h3 class="font-display text-xl text-emerald-950 mb-3">1. Anda Belajar</h3>
+                    <p class="text-stone-600 text-sm">
+                        Akses kursus berkualitas dengan infaq yang terjangkau dan fleksibel sesuai kemampuan.
+                    </p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl border border-stone-200 text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="heart" class="w-8 h-8 text-yellow-700"></i>
+                    </div>
+                    <h3 class="font-display text-xl text-emerald-950 mb-3">2. Kami Salurkan</h3>
+                    <p class="text-stone-600 text-sm">
+                        100% keuntungan operasional disalurkan untuk beasiswa santri yatim di Pesantren Al-Bisri.
+                    </p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl border border-stone-200 text-center">
+                    <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="graduation-cap" class="w-8 h-8 text-emerald-700"></i>
+                    </div>
+                    <h3 class="font-display text-xl text-emerald-950 mb-3">3. Mereka Belajar</h3>
+                    <p class="text-stone-600 text-sm">
+                        Anak yatim dan dhuafa mendapat pendidikan Islam berkualitas tanpa biaya.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-12 p-8 bg-emerald-900 rounded-3xl text-center text-white">
+                <p class="text-2xl font-display mb-2">Setiap infaq Anda = 5 santri yatim mendapat akses gratis</p>
+                <p class="text-emerald-200 text-sm">Belajar sambil beramal, ilmu yang berkah</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Metodologi -->
+    <section class="py-24 bg-white px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-emerald-700 font-bold uppercase tracking-[0.2em] text-[10px] mb-2 block">Metodologi</span>
+                <h2 class="text-4xl md:text-5xl font-display text-emerald-950">
+                    Pembelajaran <span class="italic text-emerald-600">Bersanad</span>
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <p class="text-stone-600 leading-relaxed">
+                        Kami memastikan setiap materi yang diajarkan memiliki jalur transmisi ilmu (sanad) yang jelas dan terpercaya. Semua pengajar kami adalah lulusan pesantren dan universitas Islam terkemuka dengan ijazah yang valid.
+                    </p>
+                    <div class="space-y-4">
+                        {[
+                            { title: 'Kurikulum Terstruktur', desc: 'Dari dasar hingga mahir secara bertahap' },
+                            { title: 'Video Berkualitas HD', desc: 'Materi visual yang jelas dan mudah dipahami' },
+                            { title: 'Modul Interaktif', desc: 'Quiz dan latihan untuk mengukur pemahaman' },
+                            { title: 'Sertifikat Resmi', desc: 'Pengakuan atas pencapaian belajar Anda' }
+                        ].map(item => (
+                            <div class="flex gap-4">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0"></div>
+                                <div>
+                                    <h4 class="font-bold text-emerald-950">{item.title}</h4>
+                                    <p class="text-sm text-stone-600">{item.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-3xl aspect-square flex flex-col items-center justify-center p-8 relative">
+                    <i data-lucide="scroll-text" class="w-24 h-24 text-emerald-600/40 mb-4"></i>
+                    <p class="text-emerald-800 font-display text-xl text-center">Tradisi Keilmuan Bersanad</p>
+                    <p class="text-emerald-600 text-sm text-center mt-2">Dari guru ke murid, generasi ke generasi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-24 bg-emerald-950 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl md:text-5xl font-display text-white mb-6">
+                Siap Memulai Perjalanan Keilmuan?
+            </h2>
+            <p class="text-emerald-200 text-lg mb-12">
+                Bergabunglah dengan ribuan siswa yang telah memulai pembelajaran mereka
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/courses" class="px-10 py-5 bg-yellow-500 text-emerald-950 font-bold uppercase tracking-widest text-xs rounded-full hover:bg-yellow-400 transition shadow-xl">
+                    Lihat Katalog Kursus
+                </a>
+                <a href="/hubungi-kami" class="px-10 py-5 border border-white/20 text-white font-bold uppercase tracking-widest text-xs rounded-full hover:bg-white/10 transition">
+                    Hubungi Kami
+                </a>
+            </div>
+        </div>
+    </section>
+</AcademyLayout>

@@ -24,7 +24,6 @@ const MENU_ITEMS = [
     { name: 'Manajemen User', slug: 'users', icon: Users, path: '/dashboard/users', role: ['superadmin'] },
     { name: 'Keuangan', slug: 'keuangan', icon: Wallet, path: '/dashboard/keuangan' },
     { name: 'Akademik', slug: 'akademik', icon: GraduationCap, path: '/dashboard/akademik' },
-    { name: 'Donasi', slug: 'donasi', icon: Heart, path: '/dashboard/donasi' },
 ]
 
 export default function Sidebar({ user, profile, permissions }: any) {

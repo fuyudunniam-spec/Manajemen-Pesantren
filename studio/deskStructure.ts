@@ -4,18 +4,35 @@ export const myStructure = (S: StructureBuilder) =>
     S.list()
         .title('Content')
         .items([
-            // Singleton Documents
+            // Academy Section (Top Priority)
             S.listItem()
-                .title('Site Settings')
-                .icon(() => '⚙️')
+                .title('Academy Management')
+                .icon(() => '🎓')
                 .child(
-                    S.document()
-                        .schemaType('siteSettings')
-                        .documentId('siteSettings')
+                    S.list()
+                        .title('Academy Content')
+                        .items([
+                            S.listItem()
+                                .title('Courses (Products)')
+                                .icon(() => '📚')
+                                .child(S.documentTypeList('course').title('All Courses')),
+                            S.listItem()
+                                .title('Lessons (Materi)')
+                                .icon(() => '📖')
+                                .child(S.documentTypeList('lesson').title('All Lessons')),
+                            S.listItem()
+                                .title('Instructors / Pengajar')
+                                .icon(() => '👨‍🏫')
+                                .child(S.documentTypeList('instructor').title('Instructors')),
+                            S.listItem()
+                                .title('Categories')
+                                .icon(() => '🏷️')
+                                .child(S.documentTypeList('category').title('Course Categories')),
+                        ])
                 ),
             S.divider(),
 
-            // Royal Gold Pages
+            // Landing Page & Configuration
             S.listItem()
                 .title('Landing Page')
                 .icon(() => '🏠')
@@ -25,28 +42,20 @@ export const myStructure = (S: StructureBuilder) =>
                         .documentId('landingPage')
                 ),
             S.listItem()
-                .title('About Page')
-                .icon(() => '📖')
-                .child(
-                    S.document()
-                        .schemaType('aboutPage')
-                        .documentId('aboutPage')
-                ),
-            S.listItem()
-                .title('Donation Page')
-                .icon(() => '💝')
-                .child(
-                    S.document()
-                        .schemaType('donationPage')
-                        .documentId('donationPage')
-                ),
-            S.listItem()
                 .title('PSB Configuration')
                 .icon(() => '📝')
                 .child(
                     S.document()
                         .schemaType('psbConfig')
                         .documentId('psbConfig')
+                ),
+            S.listItem()
+                .title('Site Settings')
+                .icon(() => '⚙️')
+                .child(
+                    S.document()
+                        .schemaType('siteSettings')
+                        .documentId('siteSettings')
                 ),
             S.divider(),
 
@@ -67,25 +76,11 @@ export const myStructure = (S: StructureBuilder) =>
                                         .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
                                 ),
                             S.listItem()
-                                .title('By Category')
-                                .icon(() => '📁')
-                                .child(
-                                    S.documentTypeList('blogCategory')
-                                        .title('Categories')
-                                        .child((categoryId) =>
-                                            S.documentList()
-                                                .title('Posts')
-                                                .filter('_type == "blogPost" && category._ref == $categoryId')
-                                                .params({ categoryId })
-                                        )
-                                ),
-                            S.listItem()
                                 .title('Authors / Penulis')
                                 .icon(() => '✍️')
                                 .child(
                                     S.documentTypeList('author').title('Authors')
                                 ),
-                            S.divider(),
                             S.listItem()
                                 .title('Categories')
                                 .icon(() => '🏷️')
@@ -94,35 +89,4 @@ export const myStructure = (S: StructureBuilder) =>
                                 ),
                         ])
                 ),
-            S.divider(),
-
-            // Academy Section
-            S.listItem()
-                .title('Academy')
-                .icon(() => '🎓')
-                .child(
-                    S.list()
-                        .title('Academy Content')
-                        .items([
-                            S.listItem()
-                                .title('Curriculum')
-                                .icon(() => '📚')
-                                .child(S.documentTypeList('curriculum').title('Curricula')),
-                            S.listItem()
-                                .title('Classes / Pelajaran')
-                                .icon(() => '📖')
-                                .child(S.documentTypeList('academyClass').title('Academy Classes')),
-                        ])
-                ),
-            S.divider(),
-
-            // Other document types (filtered)
-            S.listItem()
-                .title('Donation Programs')
-                .icon(() => '💰')
-                .child(S.documentTypeList('donationProgram').title('Donation Programs')),
-            S.listItem()
-                .title('Transparency Reports')
-                .icon(() => '📊')
-                .child(S.documentTypeList('transparencyReport').title('Transparency Reports')),
         ]);

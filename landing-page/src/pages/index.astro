@@ -1,333 +1,148 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { client, queries, urlFor } from '../lib/sanity';
+import AcademyLayout from '../layouts/AcademyLayout.astro';
+import { sanityFetch, queries, urlFor } from '../lib/sanity';
 
-// Fetch landingPage document from Sanity
-let landingPage: any = null;
-try {
-    landingPage = await client.fetch(`*[_type == "landingPage"][0] {
-        hero {
-            badge, title, description,
-            ctaPrimary { text, link },
-            ctaSecondary { text, link },
-            heroImage { asset, alt, caption { quote, subtext } },
-            impactBadge { label, value }
-        },
-        about {
-            badge, title, subtitle, paragraphs, highlightedParagraph,
-            ctaText, ctaLink,
-            images[] { asset, alt },
-            floatingBadge { text, subtext }
-        },
-        timeline { badge, title, milestones[] { year, title, description } },
-        partnerships { headline, partners[] { name, logo { asset, alt } } },
-        elearning { badge, title, titleHighlight, description, ctaText, ctaLink, previewImage { asset, alt } },
-        impactFund {
-            badge, title, description, transparencyLink, productiveAssets,
-            chartData { labels, data },
-            programs[] { icon, title, description, progress }
-        },
-        testimonials { badge, title, testimonialsList[] { quote, name, role, avatar { asset, alt } } },
-        donationCTA {
-            title, subtitle,
-            zakatCalculator { title, inputLabel, buttonText },
-            wakafPackages { title, packages[] { name, description, amount } }
-        }
-    }`);
-} catch (error) {
-    console.error('Failed to fetch landing page:', error);
-}
+// --- FETCH SANITY DATA ---
+const landingData = await sanityFetch<any>(queries.landingPage);
 
-// Fetch latest blog posts from Sanity
-let latestPosts: any[] = [];
-try {
-    latestPosts = await client.fetch(`*[_type == "blogPost" && isPublished == true] | order(publishedAt desc)[0...3] {
-        _id, title, slug, excerpt, featuredImage, publishedAt, readingTime,
-        category->{ name, slug, color },
-        author->{ name, avatar }
-    }`);
-} catch (error) {
-    console.error('Failed to fetch latest posts:', error);
-}
-
-// Format date helper
-function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
-}
-
-// Color mapping for categories
-const colorClasses: Record<string, string> = {
-    royal: 'bg-royal-100 text-royal-900',
-    gold: 'bg-gold-100 text-gold-800',
-    red: 'bg-red-600 text-white',
-    blue: 'bg-blue-100 text-blue-800',
-    stone: 'bg-stone-100 text-stone-600',
+// --- FALLBACK MOCK DATA ---
+const heroData = landingData?.hero || {
+    title: "Membangun Peradaban dengan Ilmu",
+    subtitle: "Isyraq Annur Academy",
+    description: "Pusat studi Islam bersanad yang memadukan kedalaman tradisi turats klasik dengan wawasan kontemporer untuk menjawab tantangan zaman.",
+    ctaPrimary: { text: "Lihat Katalog Kelas", link: "/courses" },
+    ctaSecondary: { text: "Tentang Kami", link: "/about-academy" }
 };
 
-// Extract sections with fallbacks
-const hero = landingPage?.hero || {};
-const about = landingPage?.about || {};
-const timeline = landingPage?.timeline || {};
-const partnerships = landingPage?.partnerships || {};
-const elearning = landingPage?.elearning || {};
-const impactFund = landingPage?.impactFund || {};
-const testimonials = landingPage?.testimonials || {};
-const donationCTA = landingPage?.donationCTA || {};
+const stats = landingData?.stats || [
+    { label: "Siswa Terdaftar", value: "1,250+" },
+    { label: "Materi Video", value: "450+" },
+    { label: "Pengajar Ahli", value: "12+" },
+    { label: "Kepuasan Siswa", value: "98%" }
+];
+
+const featuredCoursesSection = landingData?.featuredCourses || {};
+const featuredCourses = featuredCoursesSection.courses || [
+    {
+        title: "Tafsir Al-Azhar: Pendekatan Modern",
+        category: { name: "Tafsir" },
+        level: "All Levels",
+        duration: "120m",
+        instructor: { name: "KH. Ahmad Bisri" },
+        slug: { current: "tafsir-al-azhar-modern" },
+        price: 150000,
+        discountPrice: 99000
+    },
+    {
+        title: "Bahasa Arab Klasik: Nahwu Wadhih",
+        category: { name: "Bahasa" },
+        level: "Beginner",
+        duration: "90m",
+        instructor: { name: "Ustadz Fulan Al-Azhari" },
+        slug: { current: "bahasa-arab-klasik-nahwu" },
+        price: 125000,
+        discountPrice: null
+    },
+    {
+        title: "Fiqih Muamalah: Ekonomi Syariah",
+        category: { name: "Fiqih" },
+        level: "Intermediate",
+        duration: "150m",
+        instructor: { name: "Dr. Ekonomi Islam" },
+        slug: { current: "fiqih-muamalah-ekonomi" },
+        price: 200000,
+        discountPrice: 149000
+    }
+];
+
+const whyUs = landingData?.whyUs || [
+    {
+        title: "Sanad Terhubung",
+        description: "Kurikulum kami disusun berdasarkan tradisi keilmuan Islam yang memiliki silsilah (sanad) hingga ke sumbernya.",
+        icon: "shield-check"
+    },
+    {
+        title: "Kurikulum Terstruktur",
+        description: "Pembelajaran dirancang secara akademis dari tingkat dasar hingga lanjutan secara bertahap.",
+        icon: "book-open"
+    },
+    {
+        title: "Fleksibilitas Belajar",
+        description: "Akses materi video dan modul berkualitas kapan saja dan di mana saja sesuai kecepatan belajar Anda.",
+        icon: "clock"
+    },
+    {
+        title: "Profit for Non-Profit",
+        description: "Seluruh keuntungan operasional akademi disalurkan kembali untuk dana beasiswa santri di Pesantren Al-Bisri.",
+        icon: "heart"
+    }
+];
+
+const instructors = landingData?.instructors || [
+    { name: "KH. Ahmad Bisri", role: "Pakar Tafsir & Hadis", photo: null },
+    { name: "Ustadz Fulan", role: "Ahli Peradaban Islam", photo: null },
+    { name: "Dr. Aminah", role: "Dosen Bahasa Arab", photo: null }
+];
+
+const ctaData = landingData?.ctaSection || {
+    title: "Siap Memulai Perjalanan Keilmuanmu?",
+    description: "Daftarkan diri Anda hari ini dan jadilah bagian dari generasi yang menghidupkan tradisi keilmuan Islam.",
+    primaryCta: { text: "Daftar Sekarang", link: "/courses" },
+    secondaryCta: { text: "Konsultasi Pendidikan", link: "/hubungi-kami" }
+};
 ---
 
-
-<Layout title="Al-Bisri | Royal Education Foundation">
-    <!-- 2. HERO SECTION -->
-    <section class="relative min-h-[90vh] flex items-center pt-10 pb-20 overflow-hidden">
-        <div class="absolute inset-0 z-0 pointer-events-none">
-            <div
-                class="absolute top-0 right-0 w-[500px] h-[500px] bg-gold-100 rounded-full blur-[100px] opacity-40 translate-x-1/2 -translate-y-1/2">
-            </div>
-            <div
-                class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-royal-100 rounded-full blur-[100px] opacity-40 -translate-x-1/3 translate-y-1/3">
-            </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-24 items-center relative z-10 w-full">
-            <!-- Left: Typography -->
-            <div class="fade-up relative z-20">
-                <div
-                    class="inline-flex items-center gap-3 mb-8 px-5 py-2 rounded-full border border-royal-900/10 bg-white/80 backdrop-blur-md shadow-sm w-fit">
-                    <span class="relative flex h-2 w-2"><span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-400 opacity-75"></span><span
-                            class="relative inline-flex rounded-full h-2 w-2 bg-gold-500"></span></span>
-                    <span class="text-royal-900 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">{hero.badge || '100% Lulusan Dhuafa Masuk PTN/Timur Tengah'}</span>
+<AcademyLayout title="Isyraq Academy | Pusat Studi Islam & Peradaban">
+    
+    <!-- Hero Section -->
+    <section class="relative min-h-[85vh] flex items-center bg-emerald-950 overflow-hidden px-6">
+        <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
+        <div class="absolute -right-20 top-20 w-[600px] h-[600px] bg-emerald-800/30 rounded-full blur-[100px]"></div>
+        
+        <div class="max-w-7xl mx-auto w-full relative z-10 grid lg:grid-cols-2 gap-16 items-center pt-20">
+            <div class="space-y-8 animate-fade-in">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-full border border-white/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-100 italic">{heroData.subtitle}</span>
                 </div>
-                <h1 class="text-5xl md:text-6xl lg:text-7xl font-display font-medium text-royal-950 mb-8 leading-[1.1]">
-                    {hero.title?.[0]?.children?.map((child: any) => {
-                        if (child.marks?.includes('strong')) {
-                            return <span class="text-royal-800">{child.text}</span>;
-                        } else if (child.marks?.includes('em')) {
-                            return (
-                                <span class="italic text-gold-600 font-serif relative inline-block">
-                                    {child.text}
-                                    <svg class="absolute w-full h-3 -bottom-2 left-0 text-gold-400/50" viewBox="0 0 100 10"
-                                        preserveAspectRatio="none">
-                                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="3" fill="none" />
-                                    </svg>
-                                </span>
-                            );
-                        } else {
-                            return child.text;
-                        }
-                    }).reduce((acc: any, curr: any, idx: number) => {
-                        // Add <br> after "Yatim," or similar strong text
-                        if (idx > 0 && hero.title?.[0]?.children?.[idx - 1]?.marks?.includes('strong')) {
-                            return [...acc, <br />, curr];
-                        }
-                        return [...acc, curr];
-                    }, []) || (
-                        <>
-                            Memuliakan <span class="text-royal-800">Yatim,</span><br /> <span
-                                class="italic text-gold-600 font-serif relative inline-block">
-                                Membangun Peradaban
-                                <svg class="absolute w-full h-3 -bottom-2 left-0 text-gold-400/50" viewBox="0 0 100 10"
-                                    preserveAspectRatio="none">
-                                    <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="3" fill="none" />
-                                </svg>
-                            </span>
-                        </>
-                    )}
+                
+                <h1 class="text-5xl md:text-7xl font-display font-medium text-white leading-[1.1]">
+                    {typeof heroData.title === 'string' 
+                        ? heroData.title.split(' ').map((word, i) => i === 2 ? <span class="text-yellow-500 italic font-serif">{word} </span> : word + ' ')
+                        : "Membangun Peradaban dengan Ilmu"}
                 </h1>
-                <p class="text-xl text-stone-600 mb-10 max-w-lg font-light leading-relaxed">
-                    {hero.description || 'Kami tidak sekadar memberi santunan, tapi memberikan pendidikan terbaik agar anak yatim & dhuafa tumbuh menjadi pemimpin yang mandiri dan bermartabat.'}
+                
+                <p class="text-lg md:text-xl text-emerald-200 font-light max-w-lg leading-relaxed pl-6 border-l border-yellow-500/50">
+                    {heroData.description}
                 </p>
-                <div class="flex flex-col sm:flex-row gap-6 items-start">
-                    <a href={hero.ctaPrimary?.link || '/donasi'}
-                        class="group relative px-10 py-4 bg-royal-900 text-white shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full btn-glow overflow-hidden">
-                        <div
-                            class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        </div>
-                        <span
-                            class="relative font-display font-bold uppercase tracking-widest text-sm flex items-center gap-3">
-                            {hero.ctaPrimary?.text || 'Investasi Wakaf'} <i data-lucide="arrow-right" class="w-4 h-4 text-gold-400"></i>
-                        </span>
+
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <a href={heroData.ctaPrimary?.link || "/courses"} class="px-8 py-4 bg-yellow-500 text-emerald-950 font-bold uppercase tracking-widest text-xs rounded-full hover:bg-yellow-400 transition shadow-xl shadow-yellow-500/20 hover:scale-105 active:scale-95 duration-200">
+                        {heroData.ctaPrimary?.text || "Lihat Katalog Kelas"}
                     </a>
-                    <a href={hero.ctaSecondary?.link || '/psb'}
-                        class="group px-8 py-4 bg-white border border-stone-200 text-royal-900 font-bold uppercase tracking-widest text-sm rounded-full hover:border-gold-400 hover:text-gold-600 transition shadow-sm flex items-center gap-2">
-                        <i data-lucide="user-plus"
-                            class="w-4 h-4 text-royal-900 group-hover:text-gold-600 transition"></i> {hero.ctaSecondary?.text || 'Daftar Reguler'}
+                    <a href={heroData.ctaSecondary?.link || "/about-academy"} class="px-8 py-4 border border-white/20 text-white font-bold uppercase tracking-widest text-xs rounded-full hover:bg-white/10 transition-all">
+                        {heroData.ctaSecondary?.text || "Tentang Kami"}
                     </a>
                 </div>
             </div>
 
-            <!-- Right: Visual -->
-            <div class="relative fade-up delay-200 flex justify-center lg:justify-end pt-10 lg:pt-0">
-                <div class="relative w-full max-w-md mx-auto">
-                    <div class="absolute -top-6 -right-6 w-48 h-48 bg-gold-200/30 rounded-full blur-2xl animate-pulse">
-                    </div>
-                    <div
-                        class="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white rotate-2 hover:rotate-0 transition duration-700 ease-out group aspect-[3/4]">
-                        <div
-                            class="absolute inset-0 bg-royal-900/10 group-hover:bg-transparent transition duration-500 z-10">
+            <!-- Hero Feature Card -->
+            <div class="hidden lg:block relative group">
+                <div class="absolute -inset-4 bg-emerald-500/20 rounded-[3rem] blur-2xl group-hover:bg-emerald-500/30 transition duration-500"></div>
+                <div class="relative bg-emerald-900/40 p-1 backdrop-blur-xl border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl">
+                    <div class="bg-emerald-950/60 rounded-[2.8rem] aspect-[4/5] flex flex-col items-center justify-center text-center p-12">
+                        <div class="w-24 h-24 bg-yellow-500/10 rounded-full flex items-center justify-center mb-8 border border-yellow-500/20">
+                            <i data-lucide="scroll" class="w-10 h-10 text-yellow-500"></i>
                         </div>
-                        <img 
-                            src={hero.heroImage?.asset ? urlFor(hero.heroImage.asset).width(1200).height(1600).url() : "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?q=80&w=1200&auto=format&fit=crop"}
-                            alt={hero.heroImage?.alt || "Santri Yatim Berprestasi"}
-                            class="w-full h-full object-cover object-center transform scale-105 group-hover:scale-100 transition duration-700">
-                        <div
-                            class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-royal-950/80 to-transparent z-20">
-                        </div>
-                        <div class="absolute bottom-8 left-8 z-30">
-                            <p class="text-gold-400 font-display text-lg italic mb-1">{hero.heroImage?.caption?.quote || '"Bukan Panti, Tapi Pesantren"'}</p>
-                            <p class="text-white text-xs uppercase tracking-widest font-light">{hero.heroImage?.caption?.subtext || 'Rumah Bagi 150+ Santri Yatim'}</p>
-                        </div>
-                    </div>
-                    <!-- Badge: Jumlah Penerima Manfaat -->
-                    <div
-                        class="absolute -top-4 -left-4 bg-white/90 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-xl border border-white flex items-center gap-3 animate-float z-40">
-                        <div
-                            class="w-10 h-10 bg-royal-100 rounded-full flex items-center justify-center text-royal-800">
-                            <i data-lucide="heart" class="w-5 h-5 fill-current"></i></div>
-                        <div>
-                            <p class="text-[10px] text-stone-500 uppercase font-bold tracking-wider">Amanah Umat</p>
-                            <p class="font-display text-lg font-bold text-royal-900">1.250 Santri</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 3. ABOUT US -->
-    <section id="about" class="py-24 relative bg-white overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-2 gap-16 items-center">
-                <div class="relative group order-2 md:order-1">
-                    <div
-                        class="absolute -top-6 -left-6 w-32 h-32 bg-royal-50 rounded-full -z-10 group-hover:scale-110 transition-transform">
-                    </div>
-                    <img src="https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=2670&auto=format&fit=crop"
-                        alt="Asrama Al-Bisri"
-                        class="rounded-[3rem] shadow-2xl w-full h-[500px] object-cover grayscale hover:grayscale-0 transition duration-700">
-                    <div class="absolute bottom-8 right-8 bg-white/90 backdrop-blur-md p-6 rounded-[2rem] shadow-xl border border-stone-100 max-w-xs animate-float"
-                        style="animation-delay: 1s;">
-                        <p class="font-display text-4xl font-bold text-royal-900 mb-1">{about.floatingBadge?.text || 'Mandiri'}<span
-                                class="text-gold-500 text-2xl">.</span></p>
-                        <p class="text-xs text-stone-500 uppercase tracking-widest font-bold">{about.floatingBadge?.subtext || 'Visi Ekonomi Pesantren'}</p>
-                    </div>
-                </div>
-                <div class="order-1 md:order-2">
-                    <span class="text-gold-600 font-bold uppercase tracking-widest text-xs mb-4 block">{about.badge || 'Filosofi Kemandirian'}</span>
-                    <h2 class="text-4xl md:text-5xl font-display text-royal-900 mb-6 leading-tight">{about.title || 'Gotong Royong'} <br>
-                        <span class="italic text-stone-400">{about.subtitle || 'Pendidikan Umat'}</span></h2>
-                    {about.paragraphs && about.paragraphs.length > 0 ? (
-                        about.paragraphs.map((paragraph: string) => (
-                            <p class="text-stone-600 text-lg leading-relaxed mb-6">
-                                {paragraph}
-                            </p>
-                        ))
-                    ) : (
-                        <p class="text-stone-600 text-lg leading-relaxed mb-6">
-                            Al-Bisri menerapkan sistem Subsidi Silang (Cross-Subsidy). Kami membuka layanan asrama dan pendidikan berbayar bagi masyarakat umum.
+                        <h3 class="font-display text-3xl text-white mb-4">Pembelajaran Bersanad</h3>
+                        <p class="text-emerald-200 leading-relaxed font-light">
+                            Kami memastikan setiap ilmu yang Anda pelajari memiliki jalur transmisi yang jelas dan terpercaya.
                         </p>
-                    )}
-                    <p class="text-stone-600 text-lg leading-relaxed mb-8 border-l-4 border-gold-400 pl-4">
-                        {about.highlightedParagraph || 'Keuntungan dari program reguler inilah yang menopang operasional dan menjamin pendidikan GRATIS berkualitas tinggi bagi ratusan santri yatim dan dhuafa.'}
-                    </p>
-                    <a href={about.ctaLink || '/donasi'}
-                        class="inline-flex items-center gap-2 text-royal-900 font-bold uppercase tracking-widest text-sm border-b-2 border-gold-400 pb-1 hover:text-gold-600 transition group">
-                        {about.ctaText || 'Dukung Gerakan Ini'} <i data-lucide="arrow-right"
-                            class="w-4 h-4 transform group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 4. JEJAK LANGKAH PENGABDIAN (Timeline) -->
-    <section class="py-24 bg-royal-900 text-white relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10"
-            style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
-        <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/20 to-transparent"></div>
-        <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="text-center mb-20">
-                <span class="text-gold-400 font-bold uppercase tracking-[0.2em] text-xs">{timeline.badge || 'Milestones'}</span>
-                <h2 class="text-3xl md:text-4xl font-display text-white mt-3">{timeline.title || 'Jejak Langkah Pengabdian'}</h2>
-            </div>
-            <div class="relative">
-                <div
-                    class="absolute top-12 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent hidden md:block">
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
-                    <!-- 1998 -->
-                    <div class="relative group text-center">
-                        <div
-                            class="hidden md:flex justify-center items-center absolute top-12 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                            <div
-                                class="w-4 h-4 bg-royal-900 border-2 border-gold-500 rounded-full group-hover:scale-125 group-hover:bg-gold-500 transition duration-500 shadow-[0_0_15px_rgba(212,175,55,0.5)]">
+                        <div class="mt-12 flex items-center gap-4 bg-white/5 px-6 py-3 rounded-full border border-white/10">
+                            <div class="flex -space-x-3">
+                                {[1,2,3].map(i => <div class="w-8 h-8 rounded-full border-2 border-emerald-900 bg-emerald-700"></div>)}
                             </div>
-                        </div>
-                        <div class="mb-12 md:mb-16 transform transition duration-500 group-hover:-translate-y-2"><span
-                                class="text-5xl md:text-6xl font-display text-transparent bg-clip-text bg-gradient-to-b from-gold-300 to-gold-600 font-bold opacity-80">1998</span>
-                        </div>
-                        <div
-                            class="bg-white/5 p-6 rounded-2xl border border-white/10 hover:bg-white/10 hover:border-gold-500/30 transition duration-500 relative overflow-hidden group-hover:shadow-2xl">
-                            <h4 class="text-xl font-display text-white mb-3 relative z-10">Perintisan</h4>
-                            <p class="text-sm text-royal-200 leading-relaxed font-light relative z-10">Pendirian Panti
-                                Asuhan & Pesantren Yatim pertama.</p>
-                        </div>
-                    </div>
-                    <!-- 2010 -->
-                    <div class="relative group text-center delay-100">
-                        <div
-                            class="hidden md:flex justify-center items-center absolute top-12 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                            <div
-                                class="w-4 h-4 bg-royal-900 border-2 border-gold-500 rounded-full group-hover:scale-125 group-hover:bg-gold-500 transition duration-500 shadow-[0_0_15px_rgba(212,175,55,0.5)]">
-                            </div>
-                        </div>
-                        <div class="mb-12 md:mb-16 transform transition duration-500 group-hover:-translate-y-2"><span
-                                class="text-5xl md:text-6xl font-display text-transparent bg-clip-text bg-gradient-to-b from-gold-300 to-gold-600 font-bold opacity-80">2010</span>
-                        </div>
-                        <div
-                            class="bg-white/5 p-6 rounded-2xl border border-white/10 hover:bg-white/10 hover:border-gold-500/30 transition duration-500 relative overflow-hidden group-hover:shadow-2xl">
-                            <h4 class="text-xl font-display text-white mb-3 relative z-10">Legalitas Madin</h4>
-                            <p class="text-sm text-royal-200 leading-relaxed font-light relative z-10">Izin operasional
-                                resmi Madrasah Diniyah & Program Asrama.</p>
-                        </div>
-                    </div>
-                    <!-- 2024 -->
-                    <div class="relative group text-center delay-200">
-                        <div
-                            class="hidden md:flex justify-center items-center absolute top-12 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                            <div
-                                class="w-4 h-4 bg-royal-900 border-2 border-gold-500 rounded-full group-hover:scale-125 group-hover:bg-gold-500 transition duration-500 shadow-[0_0_15px_rgba(212,175,55,0.5)]">
-                            </div>
-                        </div>
-                        <div class="mb-12 md:mb-16 transform transition duration-500 group-hover:-translate-y-2"><span
-                                class="text-5xl md:text-6xl font-display text-transparent bg-clip-text bg-gradient-to-b from-gold-300 to-gold-600 font-bold opacity-80">2024</span>
-                        </div>
-                        <div
-                            class="bg-white/5 p-6 rounded-2xl border border-white/10 hover:bg-white/10 hover:border-gold-500/30 transition duration-500 relative overflow-hidden group-hover:shadow-2xl">
-                            <h4 class="text-xl font-display text-white mb-3 relative z-10">Ekosistem Baru</h4>
-                            <p class="text-sm text-royal-200 leading-relaxed font-light relative z-10">Peluncuran unit
-                                usaha mandiri & Pesantren Mahasiswa.</p>
-                        </div>
-                    </div>
-                    <!-- 2026 -->
-                    <div class="relative group text-center delay-300">
-                        <div
-                            class="hidden md:flex justify-center items-center absolute top-12 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                            <div
-                                class="w-4 h-4 bg-royal-900 border-2 border-gold-500 rounded-full group-hover:scale-125 group-hover:bg-gold-500 transition duration-500 shadow-[0_0_15px_rgba(212,175,55,0.5)]">
-                            </div>
-                        </div>
-                        <div class="mb-12 md:mb-16 transform transition duration-500 group-hover:-translate-y-2"><span
-                                class="text-5xl md:text-6xl font-display text-transparent bg-clip-text bg-gradient-to-b from-gold-300 to-gold-600 font-bold opacity-80">2026</span>
-                        </div>
-                        <div
-                            class="bg-white/5 p-6 rounded-2xl border border-white/10 hover:bg-white/10 hover:border-gold-500/30 transition duration-500 relative overflow-hidden group-hover:shadow-2xl">
-                            <h4 class="text-xl font-display text-white mb-3 relative z-10">Kemandirian</h4>
-                            <p class="text-sm text-royal-200 leading-relaxed font-light relative z-10">Target
-                                operasional mandiri penuh & Universitas.</p>
+                            <span class="text-xs text-emerald-300 font-bold uppercase tracking-widest">Bergabung Bersama Kami</span>
                         </div>
                     </div>
                 </div>
@@ -335,523 +150,194 @@ const donationCTA = landingPage?.donationCTA || {};
         </div>
     </section>
 
-    <!-- 5. KEMITRAAN (Marquee) -->
-    <section class="py-20 bg-stone-50 border-y border-royal-100 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6 text-center mb-10">
-            <p class="text-royal-800/60 text-xs font-bold uppercase tracking-[0.2em]">{partnerships.headline || 'Dipercaya Oleh Lembaga & Korporasi'}
-            </p>
-        </div>
-        <div class="relative flex overflow-x-hidden group py-4">
-            <div
-                class="animate-marquee whitespace-nowrap flex gap-20 items-center opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition duration-500">
-                <img src="https://placehold.co/150x60/e5e5e5/a3a3a3?text=BANK+BSI" class="h-12 w-auto object-contain"
-                    alt="Bank BSI">
-                <img src="https://placehold.co/100x100/e5e5e5/a3a3a3?text=UNIV"
-                    class="h-16 w-auto object-contain rounded-full" alt="Universitas">
-                <img src="https://placehold.co/150x60/e5e5e5/a3a3a3?text=BAZNAS" class="h-12 w-auto object-contain"
-                    alt="Baznas">
-                <img src="https://placehold.co/150x60/e5e5e5/a3a3a3?text=KEMENAG" class="h-12 w-auto object-contain"
-                    alt="Kemenag">
-                <img src="https://placehold.co/80x80/e5e5e5/a3a3a3?text=SCHOOL"
-                    class="h-16 w-auto object-contain rounded-full" alt="School Partner">
-                <img src="https://placehold.co/150x60/e5e5e5/a3a3a3?text=DOMPET" class="h-12 w-auto object-contain"
-                    alt="Dompet Dhuafa">
-                <img src="https://placehold.co/150x60/e5e5e5/a3a3a3?text=BANK+BSI" class="h-12 w-auto object-contain"
-                    alt="Bank BSI">
-                <img src="https://placehold.co/100x100/e5e5e5/a3a3a3?text=UNIV"
-                    class="h-16 w-auto object-contain rounded-full" alt="Universitas">
-                <img src="https://placehold.co/150x60/e5e5e5/a3a3a3?text=BAZNAS" class="h-12 w-auto object-contain"
-                    alt="Baznas">
-                <img src="https://placehold.co/150x60/e5e5e5/a3a3a3?text=KEMENAG" class="h-12 w-auto object-contain"
-                    alt="Kemenag">
+    <!-- Stats Section -->
+    <div class="bg-emerald-950 border-t border-white/5 py-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {stats.map(stat => (
+                    <div class="text-center group">
+                        <p class="text-3xl md:text-4xl font-display font-medium text-white mb-1 group-hover:text-yellow-500 transition duration-300">{stat.value}</p>
+                        <p class="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">{stat.label}</p>
+                    </div>
+                ))}
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- 6. E-LEARNING (Lead Magnet) -->
-    <section id="elearning" class="py-24 bg-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="grid md:grid-cols-2 gap-16 items-center">
+    <!-- Featured Courses Section -->
+    <section class="py-24 bg-stone-50 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                 <div>
-                    <span
-                        class="inline-block py-1 px-3 rounded-full bg-royal-100 text-royal-800 text-xs font-bold uppercase tracking-wider mb-4 border border-royal-200">{elearning.badge || 'Didukung Isyraq Annur Media'}</span>
-                    <h2 class="text-4xl md:text-5xl font-display text-royal-900 mb-6">{elearning.title || 'Akses Kurikulum'} <br> <span
-                            class="italic text-gold-600">{elearning.titleHighlight || 'Bahasa Arab Digital'}</span></h2>
-                    <p class="text-stone-600 text-lg mb-8 leading-relaxed">
-                        {elearning.description || 'Kami membuka akses materi pembelajaran Bahasa Arab standar Timur Tengah secara digital. Dikembangkan oleh tim ahli Pesantren Mahasiswa An-Nur.'}
-                    </p>
-                    <a href={elearning.ctaLink || '/akademi'}
-                        class="group px-10 py-4 bg-royal-900 text-white rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-bold uppercase tracking-widest text-sm flex items-center gap-3 inline-flex">
-                        {elearning.ctaText || 'Akses Gratis'} <i data-lucide="monitor-play" class="w-4 h-4 text-gold-400"></i>
-                    </a>
+                    <span class="text-emerald-700 font-bold uppercase tracking-[0.2em] text-[10px] mb-2 block">Program Terpilih</span>
+                    <h2 class="text-4xl md:text-5xl font-display text-emerald-950">Kurikulum <span class="italic text-emerald-600">Unggulan</span></h2>
                 </div>
-                <div class="relative">
-                    <div class="absolute inset-0 bg-gold-400/20 rounded-[3rem] rotate-6 scale-95 blur-xl"></div>
-                    <div
-                        class="relative bg-stone-50 p-2 rounded-[2.5rem] shadow-2xl border border-stone-200 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop"
-                            class="rounded-[2rem] w-full object-cover opacity-90 hover:opacity-100 transition duration-700"
-                            alt="E-Learning Platform">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 7. IMPACT FUND -->
-    <section id="impact" class="py-32 relative bg-royal-900 text-white rounded-t-[4rem] -mt-10 z-20 overflow-hidden">
-        <div class="absolute inset-0 opacity-10"
-            style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
-        <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-                <div class="max-w-2xl">
-                    <span class="text-gold-400 text-xs font-bold uppercase tracking-widest mb-3 block">{impactFund.badge || 'Transparansi Dana Wakaf'}</span>
-                    <h2 class="text-4xl md:text-5xl font-display text-white mb-4">{impactFund.title || 'Laporan Penyaluran'}</h2>
-                    <p class="text-royal-200 font-light text-lg">{impactFund.description || 'Melihat langsung bagaimana donasi Anda menjadi "darah" bagi pendidikan anak yatim.'}</p>
-                </div>
-                <div>
-                    <a href="/transparansi"
-                        class="px-8 py-3 border border-white/20 text-white text-sm hover:bg-white hover:text-royal-900 transition flex items-center gap-2 uppercase tracking-wider rounded-full font-bold">
-                        <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Detail Transparansi
-                    </a>
-                </div>
-            </div>
-
-            <div class="grid lg:grid-cols-3 gap-8">
-                <div
-                    class="lg:col-span-1 glass-panel-dark p-8 rounded-[2.5rem] border border-white/10 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/20 rounded-full blur-2xl"></div>
-                    <h3 class="text-xl font-display font-bold text-white mb-6 text-center">Fokus Penyaluran</h3>
-                    <div class="chart-container"><canvas id="impactChart" data-labels={JSON.stringify(impactFund.chartData?.labels || ['Beasiswa Yatim', 'Wakaf Produktif', 'Infrastruktur'])} data-values={JSON.stringify(impactFund.chartData?.data || [50, 30, 20])}></canvas></div>
-                    <div class="mt-8 text-center border-t border-white/10 pt-6">
-                        <p class="text-[10px] text-royal-300 uppercase tracking-widest mb-1">Aset Produktif</p>
-                        <p class="text-3xl font-display text-gold-400">{impactFund.productiveAssets || 'Rp 12.5 M'}</p>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2 grid sm:grid-cols-2 gap-6">
-                    <div
-                        class="bg-white/5 p-8 rounded-[2rem] border border-white/10 hover:bg-white/10 transition group hover:-translate-y-1">
-                        <div
-                            class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-6 text-gold-400">
-                            <i data-lucide="graduation-cap" class="w-6 h-6"></i></div>
-                        <h4 class="text-2xl font-display mb-2">150 Kader</h4>
-                        <p class="text-royal-200 text-sm mb-4">Santri Yatim Takhassus Mukim.</p>
-                        <div class="w-full bg-royal-800 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-gold-400 h-full w-[85%] rounded-full"></div>
-                        </div>
-                    </div>
-                    <div
-                        class="bg-white/5 p-8 rounded-[2rem] border border-white/10 hover:bg-white/10 transition group hover:-translate-y-1">
-                        <div
-                            class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-6 text-gold-400">
-                            <i data-lucide="sprout" class="w-6 h-6"></i></div>
-                        <h4 class="text-2xl font-display mb-2">20 Hektar</h4>
-                        <p class="text-royal-200 text-sm mb-4">Lahan wakaf produktif untuk kemandirian.</p>
-                        <div class="w-full bg-royal-800 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-gold-400 h-full w-[60%] rounded-full"></div>
-                        </div>
-                    </div>
-                    <div
-                        class="bg-white/5 p-8 rounded-[2rem] border border-white/10 hover:bg-white/10 transition group sm:col-span-2 flex items-center justify-between hover:-translate-y-1">
-                        <div>
-                            <h4 class="text-xl font-display mb-1">Pembangunan Asrama Putra</h4>
-                            <p class="text-royal-200 text-sm">Progres fisik mencapai 75%</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-3xl font-display text-gold-400">75%</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 8. TESTIMONIAL (Slider) -->
-    <section class="py-24 bg-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <span class="text-gold-600 font-bold uppercase tracking-widest text-xs">{testimonials.badge || 'Suara Hati'}</span>
-                <h2 class="text-4xl font-display text-royal-900 mt-2">{testimonials.title || 'Kisah Penerima Manfaat'}</h2>
-            </div>
-
-            <div id="testimonial-slider"
-                class="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 md:grid md:grid-cols-3 md:gap-8 md:pb-0 no-scrollbar">
-                <div
-                    class="min-w-[85vw] md:min-w-0 snap-center bg-stone-50 p-8 rounded-[2.5rem] relative hover:shadow-lg transition duration-500 flex flex-col justify-between h-full">
-                    <div><i data-lucide="quote" class="w-8 h-8 text-gold-400 mb-4 fill-current"></i>
-                        <p class="text-stone-600 italic mb-6 leading-relaxed">"Al-Bisri memberi saya rumah ketika saya
-                            kehilangan segalanya. Di sini saya belajar bahwa yatim bukan alasan untuk menyerah."</p>
-                    </div>
-                    <div class="flex items-center gap-4 mt-auto"><img
-                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"
-                            class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                            alt="Ahmad Fikri">
-                        <div>
-                            <p class="font-bold text-royal-900 text-sm">Ahmad Fikri</p>
-                            <p class="text-xs text-stone-500 uppercase tracking-wider">Alumni 2018</p>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="min-w-[85vw] md:min-w-0 snap-center bg-stone-50 p-8 rounded-[2.5rem] relative hover:shadow-lg transition duration-500 flex flex-col justify-between h-full">
-                    <div><i data-lucide="quote" class="w-8 h-8 text-gold-400 mb-4 fill-current"></i>
-                        <p class="text-stone-600 italic mb-6 leading-relaxed">"Sistem transparansi wakafnya luar biasa.
-                            Saya mendapat laporan berkala tentang perkembangan pohon mangga wakaf saya."</p>
-                    </div>
-                    <div class="flex items-center gap-4 mt-auto"><img
-                            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop"
-                            class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                            alt="Hj. Siti Aminah">
-                        <div>
-                            <p class="font-bold text-royal-900 text-sm">Hj. Siti Aminah</p>
-                            <p class="text-xs text-stone-500 uppercase tracking-wider">Wakif Tetap</p>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="min-w-[85vw] md:min-w-0 snap-center bg-stone-50 p-8 rounded-[2.5rem] relative hover:shadow-lg transition duration-500 flex flex-col justify-between h-full">
-                    <div><i data-lucide="quote" class="w-8 h-8 text-gold-400 mb-4 fill-current"></i>
-                        <p class="text-stone-600 italic mb-6 leading-relaxed">"Lulus dari sini saya punya hafalan 30 Juz
-                            dan skill desain grafis. Sekarang saya merintis usaha percetakan sendiri."</p>
-                    </div>
-                    <div class="flex items-center gap-4 mt-auto"><img
-                            src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop"
-                            class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                            alt="Rudi Santoso">
-                        <div>
-                            <p class="font-bold text-royal-900 text-sm">Rudi Santoso</p>
-                            <p class="text-xs text-stone-500 uppercase tracking-wider">Santripreneur</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 9. LATEST POST (Dynamic from Sanity) -->
-    <section id="news" class="py-24 bg-stone-50 border-t border-stone-200">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex justify-between items-end mb-12">
-                <div>
-                    <h2 class="text-3xl font-display text-royal-900">Kabar Pesantren</h2>
-                </div>
-                <a href="/berita"
-                    class="text-sm font-bold text-gold-600 hover:text-royal-900 transition flex items-center gap-1 rounded-full px-4 py-2 border border-stone-200 bg-white hover:border-royal-900">
-                    Lihat Semua <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <a href="/courses" class="text-emerald-900 font-bold text-sm uppercase tracking-widest hover:text-emerald-700 transition flex items-center gap-2 group border-b-2 border-emerald-900/10 pb-1">
+                    Lihat Semua Program <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </a>
             </div>
-            <div id="news-slider"
-                class="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 md:grid md:grid-cols-3 md:gap-8 md:pb-0 no-scrollbar">
-                {latestPosts.length > 0 ? (
-                    latestPosts.map((post: any) => (
-                        <a href={`/berita/${post.slug?.current}`}
-                            class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500 block">
-                            <div class="h-56 overflow-hidden">
-                                {post.featuredImage ? (
-                                    <img src={urlFor(post.featuredImage).width(800).height(400).url()}
-                                        alt={post.featuredImage.alt || post.title}
-                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                                ) : (
-                                    <div class="w-full h-full bg-gradient-to-br from-royal-800 to-royal-950 flex items-center justify-center">
-                                        <i data-lucide="newspaper" class="w-16 h-16 text-royal-600"></i>
-                                    </div>
-                                )}
-                            </div>
-                            <div class="p-8">
-                                <span class={`text-xs font-bold uppercase tracking-wider mb-2 block ${post.category?.color === 'gold' ? 'text-gold-600' : 'text-royal-600'}`}>
-                                    {post.category?.name || 'Berita'}
-                                </span>
-                                <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">
-                                    {post.title}
-                                </h3>
-                                <p class="text-stone-500 text-sm mb-4 line-clamp-2">{post.excerpt}</p>
-                                <span class="text-xs text-stone-400 font-bold uppercase">{formatDate(post.publishedAt)}</span>
-                            </div>
-                        </a>
-                    ))
-                ) : (
-                    <>
-                        <div class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500">
-                            <div class="h-56 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                            </div>
-                            <div class="p-8">
-                                <span class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-2 block">Prestasi</span>
-                                <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">
-                                    Santri Al-Bisri Juara 1 MHQ Nasional</h3>
-                                <p class="text-stone-500 text-sm mb-4 line-clamp-2">Ananda Fatih berhasil menyisihkan 300 peserta dari seluruh Indonesia...</p>
-                                <span class="text-xs text-stone-400 font-bold uppercase">20 Okt 2024</span>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                {featuredCourses.map(course => (
+                    <div class="group bg-white rounded-3xl border border-stone-200 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                        <div class="aspect-video bg-emerald-900/10 relative overflow-hidden flex items-center justify-center p-0">
+                            {course.thumbnail ? (
+                                <img src={urlFor(course.thumbnail).width(400).height(225).url()} alt={course.title} class="w-full h-full object-cover" />
+                            ) : (
+                                <i data-lucide="book-open" class="w-12 h-12 text-emerald-800/20 group-hover:scale-110 transition duration-500"></i>
+                            )}
+                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-emerald-800 shadow-sm">
+                                {course.category?.name || "Umum"}
                             </div>
                         </div>
-                        <div class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500">
-                            <div class="h-56 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1625246333195-58197bd47d26?q=80&w=800&auto=format&fit=crop"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                        <div class="p-8">
+                            <h3 class="text-xl font-display font-bold text-emerald-950 mb-3 group-hover:text-emerald-700 transition leading-snug">
+                                {course.title}
+                            </h3>
+                            <div class="flex items-center gap-4 mb-6 text-stone-500 text-xs">
+                                <span class="flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5"></i> {course.instructor?.name || "Pengajar Ahli"}</span>
+                                <span class="flex items-center gap-1.5"><i data-lucide="bar-chart" class="w-3.5 h-3.5"></i> {course.level || "Semua Level"}</span>
                             </div>
-                            <div class="p-8">
-                                <span class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-2 block">Wakaf Produktif</span>
-                                <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">
-                                    Panen Raya Padi Organik</h3>
-                                <p class="text-stone-500 text-sm mb-4 line-clamp-2">Hasil panen meningkat 20% berkat penerapan teknologi irigasi tetes...</p>
-                                <span class="text-xs text-stone-400 font-bold uppercase">18 Okt 2024</span>
-                            </div>
-                        </div>
-                        <div class="min-w-[85vw] md:min-w-0 snap-center bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition group cursor-pointer hover:-translate-y-1 duration-500">
-                            <div class="h-56 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                            </div>
-                            <div class="p-8">
-                                <span class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-2 block">Kunjungan</span>
-                                <h3 class="font-display text-lg font-bold text-royal-900 mb-3 group-hover:text-gold-600 transition">
-                                    Studi Banding Kemenag</h3>
-                                <p class="text-stone-500 text-sm mb-4 line-clamp-2">Kunjungan untuk meninjau kurikulum kewirausahaan santri...</p>
-                                <span class="text-xs text-stone-400 font-bold uppercase">15 Okt 2024</span>
+                            
+                            <div class="flex items-center justify-between border-t border-stone-100 pt-6">
+                                <div>
+                                    {course.discountPrice && <p class="text-[10px] text-stone-400 line-through mb-0.5">Rp {course.price?.toLocaleString('id-ID')}</p>}
+                                    <p class="text-lg font-bold text-emerald-900">Rp {(course.discountPrice || course.price)?.toLocaleString('id-ID')}</p>
+                                </div>
+                                <a href={`/courses/${course.slug?.current || course.slug}`} class="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center text-emerald-900 hover:bg-emerald-900 hover:text-white transition-colors duration-300">
+                                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                </a>
                             </div>
                         </div>
-                    </>
-                )}
+                    </div>
+                ))}
             </div>
         </div>
     </section>
 
-    <!-- 10. CTA DONASI -->
-    <section id="donasi" class="py-24 bg-white relative">
-        <div class="max-w-6xl mx-auto px-6">
-            <div
-                class="bg-stone-50 rounded-[4rem] p-10 md:p-16 shadow-2xl border border-stone-100 relative overflow-hidden mb-24">
-                <div
-                    class="absolute top-0 right-0 w-64 h-64 bg-gold-100 rounded-full blur-3xl opacity-50 translate-x-1/3 -translate-y-1/3">
-                </div>
-                <div class="text-center mb-16 relative z-10">
-                    <h2 class="text-4xl font-display text-royal-900 mb-4">{donationCTA.title || 'Investasi Akhirat'}</h2>
-                    <p class="text-stone-500">{donationCTA.subtitle || 'Sedekah Jariyah Tanpa Henti'}</p>
-                </div>
-                <div class="grid md:grid-cols-2 gap-12 relative z-10">
-                    <div>
-                        <h3 class="font-bold text-royal-900 mb-6 flex items-center gap-2 text-lg"><i
-                                data-lucide="calculator" class="w-5 h-5 text-gold-500"></i> {donationCTA.zakatCalculator?.title || 'Hitung Zakat Maal'}</h3>
-                        <div class="space-y-6">
-                            <div><label
-                                    class="text-xs font-bold text-stone-400 uppercase tracking-wider block mb-2">{donationCTA.zakatCalculator?.inputLabel || 'Total Aset (Setahun)'}</label>
-                                <div class="relative"><span
-                                        class="absolute left-6 top-1/2 -translate-y-1/2 text-royal-900 font-bold">Rp</span><input
-                                        type="number" id="calcInput"
-                                        class="w-full bg-white border border-stone-200 rounded-full py-4 pl-14 text-royal-900 font-bold focus:border-royal-900 focus:outline-none transition shadow-sm"
-                                        placeholder="0"></div>
+    <!-- Why Us Section -->
+    <section class="py-24 bg-white px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-24 items-center">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-4">
+                        <div class="bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-3xl aspect-[3/4] overflow-hidden flex items-center justify-center relative">
+                            <i data-lucide="book-open-check" class="w-20 h-20 text-emerald-600/50"></i>
+                            <div class="absolute bottom-4 left-4 right-4 text-center">
+                                <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Kurikulum Bersanad</span>
                             </div>
-                            <div
-                                class="bg-royal-900 text-white p-6 rounded-[2rem] flex justify-between items-center shadow-lg">
-                                <span class="text-sm font-medium opacity-80">Wajib Zakat (2.5%)</span><span
-                                    class="text-2xl font-display text-gold-400" id="calcResult">Rp 0</span></div>
-                            <button
-                                class="w-full py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1">{donationCTA.zakatCalculator?.buttonText || 'Tunaikan Zakat'}</button>
+                        </div>
+                        <div class="bg-emerald-900 rounded-3xl aspect-square flex items-center justify-center p-8 text-center text-white">
+                            <p class="font-display text-2xl">"Belajar sekaligus beramal."</p>
                         </div>
                     </div>
-                    <div>
-                        <h3 class="font-bold text-royal-900 mb-6 flex items-center gap-2 text-lg"><i
-                                data-lucide="package" class="w-5 h-5 text-gold-500"></i> Paket Wakaf Tunai</h3>
-                        <div class="space-y-4">
-                            <button
-                                class="w-full flex justify-between items-center p-5 bg-white border border-stone-200 rounded-[1.5rem] hover:border-gold-500 hover:shadow-lg transition group text-left">
-                                <div><span class="block font-bold text-royal-900">Wakaf Semen & Bata</span><span
-                                        class="text-xs text-stone-500">Pembangunan Asrama</span></div><span
-                                    class="font-display font-bold text-gold-600 group-hover:text-gold-500">Rp
-                                    100.000</span>
-                            </button>
-                            <button
-                                class="w-full flex justify-between items-center p-5 bg-white border border-stone-200 rounded-[1.5rem] hover:border-gold-500 hover:shadow-lg transition group text-left">
-                                <div><span class="block font-bold text-royal-900">Wakaf Benih Padi</span><span
-                                        class="text-xs text-stone-500">Pertanian Produktif</span></div><span
-                                    class="font-display font-bold text-gold-600 group-hover:text-gold-500">Rp
-                                    500.000</span>
-                            </button>
-                            <button
-                                class="w-full flex justify-between items-center p-5 bg-white border border-stone-200 rounded-[1.5rem] hover:border-gold-500 hover:shadow-lg transition group text-left">
-                                <div><span class="block font-bold text-royal-900">Wakaf Alat Belajar</span><span
-                                        class="text-xs text-stone-500">Kitab & Komputer</span></div><span
-                                    class="font-display font-bold text-gold-600 group-hover:text-gold-500">Rp
-                                    1.000.000</span>
-                            </button>
+                    <div class="space-y-4 pt-12">
+                        <div class="bg-yellow-500 rounded-3xl aspect-square flex items-center justify-center p-8">
+                             <i data-lucide="award" class="w-16 h-16 text-emerald-950"></i>
                         </div>
+                        <div class="bg-gradient-to-br from-stone-100 to-stone-200 rounded-3xl aspect-[3/4] overflow-hidden flex items-center justify-center relative">
+                            <i data-lucide="users" class="w-20 h-20 text-stone-400/50"></i>
+                            <div class="absolute bottom-4 left-4 right-4 text-center">
+                                <span class="text-xs font-bold text-stone-600 uppercase tracking-wider">1,250+ Siswa</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-12">
+                    <div>
+                        <span class="text-emerald-700 font-bold uppercase tracking-[0.2em] text-[10px] mb-2 block">Mengapa Isyraq Academy?</span>
+                        <h2 class="text-4xl md:text-5xl font-display text-emerald-950 mb-6 leading-tight">Membangun Fondasi Keberkahan Melalui <span class="italic text-emerald-600">Pendidikan</span></h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        {whyUs.map(item => (
+                            <div class="flex gap-6 group">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 group-hover:bg-emerald-900 group-hover:text-white transition duration-300">
+                                    <i data-lucide={item.icon} class="w-6 h-6 text-emerald-700 group-hover:text-white transition duration-300"></i>
+                                </div>
+                                <div class="space-y-2">
+                                    <h4 class="font-bold text-emerald-950 text-lg">{item.title}</h4>
+                                    <p class="text-stone-600 text-sm leading-relaxed">{item.description}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
         </div>
     </section>
-</Layout>
+
+    <!-- Mentors Section -->
+    <section class="py-24 bg-emerald-950 px-6 relative overflow-hidden">
+         <div class="absolute inset-0 opacity-5" style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
+         <div class="max-w-7xl mx-auto relative z-10">
+             <div class="text-center mb-16">
+                 <span class="text-emerald-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-2 block">Tim Ahli Kami</span>
+                 <h2 class="text-4xl md:text-5xl font-display text-white italic">Pengajar & Mudaris</h2>
+             </div>
+
+             <div class="grid md:grid-cols-3 gap-8">
+                 {instructors.map(mentor => (
+                     <div class="bg-white/5 border border-white/10 p-8 rounded-[2rem] text-center hover:bg-white/10 transition duration-300">
+                         <div class="w-24 h-24 bg-emerald-800 rounded-full mx-auto mb-6 flex items-center justify-center border-4 border-emerald-900 shadow-xl overflow-hidden">
+                             {mentor.photo ? (
+                                 <img src={urlFor(mentor.photo).width(200).height(200).url()} alt={mentor.name} class="w-full h-full object-cover" />
+                             ) : (
+                                 <span class="text-white text-4xl font-display font-medium">{mentor.name?.charAt(0) || "U"}</span>
+                             )}
+                         </div>
+                         <h4 class="font-display text-2xl text-white mb-2">{mentor.name}</h4>
+                         <p class="text-emerald-400 text-xs font-bold uppercase tracking-widest">{mentor.role}</p>
+                      </div>
+                  ))}
+              </div>
+              
+              <div class="mt-16 text-center">
+                  <p class="text-emerald-200 text-sm italic mb-8">Peluang untuk berbagi ilmu selalu terbuka.</p>
+                  <a href="/mentors" class="text-yellow-500 font-bold uppercase tracking-widest text-xs hover:text-yellow-400 transition flex items-center justify-center gap-2">
+                      Lihat Semua Pengajar <i data-lucide="plus" class="w-4 h-4"></i>
+                  </a>
+              </div>
+         </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="py-24 bg-white px-6">
+        <div class="max-w-5xl mx-auto">
+             <div class="bg-emerald-900 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-3xl">
+                 <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
+                 <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                 
+                 <div class="relative z-10">
+                    <h2 class="text-4xl md:text-6xl font-display text-white mb-8 leading-tight">
+                        {ctaData.title?.split(' ').map((word, i, arr) => i === arr.length - 1 ? <span class="italic text-yellow-500">{word}</span> : word + ' ')}
+                    </h2>
+                     <p class="text-emerald-200 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-light">
+                         {ctaData.description}
+                     </p>
+                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                         <a href={ctaData.primaryCta?.link || "/courses"} class="px-10 py-5 bg-yellow-500 text-emerald-950 font-bold uppercase tracking-widest text-xs rounded-full hover:bg-yellow-400 transition-all shadow-xl shadow-yellow-500/20 active:scale-95 duration-200">
+                             {ctaData.primaryCta?.text || "Daftar Sekarang"}
+                         </a>
+                         <a href={ctaData.secondaryCta?.link || "/hubungi-kami"} class="px-10 py-5 border border-white/20 text-white font-bold uppercase tracking-widest text-xs rounded-full hover:bg-white/10 transition-all">
+                             {ctaData.secondaryCta?.text || "Konsultasi Pendidikan"}
+                         </a>
+                     </div>
+                 </div>
+             </div>
+        </div>
+    </section>
+
+</AcademyLayout>
 
 <style>
-    .glass-panel-dark {
-        background: rgba(20, 83, 45, 0.95);
-        color: white;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 20px 40px -10px rgba(20, 83, 45, 0.3);
+    .animate-fade-in {
+        animation: fadeIn 1s ease-out forwards;
     }
-
-    .btn-glow:hover {
-        box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-        transform: translateY(-2px);
-    }
-
-    .fade-up {
-        animation: fadeUp 1s ease-out forwards;
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-200 { animation-delay: 0.2s; }
-    .delay-300 { animation-delay: 0.3s; }
-
-    @keyframes fadeUp {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .chart-container {
-        position: relative;
-        width: 100%;
-        height: 250px;
-    }
-
-    @keyframes marquee {
-        0% { transform: translateX(0%); }
-        100% { transform: translateX(-100%); }
-    }
-
-    .animate-marquee {
-        animation: marquee 40s linear infinite;
-    }
-
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-    }
-
-    .animate-float {
-        animation: float 4s ease-in-out infinite;
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
-
-<script is:inline>
-    // Wait for Lucide library to be available
-    function waitForLucide(callback, maxRetries = 20) {
-        let retries = 0;
-        function check() {
-            if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                callback();
-            } else if (retries < maxRetries) {
-                retries++;
-                setTimeout(check, 100);
-            }
-        }
-        check();
-    }
-
-    // Wait for Chart.js library to be available
-    function waitForChart(callback, maxRetries = 20) {
-        let retries = 0;
-        function check() {
-            if (typeof Chart !== 'undefined') {
-                callback();
-            } else if (retries < maxRetries) {
-                retries++;
-                setTimeout(check, 100);
-            }
-        }
-        check();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Lucide icons
-        waitForLucide(function() {
-            lucide.createIcons();
-        });
-
-        // Initialize Chart.js
-        waitForChart(function() {
-            const ctx = document.getElementById('impactChart');
-            if (ctx) {
-                // Read chart data from data attributes (set by Astro)
-                const chartLabels = ctx.dataset.labels ? JSON.parse(ctx.dataset.labels) : ['Beasiswa Yatim', 'Wakaf Produktif', 'Infrastruktur'];
-                const chartData = ctx.dataset.values ? JSON.parse(ctx.dataset.values) : [50, 30, 20];
-                
-                new Chart(ctx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: chartLabels,
-                        datasets: [{
-                            data: chartData,
-                            backgroundColor: ['#d4af37', '#166534', '#a8a29e'],
-                            borderWidth: 0,
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '75%',
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    usePointStyle: true,
-                                    color: '#e5e5e5',
-                                    font: { family: 'Cinzel', size: 10 }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-
-        // Zakat Calculator
-        const calcInput = document.getElementById('calcInput');
-        if (calcInput) {
-            calcInput.addEventListener('input', function() {
-                const val = this.value || 0;
-                const res = val * 0.025;
-                document.getElementById('calcResult').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(res);
-            });
-        }
-
-        // Auto-scroll sliders
-        function setupAutoScroll(elementId) {
-            const slider = document.getElementById(elementId);
-            if (!slider) return;
-            let slideTimer;
-            const scrollStep = () => {
-                if (window.getComputedStyle(slider).display === 'grid') return;
-                const cardWidth = slider.firstElementChild.offsetWidth + 24;
-                const maxScroll = slider.scrollWidth - slider.clientWidth;
-                if (slider.scrollLeft >= maxScroll) {
-                    slider.scrollTo({ left: 0, behavior: 'smooth' });
-                } else {
-                    slider.scrollBy({ left: cardWidth, behavior: 'smooth' });
-                }
-            };
-            const startAutoScroll = () => { slideTimer = setInterval(scrollStep, 4000); };
-            const stopAutoScroll = () => { clearInterval(slideTimer); };
-            startAutoScroll();
-            slider.addEventListener('touchstart', stopAutoScroll);
-            slider.addEventListener('touchend', startAutoScroll);
-            slider.addEventListener('mouseenter', stopAutoScroll);
-            slider.addEventListener('mouseleave', startAutoScroll);
-        }
-        
-        setupAutoScroll('testimonial-slider');
-        setupAutoScroll('news-slider');
-    });
-</script>

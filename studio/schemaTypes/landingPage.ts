@@ -1,503 +1,375 @@
 import { defineType, defineField } from 'sanity';
 
+/**
+ * Landing Page Schema - Isyraq Academy
+ * 
+ * Skema ini KHUSUS untuk halaman landing Academy.
+ * Fokus pada: Kursus, Pengajar, Statistik, dan Testimoni.
+ * 
+ * Section yang tersedia:
+ * 1. Hero - Headline utama & CTA
+ * 2. Stats - Statistik angka pencapaian
+ * 3. Featured Courses - Kursus unggulan
+ * 4. Why Us - Keunggulan Academy
+ * 5. Instructors - Pengajar/Mudaris
+ * 6. Testimonials - Testimoni siswa
+ * 7. SEO - Pengaturan meta tags
+ */
 export default defineType({
     name: 'landingPage',
-    title: 'Landing Page',
+    title: 'Landing Page (Academy)',
     type: 'document',
+    groups: [
+        { name: 'hero', title: '🏠 Hero Section' },
+        { name: 'content', title: '📚 Content Sections' },
+        { name: 'social', title: '💬 Social Proof' },
+        { name: 'seo', title: '🔍 SEO Settings' },
+    ],
     fields: [
+        // ==========================================
         // HERO SECTION
+        // ==========================================
         defineField({
             name: 'hero',
             title: 'Hero Section',
             type: 'object',
+            group: 'hero',
             fields: [
                 {
-                    name: 'badge',
-                    title: 'Achievement Badge',
+                    name: 'subtitle',
+                    title: 'Brand Subtitle',
                     type: 'string',
-                    description: 'e.g., "100% Lulusan Dhuafa Masuk PTN/Timur Tengah"',
+                    description: 'Nama brand, e.g., "Isyraq Annur Academy"',
+                    validation: (Rule) => Rule.required(),
                 },
                 {
                     name: 'title',
-                    title: 'Main Title',
-                    type: 'array',
-                    of: [
-                        {
-                            type: 'block',
-                            styles: [],
-                            lists: [],
-                            marks: {
-                                decorators: [
-                                    { title: 'Strong', value: 'strong' },
-                                    { title: 'Emphasis (Italic)', value: 'em' },
-                                    { title: 'Highlight (Gold)', value: 'highlight' },
-                                ],
-                            },
-                        },
-                    ],
-                    description: 'Main hero title with rich text (e.g., "Memuliakan Yatim, Membangun Peradaban")',
+                    title: 'Headline',
+                    type: 'string',
+                    description: 'Judul utama, e.g., "Membangun Peradaban dengan Ilmu"',
+                    validation: (Rule) => Rule.required(),
                 },
                 {
                     name: 'description',
-                    title: 'Description',
+                    title: 'Deskripsi',
                     type: 'text',
                     rows: 3,
+                    description: 'Deskripsi singkat tentang Academy',
                 },
                 {
                     name: 'ctaPrimary',
-                    title: 'Primary CTA',
+                    title: 'Tombol Utama',
                     type: 'object',
                     fields: [
-                        { name: 'text', title: 'Button Text', type: 'string' },
-                        { name: 'link', title: 'Link URL', type: 'string' },
+                        { name: 'text', title: 'Teks Tombol', type: 'string', initialValue: 'Lihat Katalog Kelas' },
+                        { name: 'link', title: 'Link URL', type: 'string', initialValue: '/courses' },
                     ],
                 },
                 {
                     name: 'ctaSecondary',
-                    title: 'Secondary CTA',
+                    title: 'Tombol Sekunder',
                     type: 'object',
                     fields: [
-                        { name: 'text', title: 'Button Text', type: 'string' },
-                        { name: 'link', title: 'Link URL', type: 'string' },
+                        { name: 'text', title: 'Teks Tombol', type: 'string', initialValue: 'Tentang Kami' },
+                        { name: 'link', title: 'Link URL', type: 'string', initialValue: '/about-academy' },
                     ],
                 },
                 {
                     name: 'heroImage',
-                    title: 'Hero Image',
+                    title: 'Gambar Hero (Opsional)',
                     type: 'image',
                     options: { hotspot: true },
                     fields: [
                         { name: 'alt', title: 'Alt Text', type: 'string' },
-                        {
-                            name: 'caption',
-                            title: 'Overlay Caption',
-                            type: 'object',
-                            fields: [
-                                { name: 'quote', title: 'Quote', type: 'string' },
-                                { name: 'subtext', title: 'Subtext', type: 'string' },
-                            ],
-                        },
-                    ],
-                },
-                {
-                    name: 'impactBadge',
-                    title: 'Impact Badge (Floating)',
-                    type: 'object',
-                    fields: [
-                        { name: 'label', title: 'Label', type: 'string' },
-                        { name: 'value', title: 'Value', type: 'string' },
                     ],
                 },
             ],
         }),
 
-        // ABOUT SECTION
+        // ==========================================
+        // STATS SECTION
+        // ==========================================
         defineField({
-            name: 'about',
-            title: 'About Section (Filosofi Kemandirian)',
-            type: 'object',
-            fields: [
-                { name: 'badge', title: 'Section Badge', type: 'string' },
-                { name: 'title', title: 'Title', type: 'string' },
-                { name: 'subtitle', title: 'Subtitle (Italic)', type: 'string' },
+            name: 'stats',
+            title: 'Statistik Pencapaian',
+            type: 'array',
+            group: 'content',
+            description: 'Angka-angka pencapaian Academy (maksimal 4)',
+            validation: (Rule) => Rule.max(4),
+            of: [
                 {
-                    name: 'paragraphs',
-                    title: 'Paragraphs',
-                    type: 'array',
-                    of: [{ type: 'text', rows: 3 }],
-                },
-                {
-                    name: 'highlightedParagraph',
-                    title: 'Highlighted Paragraph (Border Left)',
-                    type: 'text',
-                    rows: 3,
-                },
-                {
-                    name: 'ctaText',
-                    title: 'CTA Text',
-                    type: 'string',
-                },
-                {
-                    name: 'ctaLink',
-                    title: 'CTA Link',
-                    type: 'string',
-                },
-                {
-                    name: 'images',
-                    title: 'Images',
-                    type: 'array',
-                    of: [
-                        {
-                            type: 'image',
-                            options: { hotspot: true },
-                            fields: [{ name: 'alt', title: 'Alt Text', type: 'string' }],
-                        },
-                    ],
-                },
-                {
-                    name: 'floatingBadge',
-                    title: 'Floating Badge',
-                    type: 'object',
-                    fields: [
-                        { name: 'text', title: 'Main Text', type: 'string' },
-                        { name: 'subtext', title: 'Subtext', type: 'string' },
-                    ],
-                },
-            ],
-        }),
-
-        // TIMELINE (JEJAK LANGKAH)
-        defineField({
-            name: 'timeline',
-            title: 'Timeline Section (Jejak Langkah Pengabdian)',
-            type: 'object',
-            fields: [
-                { name: 'badge', title: 'Section Badge', type: 'string' },
-                { name: 'title', title: 'Section Title', type: 'string' },
-                {
-                    name: 'milestones',
-                    title: 'Milestones',
-                    type: 'array',
-                    of: [
-                        {
-                            type: 'object',
-                            fields: [
-                                { name: 'year', title: 'Year', type: 'string' },
-                                { name: 'title', title: 'Milestone Title', type: 'string' },
-                                { name: 'description', title: 'Description', type: 'text', rows: 2 },
-                            ],
-                            preview: {
-                                select: {
-                                    title: 'year',
-                                    subtitle: 'title',
-                                    description: 'description',
-                                },
-                                prepare({ title, subtitle, description }) {
-                                    return {
-                                        title: `${title}: ${subtitle}`,
-                                        subtitle: description,
-                                    };
-                                },
-                            },
-                        },
-                    ],
-                },
-            ],
-        }),
-
-        // PARTNERSHIPS (MARQUEE)
-        defineField({
-            name: 'partnerships',
-            title: 'Partnerships Section (Marquee)',
-            type: 'object',
-            fields: [
-                { name: 'headline', title: 'Headline', type: 'string' },
-                {
-                    name: 'partners',
-                    title: 'Partner Logos',
-                    type: 'array',
-                    of: [
-                        {
-                            type: 'object',
-                            fields: [
-                                { name: 'name', title: 'Partner Name', type: 'string' },
-                                {
-                                    name: 'logo',
-                                    title: 'Logo',
-                                    type: 'image',
-                                    options: { hotspot: false },
-                                    fields: [{ name: 'alt', title: 'Alt Text', type: 'string' }],
-                                },
-                            ],
-                            preview: {
-                                select: {
-                                    title: 'name',
-                                    media: 'logo',
-                                },
-                            },
-                        },
-                    ],
-                },
-            ],
-        }),
-
-        // E-LEARNING PROMOTION
-        defineField({
-            name: 'elearning',
-            title: 'E-Learning Section',
-            type: 'object',
-            fields: [
-                { name: 'badge', title: 'Badge', type: 'string' },
-                { name: 'title', title: 'Title', type: 'string' },
-                { name: 'titleHighlight', title: 'Title Highlight (Italic)', type: 'string' },
-                { name: 'description', title: 'Description', type: 'text', rows: 3 },
-                {
-                    name: 'ctaText',
-                    title: 'CTA Button Text',
-                    type: 'string',
-                },
-                {
-                    name: 'ctaLink',
-                    title: 'CTA Button Link',
-                    type: 'string',
-                },
-                {
-                    name: 'previewImage',
-                    title: 'Preview Image',
-                    type: 'image',
-                    options: { hotspot: true },
-                    fields: [{ name: 'alt', title: 'Alt Text', type: 'string' }],
-                },
-            ],
-        }),
-
-        // IMPACT FUND (TRANSPARANSI DANA)
-        defineField({
-            name: 'impactFund',
-            title: 'Impact Fund Section (Laporan Penyaluran)',
-            type: 'object',
-            fields: [
-                { name: 'badge', title: 'Section Badge', type: 'string' },
-                { name: 'title', title: 'Section Title', type: 'string' },
-                { name: 'description', title: 'Description', type: 'text', rows: 2 },
-                {
-                    name: 'transparencyLink',
-                    title: 'Link to Full Transparency Page',
-                    type: 'string',
-                },
-                {
-                    name: 'chartData',
-                    title: 'Chart Data (Fokus Penyaluran)',
                     type: 'object',
                     fields: [
                         {
-                            name: 'labels',
-                            title: 'Labels',
-                            type: 'array',
-                            of: [{ type: 'string' }],
-                            description: 'e.g., ["Beasiswa Yatim", "Wakaf Produktif", "Infrastruktur"]',
+                            name: 'value',
+                            title: 'Nilai',
+                            type: 'string',
+                            description: 'e.g., "1,250+", "98%"',
+                            validation: (Rule) => Rule.required(),
                         },
                         {
-                            name: 'data',
-                            title: 'Data Points',
-                            type: 'array',
-                            of: [{ type: 'number' }],
-                            description: 'Percentages (e.g., [50, 30, 20])',
+                            name: 'label',
+                            title: 'Label',
+                            type: 'string',
+                            description: 'e.g., "Siswa Terdaftar"',
+                            validation: (Rule) => Rule.required(),
                         },
                     ],
-                },
-                {
-                    name: 'productiveAssets',
-                    title: 'Productive Assets Total',
-                    type: 'string',
-                    description: 'e.g., "Rp 12.5 M"',
-                },
-                {
-                    name: 'programs',
-                    title: 'Impact Programs',
-                    type: 'array',
-                    of: [
-                        {
-                            type: 'object',
-                            fields: [
-                                { name: 'icon', title: 'Lucide Icon Name', type: 'string' },
-                                { name: 'title', title: 'Program Title', type: 'string' },
-                                { name: 'description', title: 'Description', type: 'text', rows: 1 },
-                                {
-                                    name: 'progress',
-                                    title: 'Progress Percentage',
-                                    type: 'number',
-                                    validation: (Rule) => Rule.min(0).max(100),
-                                },
-                            ],
-                            preview: {
-                                select: {
-                                    title: 'title',
-                                    subtitle: 'description',
-                                },
-                            },
-                        },
-                    ],
+                    preview: {
+                        select: { title: 'value', subtitle: 'label' },
+                    },
                 },
             ],
         }),
 
-        // TESTIMONIALS
+        // ==========================================
+        // FEATURED COURSES
+        // ==========================================
         defineField({
-            name: 'testimonials',
-            title: 'Testimonials Section',
+            name: 'featuredCourses',
+            title: 'Kursus Unggulan',
             type: 'object',
+            group: 'content',
             fields: [
-                { name: 'badge', title: 'Section Badge', type: 'string' },
-                { name: 'title', title: 'Section Title', type: 'string' },
                 {
-                    name: 'testimonialsList',
-                    title: 'Testimonials',
-                    type: 'array',
-                    of: [
-                        {
-                            type: 'object',
-                            fields: [
-                                { name: 'quote', title: 'Quote', type: 'text', rows: 3 },
-                                { name: 'name', title: 'Name', type: 'string' },
-                                { name: 'role', title: 'Role/Title', type: 'string' },
-                                {
-                                    name: 'avatar',
-                                    title: 'Avatar',
-                                    type: 'image',
-                                    options: { hotspot: true },
-                                    fields: [{ name: 'alt', title: 'Alt Text', type: 'string' }],
-                                },
-                            ],
-                            preview: {
-                                select: {
-                                    title: 'name',
-                                    subtitle: 'role',
-                                    media: 'avatar',
-                                },
-                            },
-                        },
-                    ],
-                },
-            ],
-        }),
-
-        // LATEST NEWS (Preview)
-        defineField({
-            name: 'latestNews',
-            title: 'Latest News Section',
-            type: 'object',
-            fields: [
-                { name: 'title', title: 'Section Title', type: 'string' },
-                {
-                    name: 'ctaText',
-                    title: 'View All CTA Text',
+                    name: 'title',
+                    title: 'Judul Section',
                     type: 'string',
+                    initialValue: 'Kurikulum Unggulan'
                 },
                 {
-                    name: 'ctaLink',
-                    title: 'View All Link',
+                    name: 'subtitle',
+                    title: 'Subtitle',
                     type: 'string',
+                    initialValue: 'Program Terpilih'
                 },
                 {
-                    name: 'newsItems',
-                    title: 'News Items',
+                    name: 'courses',
+                    title: 'Pilih Kursus',
                     type: 'array',
-                    description: 'Manual news items untuk preview di landing page',
-                    of: [
-                        {
-                            type: 'object',
-                            fields: [
-                                { name: 'category', title: 'Category Label', type: 'string' },
-                                { name: 'title', title: 'News Title', type: 'string' },
-                                { name: 'excerpt', title: 'Excerpt', type: 'text', rows: 2 },
-                                { name: 'publishedAt', title: 'Published Date', type: 'date' },
-                                {
-                                    name: 'image',
-                                    title: 'Featured Image',
-                                    type: 'image',
-                                    options: { hotspot: true },
-                                    fields: [{ name: 'alt', title: 'Alt Text', type: 'string' }],
-                                },
-                                { name: 'link', title: 'Link to Full Article', type: 'string' },
-                            ],
-                            preview: {
-                                select: {
-                                    title: 'title',
-                                    subtitle: 'category',
-                                    media: 'image',
-                                },
-                            },
-                        },
-                    ],
+                    of: [{ type: 'reference', to: [{ type: 'course' }] }],
                     validation: (Rule) => Rule.max(6),
                 },
+                {
+                    name: 'ctaText',
+                    title: 'Teks CTA',
+                    type: 'string',
+                    initialValue: 'Lihat Semua Kelas'
+                },
+                {
+                    name: 'ctaLink',
+                    title: 'Link CTA',
+                    type: 'string',
+                    initialValue: '/courses'
+                },
             ],
         }),
 
-        // DONATION CTA
+        // ==========================================
+        // WHY US SECTION
+        // ==========================================
         defineField({
-            name: 'donationCTA',
-            title: 'Donation CTA Section',
-            type: 'object',
-            fields: [
-                { name: 'title', title: 'Section Title', type: 'string' },
-                { name: 'subtitle', title: 'Subtitle', type: 'string' },
+            name: 'whyUs',
+            title: 'Keunggulan Academy',
+            type: 'array',
+            group: 'content',
+            description: 'Alasan mengapa memilih Isyraq Academy',
+            validation: (Rule) => Rule.max(4),
+            of: [
                 {
-                    name: 'zakatCalculator',
-                    title: 'Zakat Calculator',
                     type: 'object',
                     fields: [
-                        { name: 'title', title: 'Calculator Title', type: 'string' },
-                        { name: 'inputLabel', title: 'Input Label', type: 'string' },
-                        { name: 'buttonText', title: 'Submit Button Text', type: 'string' },
-                    ],
-                },
-                {
-                    name: 'wakafPackages',
-                    title: 'Wakaf Packages',
-                    type: 'object',
-                    fields: [
-                        { name: 'title', title: 'Packages Title', type: 'string' },
                         {
-                            name: 'packages',
-                            title: 'Package List',
-                            type: 'array',
-                            of: [
-                                {
-                                    type: 'object',
-                                    fields: [
-                                        { name: 'name', title: 'Package Name', type: 'string' },
-                                        { name: 'description', title: 'Description', type: 'string' },
-                                        { name: 'amount', title: 'Amount', type: 'number' },
-                                    ],
-                                    preview: {
-                                        select: {
-                                            title: 'name',
-                                            subtitle: 'amount',
-                                        },
-                                        prepare({ title, subtitle }) {
-                                            return {
-                                                title,
-                                                subtitle: `Rp ${subtitle?.toLocaleString('id-ID')}`,
-                                            };
-                                        },
-                                    },
-                                },
-                            ],
+                            name: 'title',
+                            title: 'Judul',
+                            type: 'string',
+                            validation: (Rule) => Rule.required(),
+                        },
+                        {
+                            name: 'description',
+                            title: 'Deskripsi',
+                            type: 'text',
+                            rows: 2
+                        },
+                        {
+                            name: 'icon',
+                            title: 'Ikon (Lucide)',
+                            type: 'string',
+                            description: 'Nama ikon dari lucide.dev, e.g., "shield-check", "book-open", "clock", "heart"',
+                            options: {
+                                list: [
+                                    { title: '🛡️ Shield Check', value: 'shield-check' },
+                                    { title: '📖 Book Open', value: 'book-open' },
+                                    { title: '🕐 Clock', value: 'clock' },
+                                    { title: '❤️ Heart', value: 'heart' },
+                                    { title: '🎓 Graduation Cap', value: 'graduation-cap' },
+                                    { title: '👥 Users', value: 'users' },
+                                    { title: '✅ Check Circle', value: 'check-circle' },
+                                    { title: '🏆 Award', value: 'award' },
+                                    { title: '📜 Scroll', value: 'scroll' },
+                                    { title: '🌟 Star', value: 'star' },
+                                ],
+                            },
                         },
                     ],
+                    preview: {
+                        select: { title: 'title', subtitle: 'icon' },
+                        prepare({ title, subtitle }) {
+                            return {
+                                title,
+                                subtitle: `Icon: ${subtitle || 'not set'}`,
+                            };
+                        },
+                    },
                 },
             ],
         }),
 
-        // SEO & META
+        // ==========================================
+        // INSTRUCTORS
+        // ==========================================
+        defineField({
+            name: 'instructors',
+            title: 'Pengajar Unggulan',
+            type: 'array',
+            group: 'content',
+            description: 'Pilih pengajar yang ditampilkan di landing page',
+            of: [{ type: 'reference', to: [{ type: 'instructor' }] }],
+            validation: (Rule) => Rule.max(6),
+        }),
+
+        // ==========================================
+        // TESTIMONIALS
+        // ==========================================
+        defineField({
+            name: 'testimonials',
+            title: 'Testimoni Siswa',
+            type: 'array',
+            group: 'social',
+            validation: (Rule) => Rule.max(6),
+            of: [
+                {
+                    type: 'object',
+                    fields: [
+                        {
+                            name: 'quote',
+                            title: 'Kutipan',
+                            type: 'text',
+                            rows: 3,
+                            validation: (Rule) => Rule.required(),
+                        },
+                        {
+                            name: 'name',
+                            title: 'Nama',
+                            type: 'string',
+                            validation: (Rule) => Rule.required(),
+                        },
+                        {
+                            name: 'role',
+                            title: 'Keterangan',
+                            type: 'string',
+                            description: 'e.g., "Siswa Tafsir Al-Azhar"'
+                        },
+                        {
+                            name: 'avatar',
+                            title: 'Foto',
+                            type: 'image',
+                            options: { hotspot: true },
+                        },
+                    ],
+                    preview: {
+                        select: {
+                            title: 'name',
+                            subtitle: 'role',
+                            media: 'avatar',
+                        },
+                    },
+                },
+            ],
+        }),
+
+        // ==========================================
+        // CTA SECTION
+        // ==========================================
+        defineField({
+            name: 'ctaSection',
+            title: 'Call to Action Section',
+            type: 'object',
+            group: 'content',
+            description: 'Section CTA di bagian bawah halaman',
+            fields: [
+                {
+                    name: 'title',
+                    title: 'Judul',
+                    type: 'string',
+                    initialValue: 'Siap Memulai Perjalanan Keilmuan?',
+                },
+                {
+                    name: 'description',
+                    title: 'Deskripsi',
+                    type: 'string',
+                    initialValue: 'Bergabunglah dengan ribuan siswa yang telah memulai pembelajaran mereka',
+                },
+                {
+                    name: 'primaryCta',
+                    title: 'Tombol Utama',
+                    type: 'object',
+                    fields: [
+                        { name: 'text', title: 'Teks', type: 'string', initialValue: 'Mulai Belajar' },
+                        { name: 'link', title: 'Link', type: 'string', initialValue: '/courses' },
+                    ],
+                },
+                {
+                    name: 'secondaryCta',
+                    title: 'Tombol Sekunder',
+                    type: 'object',
+                    fields: [
+                        { name: 'text', title: 'Teks', type: 'string', initialValue: 'Hubungi Kami' },
+                        { name: 'link', title: 'Link', type: 'string', initialValue: '/hubungi-kami' },
+                    ],
+                },
+            ],
+        }),
+
+        // ==========================================
+        // SEO SETTINGS
+        // ==========================================
         defineField({
             name: 'seo',
             title: 'SEO Settings',
             type: 'object',
-            options: { collapsible: true, collapsed: true },
+            group: 'seo',
             fields: [
-                { name: 'metaTitle', title: 'Meta Title', type: 'string' },
-                { name: 'metaDescription', title: 'Meta Description', type: 'text', rows: 2 },
+                {
+                    name: 'metaTitle',
+                    title: 'Meta Title',
+                    type: 'string',
+                    description: 'Judul yang muncul di tab browser & search results',
+                    validation: (Rule) => Rule.max(60),
+                },
+                {
+                    name: 'metaDescription',
+                    title: 'Meta Description',
+                    type: 'text',
+                    rows: 2,
+                    description: 'Deskripsi untuk search results (max 160 karakter)',
+                    validation: (Rule) => Rule.max(160),
+                },
                 {
                     name: 'ogImage',
-                    title: 'Open Graph Image',
+                    title: 'Social Share Image',
                     type: 'image',
-                    description: 'Image for social media sharing',
+                    description: 'Gambar yang muncul saat di-share ke social media (1200x630px)',
                 },
             ],
         }),
     ],
 
     preview: {
-        select: {
-            title: 'hero.title',
-        },
         prepare() {
             return {
                 title: 'Landing Page',
-                subtitle: 'Royal Gold Theme - Main Page',
+                subtitle: 'Isyraq Academy - Halaman Utama',
             };
         },
     },

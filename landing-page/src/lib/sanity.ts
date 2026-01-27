@@ -87,8 +87,70 @@ export const queries = {
         icon
     }`,
 
-    // Landing Page
-    landingPage: `*[_type == "landingPage"][0]`,
+    // Landing Page (Academy) - Clean Schema
+    landingPage: `*[_type == "landingPage"][0] {
+        hero {
+            subtitle,
+            title,
+            description,
+            ctaPrimary,
+            ctaSecondary,
+            heroImage
+        },
+        stats[] {
+            value,
+            label
+        },
+        featuredCourses {
+            title,
+            subtitle,
+            courses[]-> {
+                _id,
+                title,
+                slug,
+                tagline,
+                thumbnail,
+                level,
+                duration,
+                category->{ name, slug },
+                instructor->{ name },
+                price,
+                discountPrice
+            },
+            ctaText,
+            ctaLink
+        },
+        whyUs[] {
+            title,
+            description,
+            icon
+        },
+        instructors[]-> {
+            _id,
+            name,
+            role,
+            photo,
+            bio,
+            expertises
+        },
+        testimonials[] {
+            quote,
+            name,
+            role,
+            avatar
+        },
+        ctaSection {
+            title,
+            description,
+            primaryCta,
+            secondaryCta
+        },
+        seo {
+            metaTitle,
+            metaDescription,
+            ogImage
+        }
+    }`,
 
     // Academy Curricula
     curricula: `*[_type == "curriculum"] | order(name asc) {

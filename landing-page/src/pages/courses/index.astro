@@ -1,0 +1,134 @@
+---
+import AcademyLayout from '../../layouts/AcademyLayout.astro';
+
+// --- STATIC MOCK DATA (Should ideally be shared, but repeated for simplicity in this task) ---
+const courses = [
+    {
+        title: "Tafsir Al-Azhar: Pendekatan Modern",
+        category: "Tafsir",
+        level: "All Levels",
+        duration: "120m",
+        instructor: "KH. Ahmad Bisri",
+        slug: "tafsir-al-azhar-modern",
+        price: 150000,
+        discountPrice: 99000
+    },
+    {
+        title: "Bahasa Arab Klasik: Nahwu Wadhih",
+        category: "Bahasa",
+        level: "Beginner",
+        duration: "90m",
+        instructor: "Ustadz Fulan Al-Azhari",
+        slug: "bahasa-arab-klasik-nahwu",
+        price: 125000,
+        discountPrice: null
+    },
+    {
+        title: "Fiqih Muamalah: Ekonomi Syariah",
+        category: "Fiqih",
+        level: "Intermediate",
+        duration: "150m",
+        instructor: "Dr. Ekonomi Islam",
+        slug: "fiqih-muamalah-ekonomi",
+        price: 200000,
+        discountPrice: 149000
+    },
+    {
+        title: "Ushul Fiqih: Dasar Penetapan Hukum",
+        category: "Fiqih",
+        level: "Advanced",
+        duration: "180m",
+        instructor: "KH. Ahmad Bisri",
+        slug: "ushul-fiqih-dasar",
+        price: 250000,
+        discountPrice: null
+    }
+];
+
+const categories = [
+    { title: "Semua Kursus", slug: "all" },
+    { title: "Tafsir", slug: "tafsir" },
+    { title: "Bahasa Arab", slug: "bahasa" },
+    { title: "Fiqih", slug: "fiqih" },
+    { title: "Skill Digital", slug: "digital" }
+];
+---
+
+<AcademyLayout title="Katalog Kursus | Isyraq Academy">
+    <!-- Header -->
+    <header class="bg-emerald-950 pt-32 pb-24 relative overflow-hidden px-6">
+        <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');"></div>
+        <div class="max-w-7xl mx-auto relative z-10 text-center">
+            <span class="inline-block py-1 px-3 bg-emerald-800/50 border border-emerald-700 text-emerald-300 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
+                Pilih Kurikulumu
+            </span>
+            <h1 class="text-4xl md:text-6xl font-display font-medium text-white mb-6">
+                Temukan Jalan <span class="text-yellow-500 italic font-serif">Keilmuanmu</span>
+            </h1>
+            <p class="text-emerald-200 max-w-2xl mx-auto text-lg font-light leading-relaxed">
+                Jelajahi berbagai program studi terstruktur yang dirancang untuk membangun pemahaman Islam yang komprehensif.
+            </p>
+        </div>
+    </header>
+
+    <!-- Filter Bar -->
+    <div class="border-b border-stone-200 bg-white sticky top-20 z-40 shadow-sm hidden md:block">
+        <div class="max-w-7xl mx-auto px-6 overflow-x-auto no-scrollbar">
+            <div class="flex items-center gap-10 py-5 min-w-max">
+                {categories.map((cat, i) => (
+                    <button class={`text-sm uppercase tracking-widest font-bold transition-all border-b-2 pb-5 -mb-5.5 ${i === 0 ? 'text-emerald-900 border-emerald-900' : 'text-stone-400 border-transparent hover:text-emerald-700 hover:border-emerald-200'}`}>
+                        {cat.title}
+                    </button>
+                ))}
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Grid -->
+    <div class="max-w-7xl mx-auto px-6 py-20 bg-stone-50/50">
+        <div class="grid md:grid-cols-3 gap-8">
+            {courses.map(course => {
+                const hasDiscount = course.discountPrice && course.discountPrice < course.price;
+                const finalPrice = hasDiscount ? course.discountPrice : course.price;
+                const formatPrice = (p) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
+
+                return (
+                    <a href={`/courses/${course.slug}`} class="group bg-white rounded-[2.5rem] border border-stone-200 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                        <div class="aspect-[4/3] bg-emerald-900/5 relative overflow-hidden flex items-center justify-center p-12">
+                             <div class="absolute inset-0 bg-emerald-950 opacity-0 group-hover:opacity-10 transition duration-500"></div>
+                             <i data-lucide="book-open" class="w-16 h-16 text-emerald-800/10 group-hover:scale-110 transition duration-500"></i>
+                             <div class="absolute top-6 left-6 bg-white shadow-lg px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-800">
+                                {course.category}
+                             </div>
+                        </div>
+                        <div class="p-10 space-y-4">
+                            <h3 class="text-2xl font-display font-bold text-emerald-950 leading-snug group-hover:text-emerald-700 transition">
+                                {course.title}
+                            </h3>
+                            <div class="flex items-center gap-6 text-stone-500 text-[11px] font-bold uppercase tracking-wider">
+                                <span class="flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-emerald-600"></i> {course.instructor}</span>
+                                <span class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-emerald-600"></i> {course.duration}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between border-t border-stone-100 pt-8 mt-4">
+                                <div>
+                                    <p class="text-[10px] text-stone-400 uppercase tracking-widest font-bold mb-1">Akses Kelas</p>
+                                    <div class="flex items-baseline gap-2">
+                                        <p class="text-xl font-bold text-emerald-900">{formatPrice(finalPrice)}</p>
+                                        {hasDiscount && (
+                                            <span class="text-xs text-stone-300 line-through">{formatPrice(course.price)}</span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 group-hover:bg-emerald-900 group-hover:text-white transition duration-300">
+                                    <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                );
+            })}
+        </div>
+    </div>
+
+</AcademyLayout>
