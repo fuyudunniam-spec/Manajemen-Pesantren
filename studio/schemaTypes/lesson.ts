@@ -88,6 +88,8 @@ export default defineType({
                 { type: 'vocabularyBlock' },
                 // 5. Quiz / Tamrinat
                 { type: 'quizBlock' },
+                // 6. Interactive Arabic Block
+                { type: 'interactiveArabicBlock' },
             ],
         }),
 

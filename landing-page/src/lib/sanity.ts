@@ -152,39 +152,76 @@ export const queries = {
         }
     }`,
 
-    // Academy Curricula
-    curricula: `*[_type == "curriculum"] | order(name asc) {
+    // Academy Courses (list)
+    courses: `*[_type == "course"] | order(title asc) {
         _id,
-        name,
-        slug,
+        title,
+        "slug": slug.current,
+        tagline,
+        thumbnail,
+        price,
+        discountPrice,
+        category->{ title, "slug": slug.current },
+        instructor->{ name },
+        "duration": "120m" // Placeholder or add to schema if needed
+    }`,
+
+    // Course Categories (For Filter)
+    categories: `*[_type == "category"] | order(title asc) {
+        _id,
+        title,
+        "slug": slug.current
+    }`,
+
+    // Single Course Detail
+    courseDetail: (slug: string) => `*[_type == "course" && slug.current == "${slug}"][0] {
+        _id,
+        title,
+        "slug": slug.current,
+        tagline,
         description,
-        level
+        thumbnail,
+        price,
+        discountPrice,
+        previewVideoUrl,
+        benefits,
+        category->{ title, "slug": slug.current },
+        instructor->{ name, photo, bio },
+        modules[] {
+            title,
+            lessons[]-> {
+                _id,
+                title,
+                "slug": slug.current,
+                duration,
+                order,
+                isFreePreview
+            }
+        }
     }`,
 
-    // Academy Class
-    academyClass: (slug: string) => `*[_type == "academyClass" && slug.current == "${slug}"][0] {
+    // Lesson Detail
+    lessonDetail: (lessonSlug: string) => `*[_type == "lesson" && slug.current == "${lessonSlug}"][0] {
         _id,
         title,
-        slug,
-        level,
-        order,
-        duration,
-        qiraahContent { arabicText, translation, audioUrl },
-        qawaidContent { videoUrl, explanation },
-        tamrinatContent[] { question, questionType, options, correctAnswer, explanation },
-        curriculum->{ name, slug }
+        "slug": slug.current,
+        content[] {
+            ...,
+            _type == "image" => {
+                ...,
+                asset->
+            },
+            _type == "interactiveArabicBlock" => {
+                ...,
+                audio {
+                    asset->
+                }
+            }
+        },
+        resources,
+        isFreePreview
     }`,
 
-    // Academy Classes by Curriculum
-    academyClassesByCurriculum: (curriculumId: string) => `*[_type == "academyClass" && curriculum._ref == "${curriculumId}"] | order(order asc) {
-        _id,
-        title,
-        slug,
-        level,
-        order,
-        duration,
-        isPublished
-    }`,
 };
 
 // Fetch helper

@@ -2,73 +2,110 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
     name: 'quizBlock',
-    title: 'Tamrinat / Quiz',
+    title: 'Tamrinat / Quiz Section',
     type: 'object',
     fields: [
         defineField({
-            name: 'question',
-            title: 'Pertanyaan',
+            name: 'title',
+            title: 'Judul Seksi Kuis',
             type: 'string',
-            validation: (Rule) => Rule.required()
+            initialValue: 'Uji Pemahaman'
         }),
         defineField({
-            name: 'answers',
-            title: 'Pilihan Jawaban',
+            name: 'description',
+            title: 'Deskripsi Kuis',
+            type: 'text',
+            rows: 2,
+            initialValue: 'Pastikan Anda memahami poin kunci sebelum lanjut.'
+        }),
+        defineField({
+            name: 'questions',
+            title: 'Daftar Pertanyaan',
             type: 'array',
             of: [{
                 type: 'object',
+                name: 'quizQuestion',
+                title: 'Pertanyaan',
                 fields: [
                     defineField({
-                        name: 'text',
-                        title: 'Teks Jawaban',
+                        name: 'question',
+                        title: 'Pertanyaan',
                         type: 'string',
                         validation: (Rule) => Rule.required()
                     }),
                     defineField({
-                        name: 'isCorrect',
-                        title: 'Jawaban Benar?',
-                        type: 'boolean',
-                        initialValue: false
+                        name: 'answers',
+                        title: 'Pilihan Jawaban',
+                        type: 'array',
+                        of: [{
+                            type: 'object',
+                            fields: [
+                                defineField({
+                                    name: 'text',
+                                    title: 'Teks Jawaban',
+                                    type: 'string',
+                                    validation: (Rule) => Rule.required()
+                                }),
+                                defineField({
+                                    name: 'isCorrect',
+                                    title: 'Jawaban Benar?',
+                                    type: 'boolean',
+                                    initialValue: false
+                                })
+                            ],
+                            preview: {
+                                select: {
+                                    text: 'text',
+                                    isCorrect: 'isCorrect'
+                                },
+                                prepare({ text, isCorrect }) {
+                                    return {
+                                        title: text,
+                                        subtitle: isCorrect ? '✅ Benar' : '❌ Salah'
+                                    }
+                                }
+                            }
+                        }],
+                        validation: (Rule) => Rule.min(2).max(6)
+                    }),
+                    defineField({
+                        name: 'explanation',
+                        title: 'Penjelasan Jawaban',
+                        type: 'text',
+                        rows: 3,
+                        description: 'Ditampilkan setelah user menjawab'
+                    }),
+                    defineField({
+                        name: 'hint',
+                        title: 'Petunjuk (Opsional)',
+                        type: 'string'
                     })
                 ],
                 preview: {
                     select: {
-                        text: 'text',
-                        isCorrect: 'isCorrect'
+                        question: 'question'
                     },
-                    prepare({ text, isCorrect }) {
+                    prepare({ question }) {
                         return {
-                            title: text,
-                            subtitle: isCorrect ? '✅ Benar' : '❌ Salah'
+                            title: question,
+                            media: () => '❓'
                         }
                     }
                 }
             }],
-            validation: (Rule) => Rule.min(2).max(6)
-        }),
-        defineField({
-            name: 'explanation',
-            title: 'Penjelasan Jawaban',
-            type: 'text',
-            rows: 3,
-            description: 'Ditampilkan setelah user menjawab'
-        }),
-        defineField({
-            name: 'hint',
-            title: 'Petunjuk (Opsional)',
-            type: 'string',
-            description: 'Clue untuk membantu siswa'
+            validation: (Rule) => Rule.min(1)
         })
     ],
     preview: {
         select: {
-            question: 'question'
+            title: 'title',
+            questions: 'questions'
         },
-        prepare({ question }) {
+        prepare({ title, questions }) {
             return {
-                title: question || 'Quiz Question',
-                subtitle: 'Tamrinat Interaktif',
-                media: () => '❓'
+                title: title || 'Quiz Section',
+                subtitle: `${questions?.length || 0} pertanyaan`,
+                media: () => '📝'
             }
         }
     }

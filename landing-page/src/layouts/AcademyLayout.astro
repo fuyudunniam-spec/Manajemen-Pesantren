@@ -101,11 +101,15 @@ const { title, description } = Astro.props;
             </div>
         </footer>
 
-        <script>
-            lucide.createIcons();
-            document.addEventListener('astro:after-swap', () => {
-                lucide.createIcons();
-            });
+        <script is:inline>
+            function initIcons() {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }
+            initIcons();
+            document.addEventListener('astro:after-swap', initIcons);
+            document.addEventListener('astro:page-load', initIcons);
         </script>
 	</body>
 </html>

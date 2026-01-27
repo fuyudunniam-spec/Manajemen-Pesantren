@@ -1,57 +1,19 @@
 ---
 import AcademyLayout from '../../layouts/AcademyLayout.astro';
+import { sanityFetch, queries, urlFor } from '../../lib/sanity';
 
-// --- STATIC MOCK DATA (Should ideally be shared, but repeated for simplicity in this task) ---
-const courses = [
-    {
-        title: "Tafsir Al-Azhar: Pendekatan Modern",
-        category: "Tafsir",
-        level: "All Levels",
-        duration: "120m",
-        instructor: "KH. Ahmad Bisri",
-        slug: "tafsir-al-azhar-modern",
-        price: 150000,
-        discountPrice: 99000
-    },
-    {
-        title: "Bahasa Arab Klasik: Nahwu Wadhih",
-        category: "Bahasa",
-        level: "Beginner",
-        duration: "90m",
-        instructor: "Ustadz Fulan Al-Azhari",
-        slug: "bahasa-arab-klasik-nahwu",
-        price: 125000,
-        discountPrice: null
-    },
-    {
-        title: "Fiqih Muamalah: Ekonomi Syariah",
-        category: "Fiqih",
-        level: "Intermediate",
-        duration: "150m",
-        instructor: "Dr. Ekonomi Islam",
-        slug: "fiqih-muamalah-ekonomi",
-        price: 200000,
-        discountPrice: 149000
-    },
-    {
-        title: "Ushul Fiqih: Dasar Penetapan Hukum",
-        category: "Fiqih",
-        level: "Advanced",
-        duration: "180m",
-        instructor: "KH. Ahmad Bisri",
-        slug: "ushul-fiqih-dasar",
-        price: 250000,
-        discountPrice: null
-    }
-];
+// Fetch Courses and Categories from Sanity
+const [courses, categoriesFromSanity] = await Promise.all([
+    sanityFetch<any[]>(queries.courses),
+    sanityFetch<any[]>(queries.categories)
+]);
 
+// Map categories for filter bar
 const categories = [
     { title: "Semua Kursus", slug: "all" },
-    { title: "Tafsir", slug: "tafsir" },
-    { title: "Bahasa Arab", slug: "bahasa" },
-    { title: "Fiqih", slug: "fiqih" },
-    { title: "Skill Digital", slug: "digital" }
+    ...categoriesFromSanity.map(cat => ({ title: cat.title, slug: cat.slug }))
 ];
+
 ---
 
 <AcademyLayout title="Katalog Kursus | Isyraq Academy">
@@ -89,26 +51,35 @@ const categories = [
         <div class="grid md:grid-cols-3 gap-8">
             {courses.map(course => {
                 const hasDiscount = course.discountPrice && course.discountPrice < course.price;
-                const finalPrice = hasDiscount ? course.discountPrice : course.price;
+                const finalPrice = hasDiscount ? course.discountPrice : (course.price || 0);
                 const formatPrice = (p) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 
                 return (
                     <a href={`/courses/${course.slug}`} class="group bg-white rounded-[2.5rem] border border-stone-200 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
-                        <div class="aspect-[4/3] bg-emerald-900/5 relative overflow-hidden flex items-center justify-center p-12">
+                        <div class="aspect-[4/3] bg-emerald-900/5 relative overflow-hidden flex items-center justify-center">
+                             {course.thumbnail ? (
+                                 <img 
+                                    src={urlFor(course.thumbnail).width(600).url()} 
+                                    alt={course.title} 
+                                    class="w-full h-full object-cover group-hover:scale-110 transition duration-700" 
+                                 />
+                             ) : (
+                                 <i data-lucide="book-open" class="w-16 h-16 text-emerald-800/10 group-hover:scale-110 transition duration-500"></i>
+                             )}
                              <div class="absolute inset-0 bg-emerald-950 opacity-0 group-hover:opacity-10 transition duration-500"></div>
-                             <i data-lucide="book-open" class="w-16 h-16 text-emerald-800/10 group-hover:scale-110 transition duration-500"></i>
                              <div class="absolute top-6 left-6 bg-white shadow-lg px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-800">
-                                {course.category}
+                                {course.category?.title || 'Academy'}
                              </div>
                         </div>
                         <div class="p-10 space-y-4">
-                            <h3 class="text-2xl font-display font-bold text-emerald-950 leading-snug group-hover:text-emerald-700 transition">
+                            <h3 class="text-2xl font-display font-bold text-emerald-950 leading-snug group-hover:text-emerald-700 transition line-clamp-2">
                                 {course.title}
                             </h3>
                             <div class="flex items-center gap-6 text-stone-500 text-[11px] font-bold uppercase tracking-wider">
-                                <span class="flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-emerald-600"></i> {course.instructor}</span>
+                                <span class="flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-emerald-600"></i> {course.instructor?.name || 'Tim Academy'}</span>
                                 <span class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-emerald-600"></i> {course.duration}</span>
                             </div>
+
                             
                             <div class="flex items-center justify-between border-t border-stone-100 pt-8 mt-4">
                                 <div>

@@ -1,50 +1,76 @@
 ---
 import AcademyLayout from '../../../../layouts/AcademyLayout.astro';
+import { sanityFetch, queries, urlFor } from '../../../../lib/sanity';
+import { PortableText } from 'astro-portabletext';
+import ArabicReader from '../../../../components/ArabicReader';
+import LessonQuizRunner from '../../../../components/LessonQuizRunner';
 
 export async function getStaticPaths() {
-  return [
-    { params: { slug: 'tafsir-al-azhar-modern', lessonSlug: 'pengenalan-tafsir-al-azhar' } },
-    { params: { slug: 'tafsir-al-azhar-modern', lessonSlug: 'biografi-hamka-karya' } },
-    { params: { slug: 'tafsir-al-azhar-modern', lessonSlug: 'urgensi-tafsir-modern' } },
-    { params: { slug: 'tafsir-al-azhar-modern', lessonSlug: 'makna-basmalah' } },
-    { params: { slug: 'tafsir-al-azhar-modern', lessonSlug: 'hakikat-hamdalah' } },
-    { params: { slug: 'bahasa-arab-klasik-nahwu', lessonSlug: 'isim-fiil-huruf' } },
-  ];
+  const courses = await sanityFetch<any[]>(queries.courses);
+  const paths = [];
+  
+  for (const course of courses) {
+      // We need to fetch each course detail to get lessons inside modules
+      const detail = await sanityFetch<any>(queries.courseDetail(course.slug));
+      detail.modules?.forEach(mod => {
+          mod.lessons?.forEach(lesson => {
+              paths.push({
+                  params: { slug: course.slug, lessonSlug: lesson.slug }
+              });
+          });
+      });
+  }
+  
+  return paths;
 }
 
 const { slug, lessonSlug } = Astro.params;
 
-// --- STATIC MOCK DATA FOR LESSON ---
-const lesson = {
-    title: "Pengenalan & Metodologi Tafsir Al-Azhar",
-    type: "video",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Mock video
-    duration: 15,
-    description: "Pertemuan pertama membahas latar belakang penulisan Tafsir Al-Azhar oleh Buya Hamka dan keistimewaannya dibanding tafsir lain.",
-    vocabulary: [
-        { arabic: "تفسير", transliteration: "Tafsir", meaning: "Penjelasan atau Penafsiran" },
-        { arabic: "عقيدة", transliteration: "Aqidah", meaning: "Keyakinan Dasar" },
-        { arabic: "منهج", transliteration: "Manhaj", meaning: "Metode / Jalan" },
-        { arabic: "بلاغة", transliteration: "Balaghah", meaning: "Sastra / Retorika" }
-    ],
-    qawaid: [
-        { title: "Penggunaan Isim Isyarah", content: "Dalam ayat ini, kata 'dzalika' digunakan untuk menunjukkan keagungan objek yang ditunjuk..." }
-    ],
-    quiz: [
-        { 
-            question: "Siapa penulis utama Tafsir Al-Azhar?", 
-            options: ["Quraish Shihab", "Buya Hamka", "Sayyid Qutb", "Imam Syafii"],
-            correct: 1,
-            explanation: "Tafsir Al-Azhar adalah mahakarya Buya Hamka yang ditulis saat beliau berada di penjara."
-        }
-    ],
-    content: `
-        <p>Tafsir al-Azhar adalah hasil karya terbesar dari ulama legendaris Indonesia, <strong>Prof. Dr. Haji Abdul Malik Karim Amrullah</strong>, atau yang lebih dikenal dengan julukan Buya Hamka. Nama "Al-Azhar" sendiri diambil dari nama Masjid Agung Al-Azhar di Jakarta, di mana Buya Hamka memberikan ceramah-ceramah tafsirnya.</p>
-        <p>Pendekatan yang digunakan dalam tafsir ini adalah <em>Tafsir bi al-Ma'tsur</em> dan <em>Tafsir bi ar-Ra'yi</em> yang diseimbangkan dengan kondisi sosiologis masyarakat Nusantara.</p>
-    `
-};
+// Fetch Course and Lesson details
+const course = await sanityFetch<any>(queries.courseDetail(slug));
+const lesson = await sanityFetch<any>(queries.lessonDetail(lessonSlug));
 
-const courseTitle = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+if (!course || !lesson) {
+    return Astro.redirect('/404');
+}
+
+// Separate content for specific layout areas
+const materialBlocks = [];
+const quizBlocks = lesson.content?.filter(b => b._type === 'quizBlock') || [];
+const vocabularyBlocks = lesson.content?.filter(b => b._type === 'vocabularyBlock') || [];
+
+// Group consecutive text blocks for better readability
+let currentTextBlockGroup = [];
+lesson.content?.forEach((block) => {
+    if (block._type === 'block') {
+        currentTextBlockGroup.push(block);
+    } else if (['youtubeEmbed', 'image', 'interactiveArabicBlock'].includes(block._type)) {
+        if (currentTextBlockGroup.length > 0) {
+            materialBlocks.push({ _type: 'groupedText', blocks: [...currentTextBlockGroup] });
+            currentTextBlockGroup = [];
+        }
+        materialBlocks.push(block);
+    }
+});
+if (currentTextBlockGroup.length > 0) {
+    materialBlocks.push({ _type: 'groupedText', blocks: [...currentTextBlockGroup] });
+}
+
+// Find next lesson for the footer
+let nextLesson = null;
+const allLessons = course.modules?.flatMap(m => m.lessons) || [];
+const currentIndex = allLessons.findIndex(l => l.slug === lessonSlug);
+if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
+    nextLesson = allLessons[currentIndex + 1];
+}
+
+const courseTitle = course.title;
+
+// Helper to get YouTube ID
+const getYoutubeId = (url) => {
+    const match = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+    return match ? match[1] : null;
+};
 ---
 
 <AcademyLayout title={`${lesson.title} | ${courseTitle}`}>
@@ -56,9 +82,9 @@ const courseTitle = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice
                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
             </a>
             <div class="h-6 w-px bg-white/10"></div>
-            <div>
-                <h1 class="text-white text-sm font-bold truncate max-w-[200px] md:max-w-md">{lesson.title}</h1>
-                <p class="text-[10px] text-emerald-400 uppercase tracking-widest">{courseTitle}</p>
+            <div class="max-w-[150px] md:max-w-md">
+                <h1 class="text-white text-sm font-bold truncate">{lesson.title}</h1>
+                <p class="text-[10px] text-emerald-400 uppercase tracking-widest truncate">{courseTitle}</p>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -70,149 +96,222 @@ const courseTitle = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice
     </nav>
 
     <!-- Main Workspace -->
-    <div class="pt-16 min-h-screen bg-stone-100 flex items-stretch overflow-hidden h-screen">
+    <div class="pt-16 min-h-screen bg-stone-50 flex items-stretch overflow-hidden h-screen">
         
         <!-- Left: Main Content (Scrollable) -->
         <div class="flex-1 overflow-y-auto no-scrollbar relative w-full lg:w-3/4">
-            <div class="max-w-4xl mx-auto p-6 md:p-10 pb-32 space-y-8">
+            <div class="max-w-4xl mx-auto p-6 md:p-12 pb-40 space-y-10">
                 
-                <!-- Video Section -->
-                <div class="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-stone-200 relative group">
-                    <iframe 
-                        class="w-full h-full" 
-                        src={lesson.videoUrl} 
-                        title="Lesson Video" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen>
-                    </iframe>
-                </div>
+                {materialBlocks.map((block) => {
+                    if (block._type === 'interactiveArabicBlock') {
+                        return (
+                            <ArabicReader 
+                                client:load
+                                title={block.title}
+                                arabicWithHarakat={block.arabicWithHarakat}
+                                arabicWithoutHarakat={block.arabicWithoutHarakat}
+                                translation={block.translation}
+                                englishTranslation={block.englishTranslation}
+                                audioUrl={block.audio?.asset?.url}
+                            />
+                        );
+                    }
 
-                <!-- Action Bar -->
-                <div class="flex items-center justify-between py-4 border-b border-stone-200">
-                    <div class="flex gap-4">
-                        <button class="flex items-center gap-2 px-4 py-2 bg-white border border-stone-200 rounded-full text-xs font-bold text-stone-600 hover:text-emerald-900 hover:border-emerald-500 transition shadow-sm">
-                            <i data-lucide="thumbs-up" class="w-4 h-4"></i> Paham
-                        </button>
-                        <button class="flex items-center gap-2 px-4 py-2 bg-white border border-stone-200 rounded-full text-xs font-bold text-stone-600 hover:text-emerald-900 hover:border-emerald-500 transition shadow-sm">
-                            <i data-lucide="help-circle" class="w-4 h-4"></i> Tanya Ustadz
-                        </button>
-                    </div>
-                    <button class="text-stone-400 hover:text-emerald-900 transition">
-                        <i data-lucide="share-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
-
-                <!-- Text Content -->
-                <article class="prose prose-stone prose-lg max-w-none text-stone-700 font-serif leading-relaxed">
-                    <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
-                </article>
-
-                <!-- Qawaid Card -->
-                <div class="bg-white rounded-2xl border border- emerald-100 overflow-hidden shadow-sm">
-                    <div class="bg-emerald-50/50 px-6 py-4 border-b border-emerald-100 flex items-center justify-between">
-                         <h3 class="font-bold text-emerald-900 flex items-center gap-2">
-                            <i data-lucide="book-open" class="w-4 h-4"></i> Kaidah & Sastra
-                         </h3>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        {lesson.qawaid.map(rule => (
-                            <div class="bg-stone-50 p-4 rounded-xl border border-stone-100">
-                                <h4 class="font-bold text-stone-900 text-sm mb-2">{rule.title}</h4>
-                                <p class="text-sm text-stone-600 leading-relaxed">{rule.content}</p>
+                    if (block._type === 'youtubeEmbed') {
+                        const videoId = getYoutubeId(block.url);
+                        return (
+                             <div class="aspect-video bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border border-stone-200 relative group mb-16">
+                                <iframe 
+                                    class="w-full h-full" 
+                                    src={`https://www.youtube.com/embed/${videoId}?start=${block.startAt || 0}`}
+                                    title={block.title || "Lesson Video"} 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen>
+                                </iframe>
                             </div>
-                        ))}
-                    </div>
-                </div>
+                        );
+                    }
 
-                <!-- Mini Quiz (Inline) -->
-                 <div class="bg-white rounded-2xl border border-stone-200 p-8 shadow-sm">
-                    <div class="mb-6">
-                        <h3 class="font-bold text-lg text-emerald-950">Uji Pemahaman</h3>
-                        <p class="text-stone-500 text-sm">Pastikan Anda memahami poin kunci sebelum lanjut.</p>
-                    </div>
-                    {lesson.quiz.map((q, i) => (
-                        <div class="space-y-4">
-                            <p class="font-medium text-stone-800">{i + 1}. {q.question}</p>
-                            <div class="grid sm:grid-cols-2 gap-3">
-                                {q.options.map((opt, idx) => (
-                                    <label class="flex items-center gap-3 p-3 border border-stone-200 rounded-lg cursor-pointer hover:bg-yellow-50 hover:border-yellow-400 transition">
-                                        <input type="radio" name={`q-${i}`} class="text-emerald-600 focus:ring-emerald-500" />
-                                        <span class="text-sm text-stone-600">{opt}</span>
-                                    </label>
-                                ))}
+                    if (block._type === 'groupedText') {
+                        return (
+                            <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-stone-200/60 transition hover:shadow-md">
+                                <article class="prose prose-stone prose-lg max-w-none text-stone-700 leading-relaxed space-y-6">
+                                    <style is:inline>
+                                        .prose [dir="rtl"] { 
+                                            font-family: 'Playfair Display', serif; 
+                                            font-size: 1.85rem; 
+                                            line-height: 2.2; 
+                                            margin-bottom: 1.5rem;
+                                            text-align: right;
+                                        }
+                                    </style>
+                                    <PortableText value={block.blocks} />
+                                </article>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        );
+                    }
+
+                    if (block._type === 'image') {
+                        return (
+                            <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-stone-200 bg-white p-5">
+                                <img 
+                                    src={urlFor(block).url()} 
+                                    alt={block.alt || "Lesson Image"} 
+                                    class="w-full h-auto rounded-3xl"
+                                />
+                                {block.caption && <p class="text-center text-xs text-stone-400 mt-5 italic">{block.caption}</p>}
+                            </div>
+                        );
+                    }
+                    return null;
+                })}
+
+                {/* Quizzes at the bottom */}
+                {quizBlocks.length > 0 && (
+                    <LessonQuizRunner 
+                        client:visible
+                        quizBlocks={quizBlocks}
+                        nextLessonRaw={nextLesson ? { params: { slug: slug, lessonSlug: nextLesson.slug } } : null}
+                    />
+                )}
 
             </div>
         </div>
 
-        <!-- Right: Tools Sidebar (Fixed) -->
+        <!-- Right: Lessons & Tools Sidebar (Fixed) -->
         <aside class="w-96 bg-white border-l border-stone-200 hidden lg:flex flex-col h-full shadow-xl z-20">
             <!-- Sidebar Tabs -->
-            <div class="flex border-b border-stone-200" x-data="{ tab: 'vocab' }">
+            <div class="flex border-b border-stone-200 bg-stone-50/50 p-1 gap-1" id="sidebar-tabs">
                 <button 
-                    id="tab-vocab"
-                    class="flex-1 py-4 text-xs font-bold uppercase tracking-widest text-emerald-900 border-b-2 border-emerald-900 bg-emerald-50/50"
-                    onclick="switchTab('vocab')">
-                    Mufradat
+                    class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-emerald-900 bg-white rounded-t-2xl border-b-2 border-emerald-900 transition active-tab"
+                    onclick="switchSidebarTab('curriculum', this)">
+                    Kurikulum
                 </button>
                 <button 
-                    id="tab-notes"
-                    class="flex-1 py-4 text-xs font-bold uppercase tracking-widest text-stone-400 border-b-2 border-transparent hover:text-emerald-900 hover:bg-stone-50"
-                    onclick="switchTab('notes')">
-                    Catatan
+                    class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-emerald-900 rounded-t-2xl transition"
+                    onclick="switchSidebarTab('vocabulary', this)">
+                    Mufradat {vocabularyBlocks.length > 0 ? `(${vocabularyBlocks.reduce((acc, b) => acc + (b.words?.length || 0), 0)})` : ''}
                 </button>
             </div>
 
-            <!-- Tab Content Area -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-6" id="sidebar-content">
-                
-                <!-- VACABULARY TAB -->
-                <div id="content-vocab" class="space-y-4 animate-fade-in">
-                    <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-sm font-bold text-stone-400 uppercase tracking-widest">Kosa Kata Baru</h4>
-                        <button class="text-emerald-600 hover:text-emerald-800"><i data-lucide="play-circle" class="w-4 h-4"></i></button>
-                    </div>
-                    <div class="space-y-3">
-                         {lesson.vocabulary.map(v => (
-                            <div class="p-4 rounded-xl border border-stone-100 hover:border-emerald-200 hover:shadow-md transition bg-white group cursor-pointer">
-                                 <div class="flex justify-between items-start mb-2">
-                                     <span class="font-serif text-2xl text-emerald-900" dir="rtl">{v.arabic}</span>
-                                     <i data-lucide="volume-2" class="w-3.5 h-3.5 text-stone-300 group-hover:text-emerald-500 transition"></i>
-                                 </div>
-                                 <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">{v.transliteration}</p>
-                                 <p class="text-sm text-stone-700 font-medium">{v.meaning}</p>
+            <div class="flex-1 overflow-y-auto" id="sidebar-content">
+                <!-- Curriculum Tab Content -->
+                <div id="tab-curriculum" class="p-4 space-y-1">
+                    {course.modules?.map((mod, mIdx) => (
+                        <div class="space-y-1">
+                            <div class="px-4 py-2 mt-4 first:mt-0">
+                                <p class="text-[9px] font-black text-stone-400 uppercase tracking-widest">{mod.title || `Modul ${mIdx + 1}`}</p>
                             </div>
-                        ))}
-                    </div>
+                            {mod.lessons?.map((l, lIdx) => (
+                                <a 
+                                    href={`/courses/${slug}/lessons/${l.slug}`} 
+                                    class={`flex items-center gap-4 px-4 py-4 rounded-2xl transition border-2 ${l.slug === lessonSlug ? 'bg-emerald-50 border-emerald-100' : 'hover:bg-stone-50 border-transparent'}`}
+                                >
+                                    <div class={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold ${l.slug === lessonSlug ? 'bg-emerald-900 text-white shadow-lg shadow-emerald-900/20' : 'bg-stone-100 text-stone-400'}`}>
+                                        {lIdx + 1}
+                                    </div>
+                                    <span class={`text-sm font-bold flex-1 truncate ${l.slug === lessonSlug ? 'text-emerald-950' : 'text-stone-600 font-medium'}`}>{l.title}</span>
+                                    {l.isFreePreview && <span class="bg-yellow-100 text-[8px] font-black text-yellow-700 px-2 py-1 rounded-md uppercase tracking-tighter">Free</span>}
+                                </a>
+                            ))}
+                        </div>
+                    ))}
                 </div>
 
-                <!-- NOTES TAB (Hidden by default via JS) -->
-                <div id="content-notes" class="hidden space-y-4 animate-fade-in">
-                    <div class="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
-                        <textarea 
-                            class="w-full h-64 bg-transparent border-none p-0 text-sm text-stone-700 focus:ring-0 placeholder:text-stone-400 leading-relaxed resize-none"
-                            placeholder="Tulis catatan Anda di sini... (Otomatis tersimpan)"></textarea>
-                    </div>
-                    <p class="text-xs text-stone-400 text-center">Terakhir disimpan: Barusan</p>
+                <!-- Vocabulary Tab Content -->
+                <div id="tab-vocabulary" class="hidden p-6 space-y-8 animate-fade-in">
+                    {vocabularyBlocks.length === 0 ? (
+                         <div class="text-center py-20 space-y-4 opacity-30">
+                            <i data-lucide="book-x" class="w-12 h-12 mx-auto"></i>
+                            <p class="text-xs font-bold uppercase tracking-widest">Tidak ada Mufradat<br/>di materi ini</p>
+                         </div>
+                    ) : (
+                        vocabularyBlocks.map(block => (
+                            <div class="space-y-4">
+                                <h4 class="text-[10px] font-black text-emerald-800 uppercase tracking-widest border-b border-emerald-100 pb-2">{block.title || 'Kosa Kata Terkait'}</h4>
+                                <div class="grid gap-3">
+                                    {block.words?.map(v => (
+                                        <div class="p-5 rounded-2xl border border-stone-100 bg-stone-50/50 hover:bg-white hover:shadow-xl hover:border-emerald-100 transition group">
+                                            <div class="flex justify-between items-start mb-3">
+                                                <span class="font-serif text-3xl text-emerald-950" dir="rtl">{v.arabic}</span>
+                                                {v.audioUrl && (
+                                                    <button class="w-8 h-8 rounded-full bg-white border border-stone-200 flex items-center justify-center text-stone-400 hover:text-emerald-600 hover:border-emerald-200 transition shadow-sm">
+                                                        <i data-lucide="volume-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1">{v.transliteration}</p>
+                                            <p class="text-sm text-stone-700 font-bold leading-tight">{v.meaning}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
-
             </div>
 
             <!-- Next Lesson Sticky Footer -->
-            <div class="p-4 border-t border-stone-200 bg-stone-50">
-                 <a href="#" class="flex items-center justify-between p-4 bg-emerald-900 text-white rounded-xl shadow-lg hover:bg-emerald-800 transition group">
-                    <div>
-                        <p class="text-[9px] text-emerald-400 uppercase tracking-widest font-bold mb-1">Selanjutnya</p>
-                        <p class="text-sm font-bold truncate w-48">Biografi Buya Hamka</p>
-                    </div>
-                    <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-                </a>
-            </div>
+            {nextLesson && (
+                <div class="p-5 border-t border-stone-200 bg-white">
+                     <a href={`/courses/${slug}/lessons/${nextLesson.slug}`} class="flex items-center justify-between p-5 bg-emerald-950 text-white rounded-[1.5rem] shadow-2xl hover:bg-emerald-900 transition-all group scale-100 hover:scale-[1.02] active:scale-95">
+                        <div>
+                            <p class="text-[9px] text-emerald-400 uppercase tracking-[0.2em] font-black mb-1">BERIKUTNYA</p>
+                            <p class="text-sm font-bold truncate w-40">{nextLesson.title}</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-emerald-950 transition-colors">
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </div>
+                    </a>
+                </div>
+            )}
         </aside>
+
+    </div>
+
+    <!-- Mobile Navigation Toggle -->
+    <button class="lg:hidden fixed bottom-6 right-6 w-16 h-16 bg-emerald-900 text-white rounded-full shadow-2xl flex items-center justify-center z-50 border-4 border-emerald-800 active:scale-90 transition">
+        <i data-lucide="menu" class="w-8 h-8"></i>
+    </button>
+
+</AcademyLayout>
+
+<script is:inline>
+    function switchSidebarTab(tabName, el) {
+        // Update Buttons
+        const buttons = document.querySelectorAll('#sidebar-tabs button');
+        buttons.forEach(btn => {
+            btn.classList.remove('bg-white', 'text-emerald-900', 'border-b-2', 'border-emerald-900');
+            btn.classList.add('text-stone-400');
+        });
+        
+        el.classList.add('bg-white', 'text-emerald-900', 'border-b-2', 'border-emerald-900');
+        el.classList.remove('text-stone-400');
+
+        // Update Content
+        document.getElementById('tab-curriculum').classList.add('hidden');
+        document.getElementById('tab-vocabulary').classList.add('hidden');
+        document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    }
+</script>
+
+<style>
+    /* Clean overrides for immersion mode */
+    :global(#navbar), :global(footer) {
+        display: none !important;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
 
     </div>
 

@@ -1,13 +1,10 @@
 ---
 import AcademyLayout from '../../layouts/AcademyLayout.astro';
+import { sanityFetch, queries, urlFor } from '../../lib/sanity';
+import { PortableText } from 'astro-portabletext';
 
 export async function getStaticPaths() {
-  const courses = [
-    { slug: "tafsir-al-azhar-modern" },
-    { slug: "bahasa-arab-klasik-nahwu" },
-    { slug: "fiqih-muamalah-ekonomi" },
-    { slug: "ushul-fiqih-dasar" }
-  ];
+  const courses = await sanityFetch<any[]>(queries.courses);
   return courses.map((course) => ({
     params: { slug: course.slug },
   }));
@@ -15,53 +12,18 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 
-// --- STATIC MOCK DATA FINDER ---
-const coursesData = {
-    "tafsir-al-azhar-modern": {
-        title: "Tafsir Al-Azhar: Pendekatan Modern",
-        tagline: "Memahami kedalaman makna Al-Qur'an untuk konteks kehidupan kontemporer.",
-        category: "Tafsir",
-        instructor: "KH. Ahmad Bisri",
-        price: 150000,
-        discountPrice: 99000,
-        modules: [
-            { 
-                title: "Pendahuluan & Metodologi", 
-                lessons: [
-                    { title: "Pengenalan Tafsir Al-Azhar", slug: "pengenalan-tafsir-al-azhar" },
-                    { title: "Biografi Hamka & Karya", slug: "biografi-hamka-karya" },
-                    { title: "Urgensi Tafsir Modern", slug: "urgensi-tafsir-modern" }
-                ] 
-            },
-            { 
-                title: "Surah Al-Fatihah", 
-                lessons: [
-                    { title: "Makna Basmalah", slug: "makna-basmalah" },
-                    { title: "Hakikat Hamdalah", slug: "hakikat-hamdalah" }
-                ] 
-            }
-        ],
-        benefits: ["Sertifikat Digital", "Akses Selamanya", "E-Book Modul", "Grup Diskusi Eksklusif"]
-    },
-};
+// Fetch Course Detail from Sanity
+const course = await sanityFetch<any>(queries.courseDetail(slug));
 
-const course = coursesData[slug] || {
-    title: slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    tagline: "Program studi mendalam untuk mencetak ahli di bidangnya.",
-    category: "Academy",
-    instructor: "Tim Isyraq Academy",
-    price: 150000,
-    modules: [{ 
-        title: "Materi Inti", 
-        lessons: [{ title: "Pendahuluan", slug: "pendahuluan" }] 
-    }],
-    benefits: ["Sertifikat", "Akses Lifetime"]
-};
+if (!course) {
+    return Astro.redirect('/404');
+}
 
 const hasDiscount = course.discountPrice && course.discountPrice < course.price;
-const finalPrice = hasDiscount ? course.discountPrice : course.price;
+const finalPrice = hasDiscount ? course.discountPrice : (course.price || 0);
 const formatPrice = (p) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p);
 const waLink = `https://wa.me/6281234567890?text=${encodeURIComponent(`Assalamualaikum, saya ingin mendaftar kelas *${course.title}*`)}`;
+
 ---
 
 <AcademyLayout title={`${course.title} | Isyraq Academy`}>
@@ -75,7 +37,7 @@ const waLink = `https://wa.me/6281234567890?text=${encodeURIComponent(`Assalamua
             <div class="space-y-6 animate-fade-in">
                 <div class="flex items-center gap-3">
                     <span class="px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300">
-                        {course.category}
+                        {course.category?.title || 'Academy'}
                     </span>
                     {hasDiscount && (
                         <span class="px-3 py-1 bg-red-600 rounded-full text-[9px] font-bold uppercase tracking-widest text-white shadow-lg">
@@ -93,12 +55,16 @@ const waLink = `https://wa.me/6281234567890?text=${encodeURIComponent(`Assalamua
                 </p>
 
                 <div class="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl w-fit">
-                    <div class="w-12 h-12 bg-emerald-800 rounded-full flex items-center justify-center font-display font-bold text-white text-xl">
-                        {course.instructor.charAt(0)}
+                    <div class="w-12 h-12 bg-emerald-800 rounded-full flex items-center justify-center font-display font-bold text-white text-xl overflow-hidden">
+                        {course.instructor?.photo ? (
+                            <img src={urlFor(course.instructor.photo).width(100).url()} alt={course.instructor.name} class="w-full h-full object-cover" />
+                        ) : (
+                            course.instructor?.name?.charAt(0) || 'A'
+                        )}
                     </div>
                     <div>
                         <p class="text-[9px] text-emerald-400 uppercase tracking-widest font-bold">Instruktur Utama</p>
-                        <p class="text-white font-bold">{course.instructor}</p>
+                        <p class="text-white font-bold">{course.instructor?.name || 'Tim Academy'}</p>
                     </div>
                 </div>
             </div>
@@ -107,11 +73,25 @@ const waLink = `https://wa.me/6281234567890?text=${encodeURIComponent(`Assalamua
             <div class="relative lg:-mb-32 z-20">
                 <div class="bg-white rounded-[3rem] p-10 shadow-3xl border border-stone-100 flex flex-col gap-6">
                     <div class="aspect-video bg-emerald-50 rounded-[2rem] flex items-center justify-center relative group cursor-pointer overflow-hidden">
-                         <i data-lucide="play-circle" class="w-20 h-20 text-emerald-900/20 group-hover:scale-110 transition duration-500"></i>
-                         <div class="absolute inset-0 bg-emerald-950 opacity-0 group-hover:opacity-5 transition duration-500"></div>
-                         <span class="absolute bottom-6 bg-emerald-950 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full">
-                            Tonton Preview Gratis
-                         </span>
+                         {course.thumbnail ? (
+                             <img 
+                                src={urlFor(course.thumbnail).width(600).height(400).url()} 
+                                alt={course.title} 
+                                class="w-full h-full object-cover group-hover:scale-105 transition duration-700" 
+                             />
+                         ) : (
+                             <i data-lucide="book-open" class="w-20 h-20 text-emerald-900/10"></i>
+                         )}
+                         
+                         {course.previewVideoUrl && (
+                             <>
+                                <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition duration-500 backdrop-blur-[2px]"></div>
+                                <i data-lucide="play-circle" class="absolute w-20 h-20 text-white opacity-80 group-hover:scale-110 group-hover:opacity-100 transition duration-300 drop-shadow-xl"></i>
+                                <span class="absolute bottom-6 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow-lg">
+                                    Tonton Preview
+                                </span>
+                             </>
+                         )}
                     </div>
 
                     <div class="space-y-2">
@@ -130,7 +110,7 @@ const waLink = `https://wa.me/6281234567890?text=${encodeURIComponent(`Assalamua
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4 border-t border-stone-50 pt-6">
-                        {course.benefits.slice(0, 4).map(b => (
+                        {course.benefits?.slice(0, 4).map(b => (
                             <div class="flex items-center gap-2 text-[11px] text-stone-600">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> {b}
                             </div>
@@ -148,14 +128,18 @@ const waLink = `https://wa.me/6281234567890?text=${encodeURIComponent(`Assalamua
             <section class="space-y-8">
                 <h2 class="text-3xl font-display font-bold text-emerald-950">Apa yang Akan <span class="italic text-emerald-600">Anda Pelajari?</span></h2>
                 <div class="prose prose-stone prose-lg max-w-none text-stone-600 font-light leading-relaxed">
-                    <p>Program ini dirancang khusus untuk memberikan pemahaman mendalam tentang {course.category} secara komprehensif. Melalui pendekatan yang sistematis, Anda akan dibimbing untuk memahami setiap konsep dan aplikasinya dalam kehidupan sehari-hari.</p>
+                    {course.description ? (
+                        <PortableText value={course.description} />
+                    ) : (
+                        <p>Program ini dirancang khusus untuk memberikan pemahaman mendalam tentang {course.category?.title || 'materi'} secara komprehensif. Melalui pendekatan yang sistematis, Anda akan dibimbing untuk memahami setiap konsep dan aplikasinya dalam kehidupan sehari-hari.</p>
+                    )}
                 </div>
             </section>
 
             <section class="space-y-10">
                 <h2 class="text-3xl font-display font-bold text-emerald-950">Silabus & <span class="italic text-emerald-600">Kurikulum</span></h2>
                 <div class="space-y-6">
-                    {course.modules.map((mod, idx) => (
+                    {course.modules?.map((mod, idx) => (
                         <div class="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm">
                             <div class="px-8 py-6 bg-stone-50 border-b border-stone-100 flex justify-between items-center cursor-pointer hover:bg-white transition duration-300">
                                 <div class="flex items-center gap-4">
@@ -165,7 +149,7 @@ const waLink = `https://wa.me/6281234567890?text=${encodeURIComponent(`Assalamua
                                 <i data-lucide="chevron-down" class="w-5 h-5 text-stone-400"></i>
                             </div>
                             <div class="p-4 space-y-1">
-                                {mod.lessons.map(l => (
+                                {mod.lessons?.map(l => (
                                     <a href={`/courses/${slug}/lessons/${l.slug}`} class="flex items-center justify-between px-4 py-4 rounded-xl hover:bg-emerald-50 transition duration-300 group">
                                         <div class="flex items-center gap-4">
                                             <i data-lucide="play-circle" class="w-4 h-4 text-emerald-300 group-hover:text-emerald-600 transition"></i>
@@ -197,11 +181,15 @@ const waLink = `https://wa.me/6281234567890?text=${encodeURIComponent(`Assalamua
             <div class="space-y-6">
                 <h4 class="text-lg font-display font-bold text-emerald-950">Tentang Pengajar</h4>
                 <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-stone-300 font-display font-bold shrink-0 text-2xl">
-                        {course.instructor.charAt(0)}
+                    <div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-stone-300 font-display font-bold shrink-0 text-2xl overflow-hidden">
+                        {course.instructor?.photo ? (
+                            <img src={urlFor(course.instructor.photo).width(200).url()} alt={course.instructor.name} class="w-full h-full object-cover" />
+                        ) : (
+                            course.instructor?.name?.charAt(0) || 'A'
+                        )}
                     </div>
                     <div>
-                        <h5 class="font-bold text-emerald-950">{course.instructor}</h5>
+                        <h5 class="font-bold text-emerald-950">{course.instructor?.name || 'Tim Academy'}</h5>
                         <p class="text-stone-400 text-xs uppercase tracking-widest font-bold">Mudaris Utama</p>
                     </div>
                 </div>

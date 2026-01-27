@@ -43,6 +43,7 @@ import blogPost from './blogPost';
 import youtubeEmbed from './objects/youtubeEmbed';
 import quizBlock from './objects/quizBlock';
 import vocabularyBlock from './objects/vocabularyBlock';
+import interactiveArabicBlock from './objects/interactiveArabicBlock';
 
 export const schemaTypes = [
     // ==========================================
@@ -51,6 +52,7 @@ export const schemaTypes = [
     youtubeEmbed,
     quizBlock,
     vocabularyBlock,
+    interactiveArabicBlock,
 
     // ==========================================
     // Singleton Documents

@@ -4,7 +4,7 @@ export const myStructure = (S: StructureBuilder) =>
     S.list()
         .title('Content')
         .items([
-            // Academy Section (Top Priority)
+            // Academy Section (Primary Focus)
             S.listItem()
                 .title('Academy Management')
                 .icon(() => '🎓')
@@ -13,59 +13,65 @@ export const myStructure = (S: StructureBuilder) =>
                         .title('Academy Content')
                         .items([
                             S.listItem()
-                                .title('Courses (Products)')
+                                .title('Courses (Program)')
                                 .icon(() => '📚')
                                 .child(S.documentTypeList('course').title('All Courses')),
                             S.listItem()
                                 .title('Lessons (Materi)')
                                 .icon(() => '📖')
                                 .child(S.documentTypeList('lesson').title('All Lessons')),
+                            S.divider(),
                             S.listItem()
                                 .title('Instructors / Pengajar')
                                 .icon(() => '👨‍🏫')
                                 .child(S.documentTypeList('instructor').title('Instructors')),
                             S.listItem()
-                                .title('Categories')
+                                .title('Course Categories')
                                 .icon(() => '🏷️')
-                                .child(S.documentTypeList('category').title('Course Categories')),
+                                .child(S.documentTypeList('category').title('Categories')),
                         ])
                 ),
+
             S.divider(),
 
-            // Landing Page & Configuration
+            // Website Management
             S.listItem()
-                .title('Landing Page')
-                .icon(() => '🏠')
+                .title('Website Management')
+                .icon(() => '🌐')
                 .child(
-                    S.document()
-                        .schemaType('landingPage')
-                        .documentId('landingPage')
+                    S.list()
+                        .title('Website Configuration')
+                        .items([
+                            S.listItem()
+                                .title('Landing Page')
+                                .icon(() => '🏠')
+                                .child(
+                                    S.document()
+                                        .schemaType('landingPage')
+                                        .documentId('landingPage')
+                                        .title('Academy Landing Page')
+                                ),
+                            S.listItem()
+                                .title('Global siteSettings')
+                                .icon(() => '⚙️')
+                                .child(
+                                    S.document()
+                                        .schemaType('siteSettings')
+                                        .documentId('siteSettings')
+                                        .title('Site Settings')
+                                ),
+                        ])
                 ),
-            S.listItem()
-                .title('PSB Configuration')
-                .icon(() => '📝')
-                .child(
-                    S.document()
-                        .schemaType('psbConfig')
-                        .documentId('psbConfig')
-                ),
-            S.listItem()
-                .title('Site Settings')
-                .icon(() => '⚙️')
-                .child(
-                    S.document()
-                        .schemaType('siteSettings')
-                        .documentId('siteSettings')
-                ),
+
             S.divider(),
 
-            // Blog / Berita Section
+            // Blog / News Section
             S.listItem()
                 .title('Berita & Artikel')
                 .icon(() => '📰')
                 .child(
                     S.list()
-                        .title('Berita & Artikel')
+                        .title('Blog & Communication')
                         .items([
                             S.listItem()
                                 .title('All Posts')
@@ -75,6 +81,7 @@ export const myStructure = (S: StructureBuilder) =>
                                         .title('All Blog Posts')
                                         .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
                                 ),
+                            S.divider(),
                             S.listItem()
                                 .title('Authors / Penulis')
                                 .icon(() => '✍️')
@@ -82,7 +89,7 @@ export const myStructure = (S: StructureBuilder) =>
                                     S.documentTypeList('author').title('Authors')
                                 ),
                             S.listItem()
-                                .title('Categories')
+                                .title('Blog Categories')
                                 .icon(() => '🏷️')
                                 .child(
                                     S.documentTypeList('blogCategory').title('Blog Categories')
@@ -90,3 +97,4 @@ export const myStructure = (S: StructureBuilder) =>
                         ])
                 ),
         ]);
+
