@@ -52,8 +52,8 @@ export default function LessonQuizRunner({ quizBlocks, nextLessonRaw }: LessonQu
     };
 
     const getScoreColor = (score: number) => {
-        if (score >= 80) return 'text-emerald-600';
-        if (score >= 60) return 'text-yellow-600';
+        if (score >= 80) return 'text-royal-600';
+        if (score >= 60) return 'text-gold-600';
         return 'text-red-600';
     };
 
@@ -72,24 +72,24 @@ export default function LessonQuizRunner({ quizBlocks, nextLessonRaw }: LessonQu
                 </div>
 
                 <div className="space-y-2">
-                    <h3 className="text-3xl font-display font-bold text-emerald-950">
+                    <h3 className="text-3xl font-display font-bold text-royal-950">
                         {score >= 80 ? 'Mumtaz! Luar Biasa.' : score >= 60 ? 'Jayyid! Bagus.' : 'Teruslah Berlatih.'}
                     </h3>
                     <p className="text-stone-500">
-                        Anda menjawab benar <strong className="text-emerald-700">{correctCount}</strong> dari <strong>{totalQuestions}</strong> pertanyaan.
+                        Anda menjawab benar <strong className="text-royal-700">{correctCount}</strong> dari <strong>{totalQuestions}</strong> pertanyaan.
                     </p>
                 </div>
 
                 <div className="flex justify-center gap-4">
                     <button
                         onClick={() => { setAnswersState({}); setShowScore(false); }}
-                        className="flex items-center gap-2 px-6 py-3 bg-white border border-stone-200 rounded-full text-stone-600 font-bold text-xs uppercase tracking-widest hover:border-emerald-500 hover:text-emerald-700 transition"
+                        className="flex items-center gap-2 px-6 py-3 bg-white border border-stone-200 rounded-full text-stone-600 font-bold text-xs uppercase tracking-widest hover:border-royal-500 hover:text-royal-700 transition"
                     >
                         <RefreshCw size={16} /> Ulangi Kuis
                     </button>
                     {nextLessonRaw && (
                         <a href={`/courses/${nextLessonRaw.params.slug}/lessons/${nextLessonRaw.params.lessonSlug}`}
-                            className="flex items-center gap-2 px-8 py-3 bg-emerald-900 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-emerald-800 transition shadow-lg"
+                            className="flex items-center gap-2 px-8 py-3 bg-royal-900 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-royal-800 transition shadow-lg"
                         >
                             Lanjut Materi <ArrowRight size={16} />
                         </a>
@@ -109,9 +109,9 @@ export default function LessonQuizRunner({ quizBlocks, nextLessonRaw }: LessonQu
             </div>
 
             {quizBlocks.map((block, blockIdx) => (
-                <div key={blockIdx} className="bg-white rounded-[2.5rem] border border-stone-200 p-8 md:p-12 shadow-sm border-l-[12px] border-l-yellow-400">
+                <div key={blockIdx} className="bg-white rounded-[2.5rem] border border-stone-200 p-8 md:p-12 shadow-sm border-l-[12px] border-l-gold-400">
                     <div className="mb-10">
-                        <h3 className="font-display font-bold text-3xl text-emerald-950 mb-2">{block.title || 'Uji Pemahaman'}</h3>
+                        <h3 className="font-display font-bold text-3xl text-royal-950 mb-2">{block.title || 'Uji Pemahaman'}</h3>
                         {block.description && <p className="text-stone-500 font-light">{block.description}</p>}
                     </div>
 
@@ -121,9 +121,9 @@ export default function LessonQuizRunner({ quizBlocks, nextLessonRaw }: LessonQu
                             const isAnswered = !!answerState;
 
                             return (
-                                <div key={qIdx} className={`space-y-6 p-6 rounded-3xl border transition-all duration-300 ${isAnswered ? (answerState.isCorrect ? 'bg-emerald-50/50 border-emerald-100' : 'bg-red-50/50 border-red-100') : 'bg-stone-50/50 border-stone-100'}`}>
+                                <div key={qIdx} className={`space-y-6 p-6 rounded-3xl border transition-all duration-300 ${isAnswered ? (answerState.isCorrect ? 'bg-royal-50/50 border-royal-100' : 'bg-red-50/50 border-red-100') : 'bg-stone-50/50 border-stone-100'}`}>
                                     <p className="text-xl font-medium text-stone-800 flex gap-4">
-                                        <span className="w-8 h-8 rounded-full bg-emerald-900 text-white flex items-center justify-center text-sm shrink-0 font-bold">{qIdx + 1}</span>
+                                        <span className="w-8 h-8 rounded-full bg-royal-900 text-white flex items-center justify-center text-sm shrink-0 font-bold">{qIdx + 1}</span>
                                         {q.question}
                                     </p>
 
@@ -135,16 +135,16 @@ export default function LessonQuizRunner({ quizBlocks, nextLessonRaw }: LessonQu
 
                                             if (isAnswered) {
                                                 if (isSelected && ans.isCorrect) {
-                                                    btnClass += "bg-emerald-100 border-emerald-500 ring-2 ring-emerald-500 ring-offset-2"; // Correct Selected
+                                                    btnClass += "bg-royal-100 border-royal-500 ring-2 ring-royal-500 ring-offset-2"; // Correct Selected
                                                 } else if (isSelected && !ans.isCorrect) {
                                                     btnClass += "bg-red-100 border-red-500 opacity-100"; // Wrong Selected
                                                 } else if (ans.isCorrect) {
-                                                    btnClass += "bg-emerald-50 border-emerald-200 opacity-70"; // Correct but not selected (reveal)
+                                                    btnClass += "bg-royal-50 border-royal-200 opacity-70"; // Correct but not selected (reveal)
                                                 } else {
                                                     btnClass += "bg-stone-50 border-stone-100 opacity-50 grayscale"; // Wrong not selected
                                                 }
                                             } else {
-                                                btnClass += "bg-white border-stone-200 hover:bg-emerald-50 hover:border-emerald-500 hover:shadow-md cursor-pointer";
+                                                btnClass += "bg-white border-stone-200 hover:bg-royal-50 hover:border-royal-500 hover:shadow-md cursor-pointer";
                                             }
 
                                             return (
@@ -154,7 +154,7 @@ export default function LessonQuizRunner({ quizBlocks, nextLessonRaw }: LessonQu
                                                     onClick={() => handleAnswer(blockIdx, qIdx, ansIdx, ans.isCorrect)}
                                                     className={btnClass}
                                                 >
-                                                    <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-colors ${isSelected ? (ans.isCorrect ? 'bg-emerald-600 text-white' : 'bg-red-500 text-white') : 'bg-stone-100 text-stone-400 group-hover:bg-emerald-900 group-hover:text-white'}`}>
+                                                    <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-colors ${isSelected ? (ans.isCorrect ? 'bg-royal-600 text-white' : 'bg-red-500 text-white') : 'bg-stone-100 text-stone-400 group-hover:bg-royal-900 group-hover:text-white'}`}>
                                                         {String.fromCharCode(65 + ansIdx)}
                                                     </span>
                                                     <span className={`text-sm font-medium flex-1 ${isSelected ? 'text-stone-900 font-bold' : 'text-stone-700'}`}>
@@ -162,7 +162,7 @@ export default function LessonQuizRunner({ quizBlocks, nextLessonRaw }: LessonQu
                                                     </span>
 
                                                     {/* Feedback Icon */}
-                                                    {isAnswered && ans.isCorrect && <CheckCircle className="text-emerald-600 absolute right-4 top-1/2 -translate-y-1/2" />}
+                                                    {isAnswered && ans.isCorrect && <CheckCircle className="text-royal-600 absolute right-4 top-1/2 -translate-y-1/2" />}
                                                     {isAnswered && isSelected && !ans.isCorrect && <XCircle className="text-red-500 absolute right-4 top-1/2 -translate-y-1/2" />}
                                                 </button>
                                             );
@@ -171,7 +171,7 @@ export default function LessonQuizRunner({ quizBlocks, nextLessonRaw }: LessonQu
 
                                     {/* Explanation / Feedback Message */}
                                     {isAnswered && (
-                                        <div className={`mt-4 p-4 rounded-xl text-sm leading-relaxed animate-fade-in ${answerState.isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                                        <div className={`mt-4 p-4 rounded-xl text-sm leading-relaxed animate-fade-in ${answerState.isCorrect ? 'bg-royal-100 text-royal-800' : 'bg-red-100 text-red-800'}`}>
                                             <strong>{answerState.isCorrect ? 'Benar! ' : 'Kurang Tepat. '}</strong>
                                             {q.explanation || (answerState.isCorrect ? "Jawaban Anda tepat." : "Coba perhatikan kembali materinya.")}
                                         </div>
@@ -192,9 +192,9 @@ export default function LessonQuizRunner({ quizBlocks, nextLessonRaw }: LessonQu
             <div className="flex items-center justify-center pt-8">
                 <button
                     onClick={() => setShowScore(true)}
-                    className="flex items-center gap-3 px-12 py-6 bg-emerald-900 text-white rounded-full font-bold uppercase tracking-widest text-sm hover:bg-emerald-800 transition shadow-2xl shadow-emerald-900/40 active:scale-95 duration-200 ring-4 ring-emerald-50 border-4 border-emerald-900"
+                    className="flex items-center gap-3 px-12 py-6 bg-royal-900 text-white rounded-full font-bold uppercase tracking-widest text-sm hover:bg-royal-800 transition shadow-2xl shadow-royal-900/40 active:scale-95 duration-200 ring-4 ring-royal-50 border-4 border-royal-900"
                 >
-                    <Trophy size={20} className="text-yellow-400" /> Selesaikan Materi & Cek Skor
+                    <Trophy size={20} className="text-gold-400" /> Selesaikan Materi & Cek Skor
                 </button>
             </div>
         </div>

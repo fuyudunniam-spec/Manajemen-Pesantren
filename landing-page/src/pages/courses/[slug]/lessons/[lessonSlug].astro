@@ -1,16 +1,17 @@
 ---
 import AcademyLayout from '../../../../layouts/AcademyLayout.astro';
 import { sanityFetch, queries, urlFor } from '../../../../lib/sanity';
-import { PortableText } from 'astro-portabletext';
 import ArabicReader from '../../../../components/ArabicReader';
 import LessonQuizRunner from '../../../../components/LessonQuizRunner';
+import LessonControls from '../../../../components/LessonControls';
+import SmartPortableText from '../../../../components/SmartPortableText';
+import VocabularyTab from '../../../../components/VocabularyTab';
 
 export async function getStaticPaths() {
   const courses = await sanityFetch<any[]>(queries.courses);
   const paths = [];
   
   for (const course of courses) {
-      // We need to fetch each course detail to get lessons inside modules
       const detail = await sanityFetch<any>(queries.courseDetail(course.slug));
       detail.modules?.forEach(mod => {
           mod.lessons?.forEach(lesson => {
@@ -26,7 +27,6 @@ export async function getStaticPaths() {
 
 const { slug, lessonSlug } = Astro.params;
 
-// Fetch Course and Lesson details
 const course = await sanityFetch<any>(queries.courseDetail(slug));
 const lesson = await sanityFetch<any>(queries.lessonDetail(lessonSlug));
 
@@ -34,39 +34,83 @@ if (!course || !lesson) {
     return Astro.redirect('/404');
 }
 
-// Separate content for specific layout areas
-const materialBlocks = [];
-const quizBlocks = lesson.content?.filter(b => b._type === 'quizBlock') || [];
-const vocabularyBlocks = lesson.content?.filter(b => b._type === 'vocabularyBlock') || [];
+// === CONTENT CATEGORIZATION (The "Schema Magic") ===
+// We take the flat 'content' array and distribute it into the 3 Method Tabs.
+const qiraahBlocks = [];
+const qawaidBlocks = [];
+const tamrinatBlocks = [];
+const vocabularyBlocks = []; // Will be used in Qira'ah
 
-// Group consecutive text blocks for better readability
 let currentTextBlockGroup = [];
+
+const commitTextGroup = (targetArray) => {
+    if (currentTextBlockGroup.length > 0) {
+        targetArray.push({ _type: 'groupedText', blocks: [...currentTextBlockGroup] });
+        currentTextBlockGroup = [];
+    }
+};
+
 lesson.content?.forEach((block) => {
+    // 1. Text Logic: Group it first
     if (block._type === 'block') {
         currentTextBlockGroup.push(block);
-    } else if (['youtubeEmbed', 'image', 'interactiveArabicBlock'].includes(block._type)) {
-        if (currentTextBlockGroup.length > 0) {
-            materialBlocks.push({ _type: 'groupedText', blocks: [...currentTextBlockGroup] });
-            currentTextBlockGroup = [];
-        }
-        materialBlocks.push(block);
+        return; 
+    }
+
+    // 2. Distribute Non-Text Blocks
+    switch (block._type) {
+        case 'interactiveArabicBlock':
+            commitTextGroup(qiraahBlocks); // Previous text likely Intro
+            qiraahBlocks.push(block);
+            break;
+        case 'vocabularyBlock':
+            commitTextGroup(qiraahBlocks);
+            vocabularyBlocks.push(block); // Keep separate for specific UI
+            qiraahBlocks.push(block);     // Also add to flow or sidebar
+            break;
+        case 'image':
+            commitTextGroup(qiraahBlocks); // Images mostly visual aids for reading
+            qiraahBlocks.push(block);
+            break;
+        case 'youtubeEmbed':
+            commitTextGroup(qawaidBlocks); // Video implies Qawaid/Rules
+            qawaidBlocks.push(block);
+            break;
+        case 'quizBlock':
+            commitTextGroup(tamrinatBlocks); // Quiz is Tamrinat
+            tamrinatBlocks.push(block);
+            break;
+        default:
+            // Default to Qira'ah if unknown
+            commitTextGroup(qiraahBlocks);
+            qiraahBlocks.push(block);
     }
 });
+// Flush remaining text
+// If we ended with text, where does it go? 
+// Strategy: If Qawaid is empty but Tamrinat has stuff, maybe it's instructions?
+// Simple strategy: Default flush to Qawaid if it has content, otherwise Qira'ah.
 if (currentTextBlockGroup.length > 0) {
-    materialBlocks.push({ _type: 'groupedText', blocks: [...currentTextBlockGroup] });
+     if (qawaidBlocks.length > 0) {
+        qawaidBlocks.push({ _type: 'groupedText', blocks: [...currentTextBlockGroup] });
+     } else {
+        qiraahBlocks.push({ _type: 'groupedText', blocks: [...currentTextBlockGroup] });
+     }
 }
 
-// Find next lesson for the footer
+
+// Navigation Logic
+let prevLesson = null;
 let nextLesson = null;
 const allLessons = course.modules?.flatMap(m => m.lessons) || [];
 const currentIndex = allLessons.findIndex(l => l.slug === lessonSlug);
-if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
-    nextLesson = allLessons[currentIndex + 1];
-}
+
+if (currentIndex > 0) prevLesson = allLessons[currentIndex - 1];
+if (currentIndex !== -1 && currentIndex < allLessons.length - 1) nextLesson = allLessons[currentIndex + 1];
 
 const courseTitle = course.title;
+const lessonProgress = ((currentIndex + 1) / allLessons.length) * 100;
 
-// Helper to get YouTube ID
 const getYoutubeId = (url) => {
     const match = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
     return match ? match[1] : null;
@@ -75,274 +119,276 @@ const getYoutubeId = (url) => {
 
 <AcademyLayout title={`${lesson.title} | ${courseTitle}`}>
     
-    <!-- Focus Mode Navbar -->
-    <nav class="fixed top-0 w-full z-50 bg-emerald-950 border-b border-white/10 h-16 flex items-center justify-between px-6 shadow-2xl">
+    <!-- 1. TOP HEADER (Royal Theme) -->
+    <header class="h-16 bg-royal-900 border-b border-royal-800 flex items-center justify-between px-6 z-30 fixed top-0 inset-x-0 shadow-md">
         <div class="flex items-center gap-4">
-            <a href={`/courses/${slug}`} class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition">
-                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+            <a href={`/courses/${slug}`} class="text-white/70 hover:text-white transition flex items-center gap-2 text-sm font-bold">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
             </a>
-            <div class="h-6 w-px bg-white/10"></div>
-            <div class="max-w-[150px] md:max-w-md">
-                <h1 class="text-white text-sm font-bold truncate">{lesson.title}</h1>
-                <p class="text-[10px] text-emerald-400 uppercase tracking-widest truncate">{courseTitle}</p>
-            </div>
-        </div>
-        <div class="flex items-center gap-4">
-            <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest hidden md:block">Progress</span>
-            <div class="w-24 md:w-32 h-2 bg-emerald-900 rounded-full overflow-hidden">
-                <div class="w-[15%] h-full bg-yellow-500 rounded-full"></div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Workspace -->
-    <div class="pt-16 min-h-screen bg-stone-50 flex items-stretch overflow-hidden h-screen">
-        
-        <!-- Left: Main Content (Scrollable) -->
-        <div class="flex-1 overflow-y-auto no-scrollbar relative w-full lg:w-3/4">
-            <div class="max-w-4xl mx-auto p-6 md:p-12 pb-40 space-y-10">
-                
-                {materialBlocks.map((block) => {
-                    if (block._type === 'interactiveArabicBlock') {
-                        return (
-                            <ArabicReader 
-                                client:load
-                                title={block.title}
-                                arabicWithHarakat={block.arabicWithHarakat}
-                                arabicWithoutHarakat={block.arabicWithoutHarakat}
-                                translation={block.translation}
-                                englishTranslation={block.englishTranslation}
-                                audioUrl={block.audio?.asset?.url}
-                            />
-                        );
-                    }
-
-                    if (block._type === 'youtubeEmbed') {
-                        const videoId = getYoutubeId(block.url);
-                        return (
-                             <div class="aspect-video bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border border-stone-200 relative group mb-16">
-                                <iframe 
-                                    class="w-full h-full" 
-                                    src={`https://www.youtube.com/embed/${videoId}?start=${block.startAt || 0}`}
-                                    title={block.title || "Lesson Video"} 
-                                    frameborder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowfullscreen>
-                                </iframe>
-                            </div>
-                        );
-                    }
-
-                    if (block._type === 'groupedText') {
-                        return (
-                            <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-stone-200/60 transition hover:shadow-md">
-                                <article class="prose prose-stone prose-lg max-w-none text-stone-700 leading-relaxed space-y-6">
-                                    <style is:inline>
-                                        .prose [dir="rtl"] { 
-                                            font-family: 'Playfair Display', serif; 
-                                            font-size: 1.85rem; 
-                                            line-height: 2.2; 
-                                            margin-bottom: 1.5rem;
-                                            text-align: right;
-                                        }
-                                    </style>
-                                    <PortableText value={block.blocks} />
-                                </article>
-                            </div>
-                        );
-                    }
-
-                    if (block._type === 'image') {
-                        return (
-                            <div class="rounded-[2.5rem] overflow-hidden shadow-lg border border-stone-200 bg-white p-5">
-                                <img 
-                                    src={urlFor(block).url()} 
-                                    alt={block.alt || "Lesson Image"} 
-                                    class="w-full h-auto rounded-3xl"
-                                />
-                                {block.caption && <p class="text-center text-xs text-stone-400 mt-5 italic">{block.caption}</p>}
-                            </div>
-                        );
-                    }
-                    return null;
-                })}
-
-                {/* Quizzes at the bottom */}
-                {quizBlocks.length > 0 && (
-                    <LessonQuizRunner 
-                        client:visible
-                        quizBlocks={quizBlocks}
-                        nextLessonRaw={nextLesson ? { params: { slug: slug, lessonSlug: nextLesson.slug } } : null}
-                    />
-                )}
-
+            <div class="w-px h-6 bg-white/20 hidden md:block"></div>
+            <div class="flex flex-col">
+                <h1 class="text-white font-display text-base tracking-wider leading-none hidden md:block">{courseTitle}</h1>
+                <span class="text-[10px] text-gold-400 uppercase tracking-widest mt-1">Lesson {currentIndex + 1}: {lesson.title}</span>
             </div>
         </div>
 
-        <!-- Right: Lessons & Tools Sidebar (Fixed) -->
-        <aside class="w-96 bg-white border-l border-stone-200 hidden lg:flex flex-col h-full shadow-xl z-20">
-            <!-- Sidebar Tabs -->
-            <div class="flex border-b border-stone-200 bg-stone-50/50 p-1 gap-1" id="sidebar-tabs">
-                <button 
-                    class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-emerald-900 bg-white rounded-t-2xl border-b-2 border-emerald-900 transition active-tab"
-                    onclick="switchSidebarTab('curriculum', this)">
-                    Kurikulum
-                </button>
-                <button 
-                    class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-emerald-900 rounded-t-2xl transition"
-                    onclick="switchSidebarTab('vocabulary', this)">
-                    Mufradat {vocabularyBlocks.length > 0 ? `(${vocabularyBlocks.reduce((acc, b) => acc + (b.words?.length || 0), 0)})` : ''}
-                </button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto" id="sidebar-content">
-                <!-- Curriculum Tab Content -->
-                <div id="tab-curriculum" class="p-4 space-y-1">
-                    {course.modules?.map((mod, mIdx) => (
-                        <div class="space-y-1">
-                            <div class="px-4 py-2 mt-4 first:mt-0">
-                                <p class="text-[9px] font-black text-stone-400 uppercase tracking-widest">{mod.title || `Modul ${mIdx + 1}`}</p>
-                            </div>
-                            {mod.lessons?.map((l, lIdx) => (
-                                <a 
-                                    href={`/courses/${slug}/lessons/${l.slug}`} 
-                                    class={`flex items-center gap-4 px-4 py-4 rounded-2xl transition border-2 ${l.slug === lessonSlug ? 'bg-emerald-50 border-emerald-100' : 'hover:bg-stone-50 border-transparent'}`}
-                                >
-                                    <div class={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold ${l.slug === lessonSlug ? 'bg-emerald-900 text-white shadow-lg shadow-emerald-900/20' : 'bg-stone-100 text-stone-400'}`}>
-                                        {lIdx + 1}
-                                    </div>
-                                    <span class={`text-sm font-bold flex-1 truncate ${l.slug === lessonSlug ? 'text-emerald-950' : 'text-stone-600 font-medium'}`}>{l.title}</span>
-                                    {l.isFreePreview && <span class="bg-yellow-100 text-[8px] font-black text-yellow-700 px-2 py-1 rounded-md uppercase tracking-tighter">Free</span>}
-                                </a>
-                            ))}
-                        </div>
-                    ))}
+        <div class="flex items-center gap-6">
+            <!-- Progress -->
+            <div class="hidden md:flex items-center gap-3">
+                <div class="text-right">
+                    <p class="text-[9px] text-royal-200 uppercase tracking-widest">Progress Level</p>
+                    <p class="text-xs font-bold text-gold-400">{currentIndex + 1}/{allLessons.length} Unit Selesai</p>
                 </div>
+                <div class="w-24 h-1.5 bg-royal-800 rounded-full overflow-hidden">
+                    <div class="bg-gold-500 h-full rounded-full transition-all duration-500" style={`width: ${lessonProgress}%`}></div>
+                </div>
+            </div>
+             <!-- User Avatar Placeholder -->
+            <div class="w-8 h-8 rounded-full bg-gold-500 flex items-center justify-center text-royal-900 font-bold text-xs border-2 border-royal-800 cursor-default">
+                A
+            </div>
+        </div>
+    </header>
 
-                <!-- Vocabulary Tab Content -->
-                <div id="tab-vocabulary" class="hidden p-6 space-y-8 animate-fade-in">
-                    {vocabularyBlocks.length === 0 ? (
-                         <div class="text-center py-20 space-y-4 opacity-30">
-                            <i data-lucide="book-x" class="w-12 h-12 mx-auto"></i>
-                            <p class="text-xs font-bold uppercase tracking-widest">Tidak ada Mufradat<br/>di materi ini</p>
-                         </div>
-                    ) : (
-                        vocabularyBlocks.map(block => (
-                            <div class="space-y-4">
-                                <h4 class="text-[10px] font-black text-emerald-800 uppercase tracking-widest border-b border-emerald-100 pb-2">{block.title || 'Kosa Kata Terkait'}</h4>
-                                <div class="grid gap-3">
-                                    {block.words?.map(v => (
-                                        <div class="p-5 rounded-2xl border border-stone-100 bg-stone-50/50 hover:bg-white hover:shadow-xl hover:border-emerald-100 transition group">
-                                            <div class="flex justify-between items-start mb-3">
-                                                <span class="font-serif text-3xl text-emerald-950" dir="rtl">{v.arabic}</span>
-                                                {v.audioUrl && (
-                                                    <button class="w-8 h-8 rounded-full bg-white border border-stone-200 flex items-center justify-center text-stone-400 hover:text-emerald-600 hover:border-emerald-200 transition shadow-sm">
-                                                        <i data-lucide="volume-2" class="w-4 h-4"></i>
-                                                    </button>
-                                                )}
-                                            </div>
-                                            <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1">{v.transliteration}</p>
-                                            <p class="text-sm text-stone-700 font-bold leading-tight">{v.meaning}</p>
-                                        </div>
-                                    ))}
-                                </div>
+    <div class="flex flex-1 pt-16 h-screen overflow-hidden bg-stone-50">
+
+        <!-- 2. SIDEBAR (Curriculum Tree) - Left Side -->
+        <aside class="w-72 bg-white border-r border-stone-200 flex flex-col z-20 shrink-0 hidden lg:flex h-full">
+            <div class="p-4 border-b border-stone-100 bg-stone-50">
+                <label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1 block">Modul Pembelajaran</label>
+                <div class="w-full bg-white border border-stone-200 rounded-lg text-sm font-bold text-royal-900 p-2 truncate">
+                    {courseTitle}
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto sidebar-scroll p-2 space-y-1">
+                {course.modules?.map((mod, mIdx) => (
+                    <div>
+                        <p class="px-4 py-2 text-[10px] font-bold text-stone-400 uppercase tracking-widest mt-2">{mod.title}</p>
+                        {mod.lessons?.map((l, lIdx) => {
+                            const isActive = l.slug === lessonSlug;
+                            return (
+                                <a href={`/courses/${slug}/lessons/${l.slug}`} 
+                                   class={`block rounded-xl p-3 transition group relative overflow-hidden ${isActive ? 'bg-royal-50 border border-royal-100 shadow-sm' : 'hover:bg-stone-50 border border-transparent'}`}>
+                                    {isActive && <div class="absolute left-0 top-0 bottom-0 w-1 bg-gold-500"></div>}
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class={`text-xs font-bold uppercase ${isActive ? 'text-gold-600' : 'text-stone-400 group-hover:text-gold-500'}`}>
+                                           Bagian {lIdx + 1}
+                                        </span>
+                                        {isActive ? (
+                                            <i data-lucide="play-circle" class="w-4 h-4 text-royal-900"></i>
+                                        ) : (
+                                            <i data-lucide="circle" class="w-3 h-3 text-stone-300"></i>
+                                        )}
+                                    </div>
+                                    <h4 class={`font-display font-bold leading-tight text-sm ${isActive ? 'text-royal-900' : 'text-stone-600'}`}>
+                                        {l.title}
+                                    </h4>
+                                </a>
+                            );
+                        })}
+                    </div>
+                ))}
+            </div>
+        </aside>
+
+        <!-- 3. MAIN WORKSPACE -->
+        <main class="flex-1 overflow-y-auto relative no-scrollbar" id="main-scroll">
+            
+            <!-- Sticky Method Tabs -->
+            <div class="sticky top-0 z-20 bg-white border-b border-stone-200 px-4 md:px-8 flex justify-between items-center h-16 shadow-sm">
+                <div class="flex h-full gap-2 md:gap-8 overflow-x-auto no-scrollbar">
+                    <button onclick="switchTab('qiraah')" id="btn-qiraah" class="tab-btn active h-full flex items-center gap-2 text-sm font-bold border-b-2 border-gold-400 text-royal-900 transition px-2 whitespace-nowrap">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> Qira'ah <span class="hidden sm:inline">(Teks)</span>
+                    </button>
+                    <button onclick="switchTab('qawaid')" id="btn-qawaid" class="tab-btn h-full flex items-center gap-2 text-sm font-bold border-b-2 border-transparent text-stone-500 hover:text-royal-900 transition px-2 whitespace-nowrap">
+                        <i data-lucide="video" class="w-4 h-4"></i> Qawaid <span class="hidden sm:inline">(Video)</span>
+                    </button>
+                    <button onclick="switchTab('tamrinat')" id="btn-tamrinat" class="tab-btn h-full flex items-center gap-2 text-sm font-bold border-b-2 border-transparent text-stone-500 hover:text-royal-900 transition px-2 whitespace-nowrap">
+                        <i data-lucide="pen-tool" class="w-4 h-4"></i> Tamrinat <span class="hidden sm:inline">(Latihan)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="max-w-5xl mx-auto p-6 md:p-10 pb-40">
+                
+                <!-- TAB 1: QIRA'AH (Reading) -->
+                <div id="content-qiraah" class="fade-up space-y-8">
+                    <div class="text-center mb-8">
+                        <h2 class="font-display text-2xl md:text-3xl text-royal-900 border-b border-stone-200 pb-4 inline-block px-8 relative">
+                            {lesson.title}
+                            <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent opacity-50"></div>
+                        </h2>
+                    </div>
+
+                    {qiraahBlocks.map(block => {
+                        if (block._type === 'interactiveArabicBlock') {
+                            return <ArabicReader client:load {...block} title={null} audioUrl={block.audio?.asset?.url} />; // Title moved to page header
+                        }
+                        if (block._type === 'groupedText') {
+                             return <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm"><SmartPortableText client:load value={block.blocks} /></div>;
+                        }
+                        return null;
+                    })}
+                    
+                     {/* Vocabulary Inline for Qira'ah */}
+                     {vocabularyBlocks.length > 0 && (
+                        <div class="xl:hidden mt-8">
+                             <div class="bg-royal-50 p-6 rounded-2xl border border-royal-100">
+                                <VocabularyTab client:load blocks={vocabularyBlocks} />
                             </div>
-                        ))
+                        </div>
                     )}
                 </div>
-            </div>
 
-            <!-- Next Lesson Sticky Footer -->
-            {nextLesson && (
-                <div class="p-5 border-t border-stone-200 bg-white">
-                     <a href={`/courses/${slug}/lessons/${nextLesson.slug}`} class="flex items-center justify-between p-5 bg-emerald-950 text-white rounded-[1.5rem] shadow-2xl hover:bg-emerald-900 transition-all group scale-100 hover:scale-[1.02] active:scale-95">
-                        <div>
-                            <p class="text-[9px] text-emerald-400 uppercase tracking-[0.2em] font-black mb-1">BERIKUTNYA</p>
-                            <p class="text-sm font-bold truncate w-40">{nextLesson.title}</p>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-emerald-950 transition-colors">
-                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
-                        </div>
-                    </a>
+                <!-- TAB 2: QAWAID (Rules/Video) -->
+                <div id="content-qawaid" class="hidden-content fade-up space-y-8">
+                     {qawaidBlocks.length === 0 ? (
+                        <div class="text-center py-20 text-stone-400 italic">Tidak ada materi video untuk sesi ini.</div>
+                     ) : qawaidBlocks.map(block => {
+                        if (block._type === 'youtubeEmbed') {
+                             const videoId = getYoutubeId(block.url);
+                             return (
+                                <div class="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative group ring-4 ring-stone-200">
+                                    <iframe class="w-full h-full" src={`https://www.youtube.com/embed/${videoId}`} title="Video Lesson" frameborder="0" allowfullscreen></iframe>
+                                </div>
+                             );
+                        }
+                        if (block._type === 'groupedText') {
+                             return (
+                                 <div class="bg-white p-8 rounded-[2rem] border border-stone-200 shadow-sm">
+                                    <h3 class="font-display text-xl text-royal-900 mb-6 flex items-center gap-2">
+                                        <i data-lucide="info" class="text-gold-500"></i> Penjelasan
+                                    </h3>
+                                    <SmartPortableText client:load value={block.blocks} />
+                                </div>
+                             );
+                        }
+                     })}
                 </div>
-            )}
-        </aside>
+
+                <!-- TAB 3: TAMRINAT (Quiz) -->
+                <div id="content-tamrinat" class="hidden-content fade-up space-y-8">
+                    {tamrinatBlocks.length === 0 ? (
+                        <div class="text-center py-20 text-stone-400 italic">Tidak ada latihan soal untuk sesi ini.</div>
+                    ) : (
+                        <div class="max-w-2xl mx-auto">
+                            <LessonQuizRunner client:visible quizBlocks={tamrinatBlocks} nextLessonRaw={nextLesson ? { params: { slug, lessonSlug: nextLesson.slug } } : null} />
+                        </div>
+                    )}
+                </div>
+
+                 {/* Pagination Footer */}
+                <div class="flex justify-between items-center pt-16 mt-16 border-t border-stone-200">
+                     {prevLesson ? (
+                         <a href={`/courses/${slug}/lessons/${prevLesson.slug}`} class="flex items-center gap-2 text-stone-500 hover:text-royal-900 font-bold text-sm px-4 py-2 hover:bg-stone-100 rounded-lg transition">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Sebelumnya
+                         </a>
+                     ) : <div></div>}
+
+                     {nextLesson && (
+                         <a href={`/courses/${slug}/lessons/${nextLesson.slug}`} class="flex items-center gap-2 bg-royal-900 text-white hover:bg-royal-800 font-bold text-sm px-6 py-3 rounded-full shadow-lg shadow-royal-900/20 transition hover:scale-105 active:scale-95">
+                            Selanjutnya <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                         </a>
+                     )}
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Right: Vocabulary Sidebar (Desktop Only - Contextual) -->
+        {vocabularyBlocks.length > 0 && (
+             <aside class="w-80 bg-white border-l border-stone-200 hidden xl:flex flex-col shrink-0 overflow-y-auto p-6" id="vocab-sidebar">
+                <div class="sticky top-0 bg-white z-10 pb-4 border-b border-stone-100 mb-4">
+                     <h3 class="font-display text-lg text-royal-900 flex items-center gap-2">
+                        <i data-lucide="book-a" class="w-5 h-5 text-gold-500"></i> Mufrodat Penting
+                    </h3>
+                </div>
+                <div class="space-y-4">
+                     <VocabularyTab client:load blocks={vocabularyBlocks} forceExpanded={true} />
+                </div>
+            </aside>
+        )}
 
     </div>
 
-    <!-- Mobile Navigation Toggle -->
-    <button class="lg:hidden fixed bottom-6 right-6 w-16 h-16 bg-emerald-900 text-white rounded-full shadow-2xl flex items-center justify-center z-50 border-4 border-emerald-800 active:scale-90 transition">
-        <i data-lucide="menu" class="w-8 h-8"></i>
-    </button>
+
 
 </AcademyLayout>
 
 <script is:inline>
-    function switchSidebarTab(tabName, el) {
-        // Update Buttons
-        const buttons = document.querySelectorAll('#sidebar-tabs button');
-        buttons.forEach(btn => {
-            btn.classList.remove('bg-white', 'text-emerald-900', 'border-b-2', 'border-emerald-900');
-            btn.classList.add('text-stone-400');
-        });
-        
-        el.classList.add('bg-white', 'text-emerald-900', 'border-b-2', 'border-emerald-900');
-        el.classList.remove('text-stone-400');
+    // Init Icons
+    // lucide.createIcons(); // Lucide is loaded via head script in Layout
 
-        // Update Content
-        document.getElementById('tab-curriculum').classList.add('hidden');
-        document.getElementById('tab-vocabulary').classList.add('hidden');
-        document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    function switchTab(tabName) {
+        // Reset Buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active', 'border-gold-400', 'text-royal-900');
+            btn.classList.add('border-transparent', 'text-stone-500');
+        });
+
+        // Activate Button
+        const activeBtn = document.getElementById('btn-' + tabName);
+        if(activeBtn) {
+            activeBtn.classList.add('active', 'border-gold-400', 'text-royal-900');
+            activeBtn.classList.remove('border-transparent', 'text-stone-500');
+        }
+
+        // Hide Content
+        document.getElementById('content-qiraah').classList.add('hidden-content');
+        document.getElementById('content-qawaid').classList.add('hidden-content');
+        document.getElementById('content-tamrinat').classList.add('hidden-content');
+
+        // Show Content
+        document.getElementById('content-' + tabName).classList.remove('hidden-content');
+
+        // Handle Sidebar Visibility (Vocab only shows in Qira'ah)
+        const vocabSidebar = document.getElementById('vocab-sidebar');
+        if (vocabSidebar) {
+           if (tabName === 'qiraah') {
+               vocabSidebar.classList.remove('hidden');
+               vocabSidebar.classList.add('xl:flex');
+           } else {
+               vocabSidebar.classList.add('hidden');
+               vocabSidebar.classList.remove('xl:flex');
+           }
+        }
+        
+        // Scroll to top
+        document.getElementById('main-scroll').scrollTo({top: 0, behavior: 'smooth'});
     }
 </script>
 
 <style>
-    /* Clean overrides for immersion mode */
+    /* Immersion Mode Overrides */
     :global(#navbar), :global(footer) {
         display: none !important;
     }
+    
+    .hidden-content {
+        display: none;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .sidebar-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    .sidebar-scroll::-webkit-scrollbar-thumb {
+        background: #d4af37;
+        border-radius: 4px;
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    .animate-fade-in {
-        animation: fadeIn 0.4s ease-out;
+
+    .fade-up {
+        animation: fadeUp 0.5s ease-out forwards;
     }
-    @keyframes fadeIn {
+    
+    @keyframes fadeUp {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
-</style>
-
-    </div>
-
-    <!-- Mobile Tools Toggle (FAB) -->
-    <button class="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-emerald-900 text-white rounded-full shadow-2xl flex items-center justify-center z-50 border-2 border-emerald-700">
-        <i data-lucide="layers" class="w-6 h-6"></i>
-    </button>
-
-</AcademyLayout>
-
-<script is:inline>
-    function switchTab(tabName) {
-        // Reset Tabs
-        document.getElementById('tab-vocab').className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest text-stone-400 border-b-2 border-transparent hover:text-emerald-900 hover:bg-stone-50 cursor-pointer";
-        document.getElementById('tab-notes').className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest text-stone-400 border-b-2 border-transparent hover:text-emerald-900 hover:bg-stone-50 cursor-pointer";
-        
-        // Activate Tab
-        document.getElementById(`tab-${tabName}`).className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest text-emerald-900 border-b-2 border-emerald-900 bg-emerald-50/50 cursor-pointer";
-
-        // Toggle Content
-        document.getElementById('content-vocab').classList.add('hidden');
-        document.getElementById('content-notes').classList.add('hidden');
-        document.getElementById(`content-${tabName}`).classList.remove('hidden');
-    }
-</script>
-
-<style>
-    /* Hide Academy Layout Header/Footer for this immersive mode */
-    :global(#navbar), :global(footer) {
-        display: none !important;
-    }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>

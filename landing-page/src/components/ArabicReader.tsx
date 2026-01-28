@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Square, Type, Languages, AlertCircle } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { Play, Pause, AlertCircle, Type, HelpCircle } from 'lucide-react';
+import { useLessonSettings } from '../store/lessonStore';
+import LessonControls from './LessonControls';
 
 interface ArabicReaderProps {
     title?: string;
@@ -18,23 +20,19 @@ export default function ArabicReader({
     englishTranslation,
     audioUrl
 }: ArabicReaderProps) {
-    const [showHarakat, setShowHarakat] = useState(true);
-    const [showTranslation, setShowTranslation] = useState(true);
-    const [fontSize, setFontSize] = useState(2); // 1: small, 2: medium, 3: large
-    const [isPlaying, setIsPlaying] = useState(false);
-
+    const { showHarakat, showTranslation, fontSize } = useLessonSettings();
+    const [isPlaying, setIsPlaying] = React.useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     // Font size classes mapping
     const fontSizes = {
-        1: 'text-2xl leading-loose',
-        2: 'text-3xl leading-loose',
+        1: 'text-xl leading-loose',
+        2: 'text-2xl leading-loose',
         3: 'text-4xl leading-[2.5]'
     };
 
     const toggleAudio = () => {
         if (!audioRef.current) return;
-
         if (isPlaying) {
             audioRef.current.pause();
         } else {
@@ -46,7 +44,6 @@ export default function ArabicReader({
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
-
         const handleEnded = () => setIsPlaying(false);
         audio.addEventListener('ended', handleEnded);
         return () => audio.removeEventListener('ended', handleEnded);
@@ -62,49 +59,15 @@ export default function ArabicReader({
         : (arabicWithoutHarakat || stripHarakat(arabicWithHarakat));
 
     return (
-        <div className="my-10 bg-white rounded-[2.5rem] shadow-sm border border-stone-200 overflow-hidden font-sans group hover:shadow-md transition-shadow duration-300">
-            {/* Header / Toolbar */}
-            <div className="bg-stone-50 border-b border-stone-200 p-4 md:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
-                        <Type size={20} />
-                    </div>
-                    <h3 className="font-bold text-stone-700 text-sm uppercase tracking-wider">{title || 'Qiraah / Reading'}</h3>
+        <div className="my-6 bg-white rounded-[2rem] shadow-sm border border-stone-200 overflow-hidden font-sans group hover:border-royal-100 transition-all duration-300">
+            {/* Minimal Header if title exists */}
+            <div className="bg-stone-50/50 px-6 md:px-8 py-4 border-b border-stone-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <HelpCircle size={14} className="text-royal-600" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">{title || 'Teks Bacaan'}</span>
                 </div>
-
-                <div className="flex items-center gap-2 bg-white rounded-full p-1 border border-stone-200 shadow-sm">
-                    {/* Size Control */}
-                    <button
-                        onClick={() => setFontSize(s => s > 1 ? s - 1 : 1)}
-                        className={`w-8 h-8 flex items-center justify-center rounded-full transition ${fontSize === 1 ? 'text-emerald-600 bg-emerald-50 font-bold' : 'text-stone-400 hover:text-stone-600'}`}
-                        title="Smaller Text"
-                    >
-                        A-
-                    </button>
-                    <button
-                        onClick={() => setFontSize(s => s < 3 ? s + 1 : 3)}
-                        className={`w-8 h-8 flex items-center justify-center rounded-full transition ${fontSize === 3 ? 'text-emerald-600 bg-emerald-50 font-bold' : 'text-stone-400 hover:text-stone-600'}`}
-                        title="Larger Text"
-                    >
-                        A+
-                    </button>
-
-                    <div className="w-px h-4 bg-stone-200 mx-1"></div>
-
-                    {/* Toggles */}
-                    <button
-                        onClick={() => setShowHarakat(!showHarakat)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 ${showHarakat ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-100 text-stone-400 hover:bg-stone-200'}`}
-                    >
-                        Harakat {showHarakat ? 'ON' : 'OFF'}
-                    </button>
-
-                    <button
-                        onClick={() => setShowTranslation(!showTranslation)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-2 ${showTranslation ? 'bg-blue-100 text-blue-800' : 'bg-stone-100 text-stone-400 hover:bg-stone-200'}`}
-                    >
-                        <Languages size={14} /> Terjemah
-                    </button>
+                <div className="scale-90 origin-right">
+                    <LessonControls />
                 </div>
             </div>
 
@@ -112,48 +75,51 @@ export default function ArabicReader({
             <div className="p-6 md:p-10 relative">
                 {/* Audio Player if available */}
                 {audioUrl && (
-                    <div className="absolute top-6 left-6 md:top-10 md:left-10 z-10">
+                    <div className="mb-6">
                         <audio ref={audioRef} src={audioUrl} />
                         <button
                             onClick={toggleAudio}
-                            className="flex items-center gap-2 px-4 py-2 bg-emerald-900 text-white rounded-full hover:bg-emerald-800 transition shadow-lg hover:scale-105 active:scale-95"
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full transition shadow-md hover:scale-105 active:scale-95 ${isPlaying ? 'bg-amber-500 text-white' : 'bg-royal-900 text-white hover:bg-royal-800'
+                                }`}
                         >
-                            {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
-                            <span className="text-xs font-bold uppercase tracking-widest">{isPlaying ? 'Pause' : 'Listen'}</span>
+                            {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">{isPlaying ? 'Mendengarkan...' : 'Putar Audio'}</span>
                         </button>
                     </div>
                 )}
 
-                <div className={`text-right font-serif text-stone-800 mb-8 transition-all duration-300 ${fontSizes[fontSize]} ${audioUrl ? 'mt-12 md:mt-0' : ''}`} dir="rtl">
-                    <p className="font-arabic leading-relaxed">{displayText}</p>
+                <div className={`text-right font-serif text-stone-800 transition-all duration-300 ${fontSizes[fontSize]}`} dir="rtl">
+                    <p className="font-arabic leading-relaxed whitespace-pre-wrap">{displayText}</p>
                 </div>
 
                 {/* Translation Area */}
-                <div className={`border-t border-stone-100 pt-6 transition-all duration-500 overflow-hidden ${showTranslation ? 'opacity-100 max-h-[500px]' : 'opacity-0 max-h-0 pt-0'}`}>
-                    {translation && (
-                        <div className="mb-4">
-                            <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Terjemahan Indonesia</h4>
-                            <p className="text-stone-600 leading-relaxed">{translation}</p>
-                        </div>
-                    )}
-                    {englishTranslation && (
-                        <div>
-                            <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">English Translation</h4>
-                            <p className="text-stone-600 leading-relaxed italic font-serif">{englishTranslation}</p>
-                        </div>
-                    )}
-
-                    {!translation && !englishTranslation && (
-                        <div className="flex items-center gap-2 text-amber-500 bg-amber-50 p-3 rounded-lg text-sm">
-                            <AlertCircle size={16} />
-                            <span>Tidak ada terjemahan tersedia untuk bagian ini.</span>
-                        </div>
-                    )}
-                </div>
+                {(translation || englishTranslation) && (
+                    <div className={`mt-8 pt-6 border-t border-stone-100 transition-all duration-500 ease-in-out overflow-hidden ${showTranslation ? 'opacity-100 max-h-[1000px] visible' : 'opacity-0 max-h-0 invisible'
+                        }`}>
+                        {translation && (
+                            <div className="mb-4">
+                                <h4 className="text-[9px] font-black text-royal-700 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <span className="w-1 h-3 bg-royal-500 rounded-full"></span>
+                                    Terjemahan Indonesia
+                                </h4>
+                                <p className="text-stone-600 leading-relaxed text-sm md:text-base">{translation}</p>
+                            </div>
+                        )}
+                        {englishTranslation && (
+                            <div>
+                                <h4 className="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <span className="w-1 h-3 bg-stone-300 rounded-full"></span>
+                                    English Translation
+                                </h4>
+                                <p className="text-stone-500 leading-relaxed italic font-serif text-sm md:text-base">{englishTranslation}</p>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
-            {/* Footer Style Decoration */}
-            <div className="h-1 bg-gradient-to-r from-emerald-500/20 via-emerald-500/40 to-emerald-500/20"></div>
+            <div className={`h-1 bg-gradient-to-r transition-opacity duration-300 ${showHarakat ? 'from-royal-500/10 via-royal-500/30 to-royal-500/10' : 'from-stone-200 via-stone-300 to-stone-200'}`}></div>
         </div>
     );
 }
+
